@@ -1,0 +1,217 @@
+/**
+ * nocturna-wheel.css
+ * Default styling for the Nocturna Wheel astrological chart
+ */
+
+/* Main container */
+.nocturna-wheel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+}
+
+/* SVG base */
+.nocturna-wheel-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Zodiac elements */
+.zodiac-element {
+    transition: opacity 0.3s ease;
+}
+
+.chart-outer-circle {
+    fill: transparent;
+    stroke: #666;
+    stroke-width: 1;
+}
+
+.chart-middle-circle {
+    fill: transparent;
+    stroke: #999;
+    stroke-width: 0.5;
+}
+
+.chart-inner-circle {
+    fill: transparent;
+    stroke: #999;
+    stroke-width: 0.5;
+}
+
+.chart-innermost-circle {
+    fill: transparent;
+    stroke: #999;
+    stroke-width: 0.5;
+}
+
+.zodiac-division-line {
+    stroke: #999;
+    stroke-width: 0.75;
+}
+
+/* Cardinal point zodiac lines - ensure they're visible but don't conflict with house axes */
+.zodiac-division-line.aries-point,
+.zodiac-division-line.cancer-point,
+.zodiac-division-line.libra-point,
+.zodiac-division-line.capricorn-point {
+    stroke: #999;
+    stroke-width: 0.75;
+    stroke-dasharray: none;
+    /* Make them render behind the house axes */
+    z-index: -1;
+}
+
+.zodiac-sign {
+    cursor: pointer;
+}
+
+.zodiac-sign:hover {
+    opacity: 0.8;
+}
+
+/* House elements */
+.house-element {
+    transition: opacity 0.3s ease;
+}
+
+.house-division-line {
+    stroke: #999;
+    stroke-width: 0.75;
+}
+
+/* Updated axis styling */
+.house-division-line.axis {
+    stroke: #555;
+    stroke-width: 1px;
+    stroke-dasharray: none;
+}
+
+/* Cardinal point styling for ASC, DSC, IC, MC */
+.house-division-line.asc,
+.house-division-line.dsc,
+.house-division-line.ic,
+.house-division-line.mc {
+    stroke: #555;
+    stroke-width: 1px;
+    stroke-dasharray: none;
+}
+
+.house-division-line.outer {
+    stroke-dasharray: 2,2;
+}
+
+/* Make sure outer axis points are also solid */
+.house-division-line.outer.axis,
+.house-division-line.outer.asc,
+.house-division-line.outer.dsc,
+.house-division-line.outer.ic,
+.house-division-line.outer.mc {
+    stroke-dasharray: none;
+    stroke-width: 1px;
+}
+
+.house-number {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    fill: #666;
+    pointer-events: none;
+}
+
+/* Planet elements */
+.planet-element {
+    transition: all 0.3s ease;
+}
+
+.planet-icon {
+    cursor: pointer;
+}
+
+.planet-icon:hover {
+    opacity: 0.8;
+}
+
+.planet-degree {
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    fill: #333;
+    pointer-events: none;
+}
+
+.planet-sign {
+    font-family: Arial, sans-serif;
+    font-size: 8px;
+    fill: #666;
+    pointer-events: none;
+}
+
+/* Aspect elements */
+.aspect-line {
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.aspect-line.conjunction {
+    stroke: #ff0000;
+}
+
+.aspect-line.opposition {
+    stroke: #0000ff;
+}
+
+.aspect-line.trine {
+    stroke: #00ff00;
+}
+
+.aspect-line.square {
+    stroke: #ff00ff;
+}
+
+.aspect-line.sextile {
+    stroke: #00ffff;
+}
+
+/* Controls and UI */
+.nocturna-wheel-controls {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nocturna-wheel-control-group {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.nocturna-wheel-control-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.nocturna-wheel-checkbox {
+    margin-right: 5px;
+}
+
+.nocturna-wheel-slider {
+    width: 100%;
+    margin: 10px 0;
+}
+
+/* Tooltips */
+.nocturna-wheel-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+}

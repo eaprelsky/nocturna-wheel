@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nocturna Wheel.js - Interactive Natal Chart Library</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Nocturna Wheel CSS -->
+    <link href="assets/css/nocturna-wheel.css" rel="stylesheet">
+    <link href="assets/css/nocturna-wheel-cardinal.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --nocturna-primary: #79a0c1;
+            --nocturna-secondary: #6c757d;
+            --nocturna-dark: #212529;
+            --nocturna-light: #f8f9fa;
+            --nocturna-hover: #6789ab;
+            
+            /* Default stroke widths for aspects */
+            --aspect-conjunction-width: 1px;
+            --aspect-opposition-width: 1px;
+            --aspect-trine-width: 1px;
+            --aspect-square-width: 1px;
+            --aspect-sextile-width: 1px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--nocturna-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .navbar-brand {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            height: 48px;
+            overflow: hidden;
+        }
+        
+        .logo {
+            height: 80px;
+            width: auto;
+            max-width: 240px;
+            object-fit: contain;
+        }
+        
+        .brand-text {
+            margin-left: 0.75rem;
+            font-size: 1rem;
+            color: #555;
+            font-weight: 400;
+        }
+        
+        .navbar-nav .nav-item {
+            margin: 0 0.5rem;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #212529;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .navbar-nav .nav-link:hover, 
+        .navbar-nav .nav-link:focus {
+            color: var(--nocturna-primary);
+        }
+        
+        .navbar-nav .nav-link.active {
+            color: var(--nocturna-primary);
+            font-weight: 600;
+        }
+        
+        .login-btn {
+            background-color: var(--nocturna-primary);
+            color: #ffffff;
+            border: none;
+            font-weight: 500;
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .login-btn:hover, 
+        .login-btn:focus {
+            background-color: var(--nocturna-hover);
+            color: #ffffff;
+        }
+        
+        .main-container {
+            padding-top: 2rem;
+        }
+        
+        .demo-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1rem;
+        }
+        
+        .demo-title {
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #333;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(121, 160, 193, 0.2);
+        }
+        
+        .chart-container {
+            height: 500px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .control-panel {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+            border: 1px solid rgba(121, 160, 193, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .control-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .control-title i {
+            transition: transform 0.3s ease;
+        }
+        
+        .control-title.collapsed i {
+            transform: rotate(-90deg);
+        }
+        
+        .planet-checkbox, .aspect-checkbox {
+            margin-right: 5px;
+        }
+        
+        footer {
+            background-color: var(--nocturna-dark);
+            color: var(--nocturna-light);
+            padding: 20px 0;
+            margin-top: 2rem;
+        }
+        
+        .github-link {
+            color: var(--nocturna-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .github-link:hover {
+            color: #fff;
+        }
+        
+        .rotation-control {
+            margin-top: 15px;
+        }
+        
+        .btn-primary {
+            background-color: var(--nocturna-primary);
+            border-color: var(--nocturna-primary);
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--nocturna-hover);
+            border-color: var(--nocturna-hover);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--nocturna-primary);
+            border-color: var(--nocturna-primary);
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* Custom styles for color pickers */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-preview {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-preview input[type="color"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .section-body {
+            padding-top: 10px;
+        }
+        
+        .planet-item, .aspect-item {
+            margin-bottom: 15px;
+            background-color: rgba(248, 249, 250, 0.5);
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .control-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        /* CSS to control aspect line thickness */
+        #chart-container svg line[stroke="#FF0000"],
+        #chart-container svg path[stroke="#FF0000"] {
+            stroke-width: var(--aspect-opposition-width);
+        }
+        
+        #chart-container svg line[stroke="#008000"],
+        #chart-container svg path[stroke="#008000"] {
+            stroke-width: var(--aspect-trine-width);
+        }
+        
+        /* Additional styling for specific aspect types based on color and styles */
+        #chart-container svg line[stroke-dasharray],
+        #chart-container svg path[stroke-dasharray] {
+            stroke-width: var(--aspect-square-width);
+        }
+        
+        /* The most specific selector for aspects */
+        #chart-container svg g[id^="aspects"] line,
+        #chart-container svg g[class*="aspect"] line {
+            stroke-width: var(--aspect-sextile-width);
+        }
+        
+        /* Individual styling for each aspect type to override any shared colors */
+        #chart-container svg .aspect-line-opposition {
+            stroke-width: var(--aspect-opposition-width) !important;
+        }
+        
+        #chart-container svg .aspect-line-trine {
+            stroke-width: var(--aspect-trine-width) !important;
+        }
+        
+        #chart-container svg .aspect-line-square {
+            stroke-width: var(--aspect-square-width) !important;
+        }
+        
+        #chart-container svg .aspect-line-sextile {
+            stroke-width: var(--aspect-sextile-width) !important;
+        }
+        
+        #chart-container svg .aspect-line-conjunction {
+            stroke-width: var(--aspect-conjunction-width) !important;
+        }
+        
+        /* Additional style to ensure specificity */
+        .aspect-line-thickness-applied {
+            transition: stroke-width 0.2s ease;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-select-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+            font-size: 0.875rem;
+            border-radius: 0.2rem;
+        }
+        
+        .form-select:focus {
+            border-color: var(--nocturna-primary);
+            box-shadow: 0 0 0 0.25rem rgba(121, 160, 193, 0.25);
+        }
+        
+        #house-system-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+            min-height: 2.4rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="assets/png/nocturna-logo.png" alt="Nocturna Logo" class="logo" width="auto" height="80">
+                <span class="brand-text">Wheel.js</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#documentation">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/yourusername/nocturna-wheel.js" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </li>
+                </ul>
+                <button class="btn login-btn">Войти</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Interactive Natal Chart Demo</h1>
+                <p class="text-center mb-5">
+                    Explore the features and capabilities of the Nocturna Wheel.js library.
+                    This SVG-based astrological chart visualization provides a beautiful and
+                    interactive way to display natal charts.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Chart Display Area - Made narrower -->
+            <div class="col-lg-6">
+                <div class="demo-card">
+                    <h3 class="demo-title">Natal Chart</h3>
+                    <div id="chart-container" class="chart-container"></div>
+                </div>
+            </div>
+            
+            <!-- Controls Area - Made wider -->
+            <div class="col-lg-6">
+                <div class="demo-card control-panel">
+                    <h3 class="demo-title">Chart Controls</h3>
+                    
+                    <!-- House Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#houses-controls">
+                            Houses <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="houses-controls" class="collapse show section-body">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="toggle-houses" checked>
+                                <label class="form-check-label" for="toggle-houses">Show Houses</label>
+                            </div>
+                            
+                            <div class="control-group mt-3">
+                                <label for="house-system" class="form-label">House System</label>
+                                <select class="form-select form-select-sm" id="house-system">
+                                    <!-- House systems will be populated dynamically -->
+                                </select>
+                                <small class="text-muted mt-1 d-block" id="house-system-description"></small>
+                            </div>
+                            
+                            <div class="rotation-control">
+                                <label for="house-rotation" class="form-label">House Rotation: <span id="rotation-value">0°</span></label>
+                                <input type="range" class="form-range" min="0" max="359" value="0" id="house-rotation">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Planet Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#planet-controls">
+                            Planets <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="planet-controls" class="collapse show section-body">
+                            <div id="planet-toggles">
+                                <!-- Dynamically generated planet controls -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Aspect Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#aspect-controls">
+                            Aspects <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="aspect-controls" class="collapse show section-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="toggle-aspects" checked>
+                                <label class="form-check-label" for="toggle-aspects">Show Aspects</label>
+                            </div>
+                            
+                            <div id="aspect-types">
+                                <!-- Dynamically generated aspect controls -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Documentation Section -->
+        <div class="row mt-5" id="documentation">
+            <div class="col-12">
+                <div class="demo-card">
+                    <h2 class="demo-title">Documentation</h2>
+                    
+                    <h4>Getting Started</h4>
+                    <div class="code-block">
+                        <pre><code>// Install via npm
+npm install nocturna-wheel
+
+// Or include directly in your HTML
+&lt;script src="https://unpkg.com/nocturna-wheel/dist/nocturna-wheel.min.js"&gt;&lt;/script&gt;</code></pre>
+                    </div>
+                    
+                    <h4>Basic Usage</h4>
+                    <div class="code-block">
+                        <pre><code>// Create chart instance
+const chart = new NocturnaWheel({
+    container: 'chart-container',
+    planets: {
+        sun: { lon: 85.83 },
+        moon: { lon: 133.21 },
+        // ... other planets
+    },
+    houses: [
+        { lon: 300.32 },  // 1st house cusp
+        // ... other houses
+    ]
+});
+
+// Render the chart
+chart.render();
+
+// Toggle features
+chart.togglePlanet('pluto', false);
+chart.toggleHouses(false);
+chart.toggleAspects(false);</code></pre>
+                    </div>
+                    
+                    <h4>Using the WheelChart Component</h4>
+                    <div class="code-block">
+                        <pre><code>// Create enhanced chart with additional inner circle
+const wheelChart = new WheelChart({
+    container: 'chart-container',
+    planets: {
+        sun: { lon: 85.83 },
+        moon: { lon: 133.21 },
+        // ... other planets
+    },
+    houses: [
+        { lon: 300.32 },  // 1st house cusp
+        // ... other houses
+    ],
+    config: {
+        radius: {
+            innermost: 90 // Set the radius for the innermost circle
+        }
+    }
+});
+
+// Render the chart with the inner circle
+wheelChart.render();
+
+// WheelChart has the same API as NocturnaWheel
+wheelChart.togglePlanet('pluto', false);
+wheelChart.toggleHouses(false);
+wheelChart.toggleAspects(false);</code></pre>
+                    </div>
+                    
+                    <h4>Configuration Options</h4>
+                    <p>The Nocturna Wheel.js library provides extensive configuration options:</p>
+                    <ul>
+                        <li>Custom colors and styling</li>
+                        <li>Different house systems</li>
+                        <li>Aspect calculations and filtering</li>
+                        <li>Custom icon sets</li>
+                        <li>Event handling</li>
+                    </ul>
+                    
+                    <p>For more detailed documentation, please visit the <a href="https://github.com/yourusername/nocturna-wheel.js" class="text-decoration-none" style="color: var(--nocturna-primary);">GitHub repository</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 Nocturna. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="https://github.com/yourusername/nocturna-wheel.js" class="github-link">
+                        <i class="fab fa-github"></i> GitHub Repository
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Include library dependencies in correct order -->
+    <script src="src/core/ChartConfig.js"></script>
+    <script src="src/utils/SvgUtils.js"></script>
+    <script src="src/utils/AstrologyUtils.js"></script>
+    <script src="src/managers/SVGManager.js"></script>
+    <script src="src/renderers/BaseRenderer.js"></script>
+    <script src="src/ZodiacRenderer.js"></script>
+    <script src="src/HouseRenderer.js"></script>
+    <script src="src/PlanetRenderer.js"></script>
+    <script src="src/ClientSideAspectRenderer.js"></script>
+    <script src="src/NocturnaWheel.js"></script>
+    <script src="src/utils/PlanetPositionCalculator.js"></script>
+    <script src="src/components/ChartRenderer.js"></script>
+    <script src="src/components/WheelChart.js"></script>
+
+    <!-- Demo script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample data for the chart
+            let chartData = {
+                planets: {
+                    sun: { lon: 85.83, color: '#000000' }, // Add default color
+                    moon: { lon: 133.21, color: '#000000' },
+                    mercury: { lon: 70.18, color: '#000000' },
+                    venus: { lon: 42.57, color: '#000000' },
+                    mars: { lon: 112.56, color: '#000000' },
+                    jupiter: { lon: 169.48, color: '#000000' },
+                    saturn: { lon: 188.04, color: '#000000' },
+                    uranus: { lon: 275.25, color: '#000000' },
+                    neptune: { lon: 298.32, color: '#000000' },
+                    pluto: { lon: 247.12, color: '#000000' }
+                },
+                houses: [
+                    { lon: 300.32 },  // 1st house cusp
+                    { lon: 330.15 },  // 2nd house cusp
+                    { lon: 355.24 },  // 3rd house cusp
+                    { lon: 20.32 },   // 4th house cusp
+                    { lon: 45.15 },   // 5th house cusp
+                    { lon: 75.24 },   // 6th house cusp
+                    { lon: 120.32 },  // 7th house cusp
+                    { lon: 150.15 },  // 8th house cusp
+                    { lon: 175.24 },  // 9th house cusp
+                    { lon: 200.32 },  // 10th house cusp
+                    { lon: 225.15 },  // 11th house cusp
+                    { lon: 255.24 }   // 12th house cusp
+                ]
+            };
+            
+            // Initialize chart with modified aspect settings
+            const chart = new WheelChart({
+                container: '#chart-container',
+                planets: chartData.planets,
+                houses: chartData.houses,
+                aspectSettings: {
+                    enabled: true,
+                    orb: 6,
+                    // Define aspect types with defaults for color and style
+                    types: {
+                        'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
+                        'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                        'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                        'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
+                        'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
+                    }
+                },
+                config: {
+                    assets: {
+                        basePath: "./assets/",
+                        showCardinalLabels: false
+                    }
+                }
+            });
+            
+            // Create a style element for aspect lines
+            const aspectStyleElement = document.createElement('style');
+            aspectStyleElement.id = 'aspect-line-styles';
+            document.head.appendChild(aspectStyleElement);
+            
+            // Function to update aspect line styles
+            function updateAspectLineStyles() {
+                let styleRules = '';
+                
+                // Loop through each aspect type and create a custom style
+                Object.entries(chart.chart.config.aspectSettings.types).forEach(([aspectType, config]) => {
+                    if (!config) return;
+                    
+                    const thickness = config.strokeWidth || 1;
+                    const color = config.color || '#000000';
+                    const lineStyle = config.lineStyle || 'solid';
+                    
+                    // Skip conjunction as it usually doesn't have lines
+                    if (aspectType === 'conjunction') return;
+                    
+                    // Generate more specific selectors for each aspect type
+                    if (aspectType === 'opposition') {
+                        // For opposition lines (solid red), target them directly by color
+                        styleRules += `
+                            /* Opposition: Solid Red Line (${color}) */
+                            #chart-container svg line[stroke="${color}"],
+                            #chart-container svg path[stroke="${color}"] {
+                                stroke-width: ${thickness}px !important;
+                            }
+                        `;
+                    } 
+                    else if (aspectType === 'trine') {
+                        // For trine lines (solid green), target them directly by color
+                        styleRules += `
+                            /* Trine: Solid Green Line (${color}) */
+                            #chart-container svg line[stroke="${color}"],
+                            #chart-container svg path[stroke="${color}"] {
+                                stroke-width: ${thickness}px !important;
+                            }
+                        `;
+                    }
+                    else if (aspectType === 'square') {
+                        // Square uses dashed red lines - target by color AND stroke-dasharray
+                        styleRules += `
+                            /* Square: Dashed Red Line (${color}) */
+                            #chart-container svg line[stroke="${color}"][stroke-dasharray],
+                            #chart-container svg path[stroke="${color}"][stroke-dasharray] {
+                                stroke-width: ${thickness}px !important;
+                            }
+                        `;
+                    }
+                    else if (aspectType === 'sextile') {
+                        // Sextile uses dashed blue lines - target by color AND stroke-dasharray
+                        styleRules += `
+                            /* Sextile: Dashed Blue Line (${color}) */
+                            #chart-container svg line[stroke="${color}"][stroke-dasharray],
+                            #chart-container svg path[stroke="${color}"][stroke-dasharray] {
+                                stroke-width: ${thickness}px !important;
+                            }
+                        `;
+                    }
+                });
+                
+                // Update the style element content
+                aspectStyleElement.textContent = styleRules;
+                console.log("Updated aspect line styles");
+                
+                // Apply styles directly to improve chances of success
+                setTimeout(() => {
+                    try {
+                        // Direct DOM manipulation for difficult cases
+                        const chartContainer = document.querySelector('#chart-container');
+                        if (!chartContainer) return;
+                        
+                        const svg = chartContainer.querySelector('svg');
+                        if (!svg) return;
+                        
+                        const lines = svg.querySelectorAll('line, path');
+                        
+                        // Get aspect settings
+                        const oppositionColor = chart.chart.config.aspectSettings.types.opposition.color;
+                        const oppositionWidth = chart.chart.config.aspectSettings.types.opposition.strokeWidth;
+                        
+                        const trineColor = chart.chart.config.aspectSettings.types.trine.color;
+                        const trineWidth = chart.chart.config.aspectSettings.types.trine.strokeWidth;
+                        
+                        const squareColor = chart.chart.config.aspectSettings.types.square.color;
+                        const squareWidth = chart.chart.config.aspectSettings.types.square.strokeWidth;
+                        
+                        const sextileColor = chart.chart.config.aspectSettings.types.sextile.color;
+                        const sextileWidth = chart.chart.config.aspectSettings.types.sextile.strokeWidth;
+                        
+                        // Apply thickness directly to each element
+                        lines.forEach(line => {
+                            const stroke = line.getAttribute('stroke');
+                            const hasDashArray = line.hasAttribute('stroke-dasharray');
+                            
+                            // Apply thickness based on color and dash pattern
+                            if (stroke === oppositionColor && !hasDashArray) {
+                                line.style.strokeWidth = `${oppositionWidth}px`;
+                                line.setAttribute('stroke-width', oppositionWidth);
+                            }
+                            else if (stroke === trineColor && !hasDashArray) {
+                                line.style.strokeWidth = `${trineWidth}px`;
+                                line.setAttribute('stroke-width', trineWidth);
+                            }
+                            else if (stroke === squareColor && hasDashArray) {
+                                line.style.strokeWidth = `${squareWidth}px`;
+                                line.setAttribute('stroke-width', squareWidth);
+                            }
+                            else if (stroke === sextileColor && hasDashArray) {
+                                line.style.strokeWidth = `${sextileWidth}px`;
+                                line.setAttribute('stroke-width', sextileWidth);
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Error applying direct line styles:", e);
+                    }
+                }, 100);
+            }
+            
+            // Render chart
+            chart.render();
+            
+            // Populate house system selector
+            const houseSystemSelector = document.getElementById('house-system');
+            const houseSystemDescription = document.getElementById('house-system-description');
+            const houseSystems = AstrologyUtils.getHouseSystems();
+            const availableSystems = Object.keys(houseSystems);
+            
+            // Add options to the selector
+            availableSystems.forEach(system => {
+                const option = document.createElement('option');
+                option.value = system;
+                option.textContent = system;
+                // Set the current system as selected
+                if (system === chart.chart.getCurrentHouseSystem()) {
+                    option.selected = true;
+                    houseSystemDescription.textContent = houseSystems[system];
+                }
+                houseSystemSelector.appendChild(option);
+            });
+            
+            // Add event listener for house system changes
+            houseSystemSelector.addEventListener('change', function(e) {
+                const selectedSystem = e.target.value;
+                chart.setHouseSystem(selectedSystem);
+                houseSystemDescription.textContent = houseSystems[selectedSystem];
+            });
+            
+            // Apply initial styles
+            updateAspectLineStyles();
+
+            // Generate planet toggles and controls
+            const planetToggles = document.getElementById('planet-toggles');
+            const planets = Object.keys(chartData.planets);
+
+            planets.forEach(planet => {
+                const planetName = planet.charAt(0).toUpperCase() + planet.slice(1);
+                const planetData = chartData.planets[planet];
+                const controlDiv = document.createElement('div');
+                controlDiv.className = 'planet-item';
+                controlDiv.innerHTML = `
+                    <div class="form-check form-switch">
+                        <input class="form-check-input planet-checkbox" type="checkbox" id="toggle-${planet}" data-planet="${planet}" checked>
+                        <label class="form-check-label fw-bold" for="toggle-${planet}">${planetName}</label>
+                    </div>
+                    <div class="controls-row">
+                        <div class="control-group">
+                            <div class="control-label">Rotation: <span id="planet-${planet}-rotation-value">${planetData.lon.toFixed(0)}°</span></div>
+                            <input type="range" class="form-range planet-rotation" min="0" max="359" value="${planetData.lon.toFixed(0)}" id="planet-${planet}-rotation" data-planet="${planet}">
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">Color</div>
+                            <div class="color-picker-wrapper">
+                                <div class="color-preview" style="background-color: ${planetData.color || '#000000'}">
+                                    <input type="color" class="planet-color" value="${planetData.color || '#000000'}" id="planet-${planet}-color" data-planet="${planet}">
+                                </div>
+                                <span class="color-value">${planetData.color || '#000000'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                planetToggles.appendChild(controlDiv);
+            });
+
+            // Generate aspect type controls
+            const aspectToggles = document.getElementById('aspect-types');
+            const aspectTypes = chart.config.aspectSettings.types || {}; // Use config directly
+            const aspectNames = Object.keys(aspectTypes);
+
+            aspectNames.forEach(aspect => {
+                const aspectDef = aspectTypes[aspect];
+                const aspectName = aspect.charAt(0).toUpperCase() + aspect.slice(1);
+                const controlDiv = document.createElement('div');
+                controlDiv.className = 'aspect-item';
+
+                // Define options and selected status for the dropdown
+                const styles = { 'None': 'none', 'Solid': 'solid', 'Dashed': 'dashed', 'Dotted': 'dotted' };
+                let styleOptions = '';
+                for (const [label, value] of Object.entries(styles)) {
+                    const selected = (aspectDef.lineStyle || 'solid') === value ? 'selected' : '';
+                    styleOptions += `<option value="${value}" ${selected}>${label}</option>`;
+                }
+                
+                // Get current thickness value
+                const currentThickness = aspectDef.strokeWidth || 1;
+                
+                // Create a color box with the aspect's color for better visual identification
+                const aspectColorBox = `<div style="display: inline-block; width: 16px; height: 16px; background-color: ${aspectDef.color}; border-radius: 3px; margin-right: 6px; vertical-align: middle;"></div>`;
+
+                controlDiv.innerHTML = `
+                    <div class="form-check">
+                        <input class="form-check-input aspect-checkbox" type="checkbox" id="toggle-${aspect}" data-aspect="${aspect}" checked>
+                        <label class="form-check-label fw-bold" for="toggle-${aspect}">
+                            ${aspectColorBox} ${aspectDef.symbol || ''} ${aspectName}
+                        </label>
+                    </div>
+                    <div class="controls-row">
+                        <div class="control-group">
+                            <div class="control-label">Color</div>
+                            <div class="color-picker-wrapper">
+                                <div class="color-preview" style="background-color: ${aspectDef.color || '#888888'}">
+                                    <input type="color" class="aspect-color" value="${aspectDef.color || '#888888'}" id="aspect-${aspect}-color" data-aspect="${aspect}">
+                                </div>
+                                <span class="color-value">${aspectDef.color || '#888888'}</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">Line Style</div>
+                            <select class="form-select form-select-sm aspect-style" id="aspect-${aspect}-style" data-aspect="${aspect}">
+                                ${styleOptions}
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">Line Thickness / Orb (°)</div>
+                            <div class="d-flex gap-2">
+                                <input type="number" class="form-control form-control-sm aspect-thickness" id="aspect-${aspect}-thickness" data-aspect="${aspect}" 
+                                    min="0.5" max="10" step="0.5" value="${currentThickness}" style="width: 70px;">
+                                <input type="number" class="form-control form-control-sm aspect-orb" id="aspect-${aspect}-orb" data-aspect="${aspect}" 
+                                    min="0" max="15" step="0.5" value="${aspectDef.orb || 6}" style="width: 70px;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                aspectToggles.appendChild(controlDiv);
+
+                // Disable conjunction style/color controls initially
+                if (aspect === 'conjunction') {
+                    controlDiv.querySelector(`#aspect-${aspect}-color`).disabled = true;
+                    controlDiv.querySelector(`#aspect-${aspect}-style`).disabled = true;
+                    controlDiv.querySelector(`#aspect-${aspect}-thickness`).disabled = true;
+                    controlDiv.querySelector(`#aspect-${aspect}-orb`).disabled = true;
+                    controlDiv.querySelector(`#toggle-${aspect}`).disabled = true; // Conjunction aspect line cannot be toggled off meaningfully
+                }
+            });
+
+            // Event listeners for controls
+            
+            // Houses toggle
+            document.getElementById('toggle-houses').addEventListener('change', function(e) {
+                chart.toggleHouses(e.target.checked);
+                
+                // Enable/disable house system selector based on toggle
+                document.getElementById('house-system').disabled = !e.target.checked;
+            });
+            
+            // House rotation
+            const rotationSlider = document.getElementById('house-rotation');
+            const rotationValue = document.getElementById('rotation-value');
+            
+            rotationSlider.addEventListener('input', function(e) {
+                const angle = parseInt(e.target.value);
+                rotationValue.textContent = angle + '°';
+                chart.setHouseRotation(angle);
+            });
+            
+            // Planet toggles
+            document.querySelectorAll('.planet-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const visible = e.target.checked;
+                    
+                    // Toggle planet visibility in the chart
+                    chart.togglePlanet(planet, visible);
+                    
+                    // Manually hide aspect lines connected to this planet if it's being hidden
+                    if (!visible && chart.config.aspectSettings.enabled) {
+                        const aspectLines = document.querySelectorAll(`.aspect-planet-${planet}`);
+                        aspectLines.forEach(line => {
+                            line.style.display = 'none';
+                        });
+                    }
+                    
+                    // If we're showing the planet again, re-render to show aspects
+                    if (visible && chart.config.aspectSettings.enabled) {
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Planet Rotation Listeners
+            document.querySelectorAll('.planet-rotation').forEach(slider => {
+                slider.addEventListener('input', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const angle = parseFloat(e.target.value);
+                    document.getElementById(`planet-${planet}-rotation-value`).textContent = `${angle.toFixed(0)}°`;
+                    if (chartData.planets[planet]) {
+                        chartData.planets[planet].lon = angle;
+                        chart.updateData({ planets: chartData.planets });
+                    }
+                });
+            });
+
+            // Planet Color Listeners
+            document.querySelectorAll('.planet-color').forEach(picker => {
+                picker.addEventListener('input', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const color = e.target.value;
+                    if (chartData.planets[planet]) {
+                        chartData.planets[planet].color = color;
+                        // Update the color preview background
+                        e.target.parentElement.style.backgroundColor = color;
+                        // Update the color value text
+                        e.target.parentElement.nextElementSibling.textContent = color;
+                        chart.updateData({ planets: chartData.planets });
+                    }
+                });
+            });
+
+            // Aspects toggle
+            document.getElementById('toggle-aspects').addEventListener('change', function(e) {
+                const showAspects = e.target.checked;
+                // Update the chart's configuration
+                if (chart.config && chart.config.aspectSettings) {
+                    chart.config.aspectSettings.enabled = showAspects;
+                }
+                
+                // Enable/disable aspect controls based on the toggle state
+                document.querySelectorAll('.aspect-checkbox').forEach(checkbox => {
+                    if (checkbox.dataset.aspect !== 'conjunction') { // Keep conjunction always enabled
+                        checkbox.disabled = !showAspects;
+                    }
+                });
+                
+                document.querySelectorAll('.aspect-color, .aspect-style, .aspect-thickness').forEach(control => {
+                    const aspectType = control.dataset.aspect;
+                    if (aspectType !== 'conjunction') { // Keep conjunction controls always disabled
+                        control.disabled = !showAspects;
+                    }
+                });
+                
+                // Re-render the chart to apply changes
+                chart.render();
+            });
+            
+            // Aspect type toggles
+            document.querySelectorAll('.aspect-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    const aspect = e.target.dataset.aspect;
+                    const isEnabled = e.target.checked;
+                    
+                    if (chart.config.aspectSettings.types[aspect]) {
+                        // Update the aspect type's enabled state in the configuration
+                        chart.config.aspectSettings.types[aspect].enabled = isEnabled;
+                        
+                        // Enable/disable the color and style controls for this aspect type
+                        const parentDiv = e.target.closest('.aspect-item');
+                        if (parentDiv) {
+                            parentDiv.querySelector(`.aspect-color`).disabled = !isEnabled;
+                            parentDiv.querySelector(`.aspect-style`).disabled = !isEnabled;
+                            parentDiv.querySelector(`.aspect-thickness`).disabled = !isEnabled;
+                        }
+                        
+                        // Re-render the chart to apply changes
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Aspect color changes
+            document.querySelectorAll('.aspect-color').forEach(colorPicker => {
+                colorPicker.addEventListener('input', function(e) {
+                    const aspect = e.target.dataset.aspect;
+                    const color = e.target.value;
+                    
+                    if (chart.config.aspectSettings.types[aspect]) {
+                        // Store previous color to update CSS selectors
+                        const oldColor = chart.config.aspectSettings.types[aspect].color;
+                        
+                        // Update the aspect type's color in the configuration
+                        chart.config.aspectSettings.types[aspect].color = color;
+                        
+                        // Update the color preview
+                        e.target.parentElement.style.backgroundColor = color;
+                        e.target.parentElement.nextElementSibling.textContent = color;
+                        
+                        // Update the color box in the label
+                        const label = e.target.closest('.aspect-item').querySelector('.form-check-label');
+                        const colorBox = label.querySelector('div');
+                        if (colorBox) colorBox.style.backgroundColor = color;
+                        
+                        // Update aspect line styles
+                        updateAspectLineStyles();
+                        
+                        // Re-render the chart
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Aspect style changes
+            document.querySelectorAll('.aspect-style').forEach(styleSelect => {
+                styleSelect.addEventListener('change', function(e) {
+                    const aspect = e.target.dataset.aspect;
+                    const style = e.target.value;
+                    
+                    if (chart.config.aspectSettings.types[aspect]) {
+                        // Update the aspect type's line style in the configuration
+                        chart.config.aspectSettings.types[aspect].lineStyle = style;
+                        
+                        // Update aspect line styles
+                        updateAspectLineStyles();
+                        
+                        // Re-render the chart
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Aspect thickness changes
+            document.querySelectorAll('.aspect-thickness').forEach(thicknessInput => {
+                thicknessInput.addEventListener('input', function(e) {
+                    const aspect = e.target.dataset.aspect;
+                    const thickness = parseFloat(e.target.value);
+                    
+                    // Validate the input value
+                    if (isNaN(thickness) || thickness < 0.5) {
+                        e.target.value = 0.5;
+                        return;
+                    }
+                    
+                    if (thickness > 10) {
+                        e.target.value = 10;
+                        return;
+                    }
+                    
+                    if (chart.config.aspectSettings.types[aspect]) {
+                        // Update the aspect type's line width in the configuration
+                        chart.config.aspectSettings.types[aspect].strokeWidth = thickness;
+                        
+                        // Update aspect line styles and re-render
+                        updateAspectLineStyles();
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Aspect orb changes
+            document.querySelectorAll('.aspect-orb').forEach(orbInput => {
+                orbInput.addEventListener('input', function(e) {
+                    const aspect = e.target.dataset.aspect;
+                    const orb = parseFloat(e.target.value);
+                    
+                    // Validate the input value
+                    if (isNaN(orb) || orb < 0) {
+                        e.target.value = 0;
+                        return;
+                    }
+                    
+                    if (orb > 15) {
+                        e.target.value = 15;
+                        return;
+                    }
+                    
+                    if (chart.config.aspectSettings.types[aspect]) {
+                        // Update the aspect type's orb in the configuration
+                        chart.config.aspectSettings.types[aspect].orb = orb;
+                        
+                        // Re-render the chart to apply changes
+                        chart.render();
+                    }
+                });
+            });
+            
+            // Initialize collapsible section functionality
+            document.querySelectorAll('.control-title').forEach(title => {
+                title.addEventListener('click', function() {
+                    this.classList.toggle('collapsed');
+                });
+            });
+
+            // Update color preview when color changes
+            function updateColorPreview(input) {
+                const preview = input.parentElement;
+                const valueSpan = preview.nextElementSibling;
+                preview.style.backgroundColor = input.value;
+                valueSpan.textContent = input.value;
+            }
+
+            // Initialize all color previews
+            document.querySelectorAll('input[type="color"]').forEach(updateColorPreview);
+        });
+    </script>
+</body>
+</html> 
