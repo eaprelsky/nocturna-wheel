@@ -120,7 +120,7 @@ The configuration object accepts the following parameters:
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/nocturna-wheel.git
+   git clone https://github.com/eaprelsky/nocturna-wheel.git
    ```
 
 2. Install dependencies
