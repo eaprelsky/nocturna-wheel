@@ -1,0 +1,71 @@
+/**
+ * nocturna-wheel-cardinal.css
+ * Enhanced styling for cardinal points (ASC, DSC, IC, MC) in the Nocturna Wheel chart
+ */
+
+/* Cardinal point styling - general */
+.house-division-line.axis {
+    stroke: #444;
+    stroke-width: 1px;
+    stroke-dasharray: none;
+}
+
+/* Specific cardinal point styling */
+.house-division-line.asc {
+    stroke: #222;
+    stroke-width: 1px;
+}
+
+.house-division-line.dsc {
+    stroke: #222;
+    stroke-width: 1px;
+}
+
+.house-division-line.ic {
+    stroke: #222; 
+    stroke-width: 1px;
+}
+
+.house-division-line.mc {
+    stroke: #222;
+    stroke-width: 1px;
+}
+
+/* Outer segments for cardinal points */
+.house-division-line.outer.axis,
+.house-division-line.outer.asc,
+.house-division-line.outer.dsc,
+.house-division-line.outer.ic,
+.house-division-line.outer.mc {
+    stroke-dasharray: none;
+    stroke-width: 1px;
+}
+
+/* Optional: Add some cardinal point labels */
+.chart-container[data-show-cardinal-labels="true"] .house-division-line.asc::after {
+    content: "ASC";
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.chart-container[data-show-cardinal-labels="true"] .house-division-line.dsc::after {
+    content: "DSC";
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.chart-container[data-show-cardinal-labels="true"] .house-division-line.ic::after {
+    content: "IC";
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.chart-container[data-show-cardinal-labels="true"] .house-division-line.mc::after {
+    content: "MC";
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+} 
