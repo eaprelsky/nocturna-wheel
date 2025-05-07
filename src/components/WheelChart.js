@@ -19,16 +19,8 @@ class WheelChart {
 
         this.options = options;
         
-        // Initialize configuration with additional inner circle
+        // Initialize configuration
         const config = options.config || {};
-        
-        // Add innermost circle radius if not already defined
-        if (!config.radius) {
-            config.radius = {};
-        }
-        
-        // Set the innermost circle radius (smaller than zodiacInner)
-        config.radius.innermost = config.radius?.innermost || 90;
         
         // Create the NocturnaWheel instance
         this.chart = new NocturnaWheel({
