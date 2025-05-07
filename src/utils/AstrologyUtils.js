@@ -153,4 +153,26 @@ class AstrologyUtils {
         const names = signNames[language] || signNames.en;
         return names[signCode.toLowerCase()] || this.capitalizeFirstLetter(signCode);
     }
+
+    /**
+     * Returns the astrological symbol (glyph) for a planet
+     * @param {string} planetCode - Planet code (sun, moon, etc.)
+     * @returns {string} Unicode character representing the planet symbol
+     */
+    static getPlanetSymbol(planetCode) {
+        const planetSymbols = {
+            "sun": "☉",
+            "moon": "☽",
+            "mercury": "☿",
+            "venus": "♀",
+            "mars": "♂",
+            "jupiter": "♃",
+            "saturn": "♄",
+            "uranus": "♅",
+            "neptune": "♆",
+            "pluto": "♇"
+        };
+        
+        return planetSymbols[planetCode.toLowerCase()] || null;
+    }
 } 
