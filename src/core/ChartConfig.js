@@ -90,6 +90,7 @@ class ChartConfig {
         
         // Radii for different chart layers
         this.radius = {
+            innermost: 90,       // Innermost circle (for dual charts, transits, synastry)
             zodiacInner: 120,    // Inner circle (aspect container)
             zodiacMiddle: 150,   // Middle circle (house boundaries)
             zodiacOuter: 180,    // Outer circle (zodiac ring)
