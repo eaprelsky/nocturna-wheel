@@ -54,7 +54,9 @@ class PlanetRenderer extends BaseRenderer {
             radians: 0,
             // Calculate sign index and get name from AstrologyUtils
             zodiacSign: AstrologyUtils.getZodiacSigns()[Math.floor(p.position / 30) % 12],
-            position_in_sign: p.position % 30 // Calculate position within sign
+            position_in_sign: p.position % 30, // Calculate position within sign
+            isPrimary: p.isPrimary || false,
+            color: p.color || '#000000'
         }));
 
         // Sort planets by position for overlap calculations
@@ -249,7 +251,8 @@ class PlanetRenderer extends BaseRenderer {
             // Create group for this planet (contains dot, symbol, and label)
             const planetGroup = this.svgUtils.createSVGElement("g", {
                 'data-planet': planet.name,
-                class: `planet-element planet-${planet.name}`,
+                'data-primary': planet.isPrimary ? 'true' : 'false',
+                class: `planet-element planet-${planet.name} ${planet.isPrimary ? 'primary' : 'secondary'}`,
                 transform: `translate(0,0)` // No transforms for now, may be useful later for animations
             });
             
@@ -258,37 +261,55 @@ class PlanetRenderer extends BaseRenderer {
                 cx: planet.x,
                 cy: planet.y,
                 r: 3, // Small fixed size for position indicator
-                class: `planet-dot planet-${planet.name}-dot`
+                class: `planet-dot planet-${planet.name}-dot`,
+                fill: planet.color || '#000000'
             });
             planetGroup.appendChild(dot);
             
-            // Draw the planet symbol/icon
-            const iconSize = 18; // Fixed size for planet icons
-            const icon = this.svgUtils.createSVGElement("text", {
-                x: planet.adjustedIconX,
-                y: planet.adjustedIconY,
-                'text-anchor': 'middle', // Center horizontally
-                'dominant-baseline': 'middle', // Center vertically
-                'font-size': `${iconSize}px`,
-                class: `planet-symbol planet-${planet.name}-symbol`
+            // Draw the planet icon using SVG image from zodiac folder
+            const iconSize = planet.isPrimary ? 24 : 18; // Different size based on primary/secondary status
+            
+            // Use the same path construction pattern as in ChartRenderer
+            // this.config is available from BaseRenderer
+            const iconPath = `${this.options.assetBasePath}svg/zodiac/zodiac-planet-${planet.name.toLowerCase()}.svg`;
+            
+            console.log(`PlanetRenderer: Loading planet icon: ${iconPath}`);
+            
+            // Calculate top-left position of the icon (centered on the calculated point)
+            const iconX = planet.adjustedIconX - iconSize/2;
+            const iconY = planet.adjustedIconY - iconSize/2;
+            
+            const icon = this.svgUtils.createSVGElement("image", {
+                x: iconX,
+                y: iconY,
+                width: iconSize,
+                height: iconSize,
+                href: iconPath,
+                class: `planet-icon planet-${planet.name}-icon`
             });
             
-            // Use modern unicode symbol or astrological symbol code
-            icon.textContent = AstrologyUtils.getPlanetSymbol(planet.name) || planet.name[0].toUpperCase();
+            // Add error handling for missing icons
+            icon.addEventListener('error', () => {
+                console.warn(`Planet icon not found: ${iconPath}`);
+                icon.setAttribute('href', ''); // Remove broken link
+                
+                // Add text fallback showing the first letter of planet name
+                const textIcon = this.svgUtils.createSVGElement("text", {
+                    x: planet.adjustedIconX,
+                    y: planet.adjustedIconY,
+                    'text-anchor': 'middle',
+                    'dominant-baseline': 'middle',
+                    'font-size': `${iconSize}px`,
+                    class: `planet-symbol planet-${planet.name}-symbol`,
+                    fill: planet.color || '#000000'
+                });
+                
+                // Use planet symbol as fallback
+                textIcon.textContent = AstrologyUtils.getPlanetSymbol(planet.name) || planet.name[0].toUpperCase();
+                planetGroup.appendChild(textIcon);
+            });
+            
             planetGroup.appendChild(icon);
-            
-            // Draw a label below the icon
-            const label = this.svgUtils.createSVGElement("text", {
-                x: planet.adjustedIconX,
-                y: planet.adjustedIconY + iconSize/2 + 8, // Position below icon
-                'text-anchor': 'middle',
-                'font-size': '10px',
-                class: `planet-label planet-${planet.name}-label`
-            });
-            
-            // Set label text to planet abbreviation
-            label.textContent = planet.name[0].toUpperCase() + planet.name.slice(1, 2).toLowerCase();
-            planetGroup.appendChild(label);
             
             // Add tooltip with full planet name and position
             const tooltipText = `${AstrologyUtils.getPlanetFullName(planet.name)}: ${planet.position.toFixed(1)}° ${planet.zodiacSign.toUpperCase()} (${planet.position_in_sign.toFixed(1)}°)`;
