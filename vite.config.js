@@ -19,7 +19,8 @@ export default defineConfig({
       '@utils': resolve(__dirname, 'src/utils'),
       '@core': resolve(__dirname, 'src/core'),
       '@renderers': resolve(__dirname, 'src/renderers'),
-      '@managers': resolve(__dirname, 'src/managers')
+      '@managers': resolve(__dirname, 'src/managers'),
+      '@svg': resolve(__dirname, 'assets/svg')
     }
   },
   
