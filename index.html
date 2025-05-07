@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nocturna Wheel.js - Development</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Nocturna Wheel CSS -->
+    <link href="assets/css/nocturna-wheel.css" rel="stylesheet">
+    <link href="assets/css/nocturna-wheel-cardinal.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --nocturna-primary: #79a0c1;
+            --nocturna-secondary: #6c757d;
+            --nocturna-dark: #212529;
+            --nocturna-light: #f8f9fa;
+            --nocturna-hover: #6789ab;
+            
+            /* Default stroke widths for aspects */
+            --aspect-conjunction-width: 1px;
+            --aspect-opposition-width: 1px;
+            --aspect-trine-width: 1px;
+            --aspect-square-width: 1px;
+            --aspect-sextile-width: 1px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--nocturna-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-container {
+            height: 600px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .control-panel {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+            border: 1px solid rgba(121, 160, 193, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .control-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span>Nocturna Wheel Development</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Chart Visualization</h2>
+                        <div class="chart-container" id="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="control-panel">
+                    <h3>Controls</h3>
+                    <div class="control-section">
+                        <div class="control-title">Chart Settings</div>
+                        <div class="mb-3">
+                            <label class="form-label">House System</label>
+                            <select id="house-system" class="form-select">
+                                <option value="placidus">Placidus</option>
+                                <option value="koch">Koch</option>
+                                <option value="equal">Equal</option>
+                                <option value="whole-sign">Whole Sign</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html> 

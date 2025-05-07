@@ -34,4 +34,8 @@ coverage/
 
 # Miscellaneous
 .cache/
-.tmp/ 
+.tmp/
+# Vite specific
+.vite/
+*.local
+dist-ssr/
