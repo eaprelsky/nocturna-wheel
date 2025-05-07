@@ -267,7 +267,7 @@ class PlanetRenderer extends BaseRenderer {
             planetGroup.appendChild(dot);
             
             // Draw the planet icon using SVG image from zodiac folder
-            const iconSize = planet.isPrimary ? 24 : 18; // Different size based on primary/secondary status
+            const iconSize = 24;
             
             // Use the same path construction pattern as in ChartRenderer
             // this.config is available from BaseRenderer
