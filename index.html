@@ -106,7 +106,7 @@
         }
         
         .main-container {
-            padding-top: 2rem;
+            padding-top: 0rem;
         }
         
         .demo-card {
@@ -115,6 +115,23 @@
             padding: 2.5rem;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             margin-bottom: 1rem;
+        }
+        
+        .intro-card {
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .intro-card .demo-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+        }
+        
+        .intro-card p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            line-height: 1.4;
         }
         
         .demo-title {
@@ -356,9 +373,11 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
+            <a class="navbar-brand" href="https://www.nocturna.ru">
                 <img src="assets/png/nocturna-logo.png" alt="Nocturna Logo" class="logo" width="auto" height="80">
-                <span class="brand-text">Wheel.js</span>
+            </a>
+            <a class="navbar-brand" href="#">
+                <span class="brand-text">Nocturna Wheel JS</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -386,12 +405,14 @@
     <div class="container main-container">
         <div class="row">
             <div class="col-12">
-                <h1 class="text-center mb-4">Interactive Natal Chart Demo</h1>
-                <p class="text-center mb-5">
-                    Explore the features and capabilities of the Nocturna Wheel.js library.
-                    This SVG-based astrological chart visualization provides a beautiful and
-                    interactive way to display natal charts.
-                </p>
+                <div class="demo-card intro-card">
+                    <h2 class="demo-title">Interactive Natal Chart Demo</h2>
+                    <p>
+                        Explore the features and capabilities of the Nocturna Wheel.js library.
+                        This SVG-based astrological chart visualization provides a beautiful and
+                        interactive way to display natal charts.
+                    </p>
+                </div>
             </div>
         </div>
         
