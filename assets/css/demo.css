@@ -1,0 +1,368 @@
+:root {
+    --nocturna-primary: #79a0c1;
+    --nocturna-secondary: #6c757d;
+    --nocturna-dark: #212529;
+    --nocturna-light: #f8f9fa;
+    --nocturna-hover: #6789ab;
+    
+    /* Default stroke widths for aspects */
+    --aspect-conjunction-width: 1px;
+    --aspect-opposition-width: 1px;
+    --aspect-trine-width: 1px;
+    --aspect-square-width: 1px;
+    --aspect-sextile-width: 1px;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f8f9fa;
+    color: var(--nocturna-dark);
+    line-height: 1.4;
+}
+
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0;
+    margin-bottom: 0.25rem;
+}
+
+.navbar-brand {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    height: 32px;
+    overflow: hidden;
+}
+
+.logo {
+    height: 48px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+}
+
+.brand-text {
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 400;
+}
+
+.navbar-nav .nav-item {
+    margin: 0 0.25rem;
+}
+
+.navbar-nav .nav-link {
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-nav .nav-link:hover, 
+.navbar-nav .nav-link:focus {
+    color: var(--nocturna-primary);
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--nocturna-primary);
+    font-weight: 600;
+}
+
+.login-btn {
+    background-color: var(--nocturna-primary);
+    color: #ffffff;
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.login-btn:hover, 
+.login-btn:focus {
+    background-color: var(--nocturna-hover);
+    color: #ffffff;
+}
+
+.main-container {
+    padding-top: 0;
+}
+
+.demo-card {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 0.5rem;
+}
+
+.intro-card {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.intro-card .demo-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.intro-card p {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+
+.demo-title {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(121, 160, 193, 0.2);
+}
+
+.chart-container {
+    height: 420px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.control-panel {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 0.75rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    height: 420px;
+    overflow-y: auto;
+}
+
+.control-section {
+    margin-bottom: 10px;
+    border: 1px solid rgba(121, 160, 193, 0.2);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.control-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.control-title i {
+    transition: transform 0.3s ease;
+}
+
+.control-title.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.planet-checkbox, .aspect-checkbox {
+    margin-right: 5px;
+}
+
+footer {
+    background-color: var(--nocturna-dark);
+    color: var(--nocturna-light);
+    padding: 20px 0;
+    margin-top: 2rem;
+}
+
+.github-link {
+    color: var(--nocturna-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.github-link:hover {
+    color: #fff;
+}
+
+.rotation-control {
+    margin-top: 15px;
+}
+
+.btn-primary {
+    background-color: var(--nocturna-primary);
+    border-color: var(--nocturna-primary);
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+    background-color: var(--nocturna-hover);
+    border-color: var(--nocturna-hover);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-check-input:checked {
+    background-color: var(--nocturna-primary);
+    border-color: var(--nocturna-primary);
+}
+
+.code-block {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+/* Custom styles for color pickers */
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-preview input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.section-body {
+    padding-top: 10px;
+}
+
+.planet-item, .aspect-item {
+    margin-bottom: 8px;
+    background-color: rgba(248, 249, 250, 0.5);
+    padding: 6px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.control-group {
+    flex: 1;
+    min-width: 100px;
+}
+
+.control-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.form-check {
+    margin-bottom: 0.25rem;
+}
+
+.form-check-label {
+    font-size: 0.85rem;
+}
+
+/* CSS to control aspect line thickness */
+#chart-container svg line[stroke="#FF0000"],
+#chart-container svg path[stroke="#FF0000"] {
+    stroke-width: var(--aspect-opposition-width);
+}
+
+#chart-container svg line[stroke="#008000"],
+#chart-container svg path[stroke="#008000"] {
+    stroke-width: var(--aspect-trine-width);
+}
+
+/* Additional styling for specific aspect types based on color and styles */
+#chart-container svg line[stroke-dasharray],
+#chart-container svg path[stroke-dasharray] {
+    stroke-width: var(--aspect-square-width);
+}
+
+/* The most specific selector for aspects */
+#chart-container svg g[id^="aspects"] line,
+#chart-container svg g[class*="aspect"] line {
+    stroke-width: var(--aspect-sextile-width);
+}
+
+/* Individual styling for each aspect type to override any shared colors */
+#chart-container svg .aspect-line-opposition {
+    stroke-width: var(--aspect-opposition-width) !important;
+}
+
+#chart-container svg .aspect-line-trine {
+    stroke-width: var(--aspect-trine-width) !important;
+}
+
+#chart-container svg .aspect-line-square {
+    stroke-width: var(--aspect-square-width) !important;
+}
+
+#chart-container svg .aspect-line-sextile {
+    stroke-width: var(--aspect-sextile-width) !important;
+}
+
+#chart-container svg .aspect-line-conjunction {
+    stroke-width: var(--aspect-conjunction-width) !important;
+}
+
+/* Additional style to ensure specificity */
+.aspect-line-thickness-applied {
+    transition: stroke-width 0.2s ease;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.form-select-sm {
+    height: calc(1.4em + 0.5rem + 2px);
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    font-size: 0.8rem;
+    border-radius: 0.2rem;
+}
+
+.form-select:focus {
+    border-color: var(--nocturna-primary);
+    box-shadow: 0 0 0 0.25rem rgba(121, 160, 193, 0.25);
+}
+
+#house-system-description {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
+    min-height: 2.4rem;
+    display: block;
+}
+
+.row {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+}
+
+@media (min-width: 992px) {
+    .g-4 {
+        --bs-gutter-x: 0.75rem;
+        --bs-gutter-y: 0.75rem;
+    }
+} 
