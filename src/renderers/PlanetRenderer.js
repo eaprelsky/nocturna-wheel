@@ -15,24 +15,71 @@ class PlanetRenderer extends BaseRenderer {
         if (!options.assetBasePath) {
             throw new Error("PlanetRenderer: Missing required option assetBasePath");
         }
-        // Use config radii for positions
-        this.primaryRadii = {
-            dotRadius: this.innerRadius,
-            iconRadius: (this.innerRadius + this.middleRadius) / 2
-        };
         
-        // Default secondary radii - these will be updated when rendering
-        this.secondaryRadii = {
-            dotRadius: null,  // Will be set during rendering
-            iconRadius: null  // Will be set during rendering
+        // Define the default circle configurations - which circle each planet type should be placed on
+        this.circleConfigs = {
+            // Primary planets placed on inner circle
+            primary: {
+                circle: 'inner'
+            },
+            // Secondary planets placed on innermost circle
+            secondary: {
+                circle: 'innermost'
+            }
+            // Can easily add more planet types here, e.g.:
+            // transit: { circle: 'outer' }
         };
         
         // Define layers for overlap adjustments
         this.iconRadiusLayers = [
             this.innerRadius + 5,
-            this.primaryRadii.iconRadius,
+            (this.innerRadius + this.middleRadius) / 2,
             this.middleRadius - 5
         ].sort((a, b) => a - b);
+    }
+
+    /**
+     * Calculates actual radius values based on circle configuration and chart dimensions
+     * @param {string} planetType - Type of planet (primary, secondary, etc.)
+     * @param {Object} config - Chart configuration with radius values
+     * @returns {Object} Object with calculated dotRadius and iconRadius
+     */
+    calculateRadii(planetType, config = null) {
+        const circleConfig = this.circleConfigs[planetType];
+        if (!circleConfig) {
+            console.error(`PlanetRenderer: No circle configuration found for planet type: ${planetType}`);
+            return { dotRadius: null, iconRadius: null };
+        }
+        
+        let baseRadius, nextRadius;
+        
+        // Determine which circle to use and its dimensions
+        switch (circleConfig.circle) {
+            case 'inner':
+                baseRadius = config?.radius?.inner || this.innerRadius;
+                nextRadius = config?.radius?.middle || this.middleRadius;
+                break;
+            case 'innermost':
+                baseRadius = config?.radius?.innermost || (this.innerRadius * 0.5); // Fallback
+                nextRadius = config?.radius?.zodiacInner || this.innerRadius;
+                break;
+            // Can add more circle types as needed:
+            // case 'outer':
+            //     baseRadius = config?.radius?.outer || this.outerRadius;
+            //     nextRadius = some other reference radius;
+            //     break;
+            default:
+                console.error(`PlanetRenderer: Unknown circle type: ${circleConfig.circle}`);
+                return { dotRadius: null, iconRadius: null };
+        }
+        
+        // Fixed relationship between circle and dots/icons
+        // - Dots are placed exactly on the circle
+        // - Icons are placed halfway between this circle and the next
+        const dotRadius = baseRadius;
+        const iconRadius = baseRadius + (nextRadius - baseRadius) / 2;
+        
+        return { dotRadius, iconRadius };
     }
 
     /**
@@ -54,28 +101,26 @@ class PlanetRenderer extends BaseRenderer {
         
         // Determine planet type (primary or secondary)
         const planetType = options.type || 'primary';
-        const isPrimary = planetType === 'primary';
         
         console.log(`PlanetRenderer: Rendering ${planetType} planets, count:`, planetsData.length);
 
-        // Use appropriate radii based on type and options
+        // Calculate radii based on circle configuration
         let dotRadius, iconRadius;
         
-        if (isPrimary) {
-            dotRadius = options.dotRadius || this.primaryRadii.dotRadius;
-            iconRadius = options.iconRadius || this.primaryRadii.iconRadius;
+        // If explicit radii are provided, use those
+        if (options.dotRadius && options.iconRadius) {
+            dotRadius = options.dotRadius;
+            iconRadius = options.iconRadius;
         } else {
-            // For secondary planets, use provided values or update stored values
-            if (options.dotRadius) this.secondaryRadii.dotRadius = options.dotRadius;
-            if (options.iconRadius) this.secondaryRadii.iconRadius = options.iconRadius;
-            
-            dotRadius = this.secondaryRadii.dotRadius;
-            iconRadius = this.secondaryRadii.iconRadius;
-            
-            if (!dotRadius || !iconRadius) {
-                console.error(`PlanetRenderer: Missing radius values for secondary planets`);
-                return [];
-            }
+            // Otherwise calculate from circle configuration
+            const radii = this.calculateRadii(planetType, options.config || this.config);
+            dotRadius = radii.dotRadius;
+            iconRadius = radii.iconRadius;
+        }
+        
+        if (!dotRadius || !iconRadius) {
+            console.error(`PlanetRenderer: Could not determine radius values for ${planetType} planets`);
+            return [];
         }
         
         console.log(`PlanetRenderer: Using dotRadius: ${dotRadius}, iconRadius: ${iconRadius} for ${planetType} planets`);
@@ -96,7 +141,7 @@ class PlanetRenderer extends BaseRenderer {
             // Calculate sign index and get name from AstrologyUtils
             zodiacSign: AstrologyUtils.getZodiacSigns()[Math.floor(p.position / 30) % 12],
             position_in_sign: p.position % 30, // Calculate position within sign
-            isPrimary: isPrimary,
+            isPrimary: planetType === 'primary',
             type: planetType,
             color: p.color || '#000000',
             // Track which radius this planet is being rendered at
@@ -137,13 +182,13 @@ class PlanetRenderer extends BaseRenderer {
             svgManager, 
             planetsData, 
             config,
-            primaryEnabled = true,
-            secondaryEnabled = true
+            planetTypes = ['primary', 'secondary'],
+            enabledTypes = { primary: true, secondary: true }
         } = params;
         
         if (!svgManager || !planetsData || !config) {
             console.error("PlanetRenderer: Missing required parameters");
-            return { primary: [], secondary: [] };
+            return {};
         }
         
         // Convert planet data to array format
@@ -153,54 +198,40 @@ class PlanetRenderer extends BaseRenderer {
             color: data.color || '#000000'
         }));
         
-        const result = {
-            primary: [],
-            secondary: []
-        };
+        const result = {};
         
-        // Get center coordinates
-        const centerX = config.svg.center.x;
-        const centerY = config.svg.center.y;
-        
-        // Save original center values
+        // Save and update center coordinates
         const originalCenterX = this.centerX;
         const originalCenterY = this.centerY;
+        this.centerX = config.svg.center.x;
+        this.centerY = config.svg.center.y;
         
-        // Update center for this rendering
-        this.centerX = centerX;
-        this.centerY = centerY;
-        
-        // Render primary planets if enabled
-        if (primaryEnabled) {
-            const primaryGroup = svgManager.getGroup('primaryPlanets');
-            result.primary = this.render(primaryGroup, planetsArray, 0, {
-                type: 'primary'
-                // Use default primary radii from constructor
-            });
-            console.log(`PlanetRenderer: Rendered ${result.primary.length} primary planets`);
-        }
-        
-        // Render secondary planets if enabled
-        if (secondaryEnabled) {
-            const secondaryGroup = svgManager.getGroup('secondaryPlanets');
-            
-            // Get secondary (innermost) radii from config
-            const dotRadius = config.radius.innermost;
-            const iconRadius = (config.radius.innermost + config.radius.zodiacInner) / 2;
-            
-            result.secondary = this.render(secondaryGroup, planetsArray, 0, {
-                type: 'secondary',
-                dotRadius: dotRadius,
-                iconRadius: iconRadius
-            });
-            console.log(`PlanetRenderer: Rendered ${result.secondary.length} secondary planets`);
-        }
+        // Render each enabled planet type
+        Object.keys(enabledTypes).forEach(type => {
+            if (enabledTypes[type] && planetTypes.includes(type)) {
+                const typeGroup = svgManager.getGroup(`${type}Planets`);
+                
+                // Let the renderer calculate radii based on circle configuration
+                result[type] = this.render(typeGroup, planetsArray, 0, {
+                    type: type,
+                    config: config // Pass the config for radius calculations
+                });
+                
+                console.log(`PlanetRenderer: Rendered ${result[type].length} ${type} planets`);
+            }
+        });
         
         // Restore original center values
         this.centerX = originalCenterX;
         this.centerY = originalCenterY;
         
         return result;
+    }
+
+    // Legacy method - deprecated, use renderAllPlanetTypes instead
+    renderAllPlanets(params) {
+        console.warn("PlanetRenderer: renderAllPlanets is deprecated, use renderAllPlanetTypes instead");
+        return this.renderAllPlanetTypes(params);
     }
 
     /**
@@ -403,12 +434,6 @@ class PlanetRenderer extends BaseRenderer {
             // Add to parent group
             parentGroup.appendChild(planetGroup);
         });
-    }
-
-    // Legacy method - deprecated, use renderAllPlanetTypes instead
-    renderAllPlanets(params) {
-        console.warn("PlanetRenderer: renderAllPlanets is deprecated, use renderAllPlanetTypes instead");
-        return this.renderAllPlanetTypes(params);
     }
 
     /**
