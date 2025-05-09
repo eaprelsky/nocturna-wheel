@@ -319,4 +319,99 @@ class PlanetRenderer extends BaseRenderer {
             parentGroup.appendChild(planetGroup);
         });
     }
+
+    /**
+     * Adds an aspect icon at the midpoint of the aspect line
+     * @private
+     * @param {Element} parentGroup - The SVG group for aspect lines
+     * @param {Object} aspect - The aspect object
+     * @param {Object} coords1 - Coordinates of first planet
+     * @param {Object} coords2 - Coordinates of second planet
+     * @param {string} tooltipText - Tooltip text
+     */
+    _addAspectIcon(parentGroup, aspect, coords1, coords2, tooltipText) {
+        console.log('AspectRenderer: _addAspectIcon method called');
+        
+        // Calculate midpoint of the line
+        const midX = (coords1.x + coords2.x) / 2;
+        const midY = (coords1.y + coords2.y) / 2;
+        
+        // Calculate distance from center to place the icon correctly
+        const dx = midX - this.centerX;
+        const dy = midY - this.centerY;
+        const distanceFromCenter = Math.sqrt(dx * dx + dy * dy);
+        
+        // Only add icon if not too close to center (to avoid clutter)
+        if (distanceFromCenter < 20) {
+            console.log('AspectRenderer: Icon too close to center, skipping');
+            return; // Skip icon if too close to center
+        }
+        
+        // Define the icon size
+        const iconSize = 14;
+        
+        // Directly check if options and assetBasePath exist
+        if (!this.options) {
+            console.error('AspectRenderer: this.options is undefined!');
+            return;
+        }
+        
+        if (!this.options.assetBasePath) {
+            console.error('AspectRenderer: this.options.assetBasePath is undefined!');
+            // Try to check if we can access it through other means
+            console.log('AspectRenderer: Checking for alternatives...');
+            console.log('AspectRenderer: this.config?.assets?.basePath =', this.config?.assets?.basePath);
+        }
+        
+        // Try to use the assetBasePath from options, or fall back to a default
+        const basePath = this.options.assetBasePath || (this.config?.assets?.basePath) || './assets/';
+        console.log(`AspectRenderer: Using basePath: ${basePath}`);
+        
+        // Construct the icon path
+        const iconPath = `${basePath}svg/zodiac/zodiac-aspect-${aspect.type.toLowerCase()}.svg`;
+        console.log(`AspectRenderer: Constructed icon path: ${iconPath}`);
+        
+        try {
+            // Create the aspect glyph/symbol as text first (fallback)
+            const textSymbol = this.svgUtils.createSVGElement("text", {
+                x: midX,
+                y: midY,
+                'text-anchor': 'middle',
+                'dominant-baseline': 'middle',
+                'font-size': '12px',
+                'font-weight': 'bold',
+                class: `aspect-element aspect-symbol aspect-${aspect.type}`,
+                fill: aspect.color || '#888888'
+            });
+            
+            // Set the symbol text
+            textSymbol.textContent = aspect.symbol || '⚹'; // Default to sextile symbol if none provided
+            
+            // Add tooltip to text symbol
+            this.svgUtils.addTooltip(textSymbol, tooltipText);
+            
+            // Add text symbol to the parent group (this ensures at least something appears)
+            parentGroup.appendChild(textSymbol);
+            
+            console.log('AspectRenderer: Added text symbol as fallback');
+            
+            // Now try to create and add the image element
+            const icon = this.svgUtils.createSVGElement("image", {
+                x: midX - iconSize/2,
+                y: midY - iconSize/2,
+                width: iconSize,
+                height: iconSize,
+                href: iconPath,
+                class: `aspect-element aspect-icon aspect-${aspect.type}`,
+                opacity: 0.85 // Slightly transparent
+            });
+            
+            // Add the image to the parent group
+            parentGroup.appendChild(icon);
+            
+            console.log('AspectRenderer: Added image element with path:', iconPath);
+        } catch (error) {
+            console.error('AspectRenderer: Error creating aspect icon:', error);
+        }
+    }
 } 
