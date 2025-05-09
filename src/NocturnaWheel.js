@@ -142,20 +142,26 @@ class NocturnaWheel {
             this.renderers.house.renderNumbers(houseGroup, this.config.houseSettings.rotationAngle);
         }
         
-        // Render planets if enabled and get planets with coordinates
+        // Render planets using the consolidated approach
         let planetsWithCoords = [];
         if (this.config.planetSettings.enabled) {
-            // Convert planets object to the array format expected by the renderer
-            const planetsArray = Object.entries(this.planets).map(([name, data]) => ({
-                name: name,
-                position: data.lon, // Assuming position is stored in 'lon'
-                color: data.color // Pass the color property too!
-                // Include other relevant data from 'data' if needed by PlanetRenderer
-            }));
-            console.log('NocturnaWheel: Converted planets object to array:', JSON.stringify(planetsArray)); // Log the converted array
-            console.log('NocturnaWheel: Passing planets to PlanetRenderer:', JSON.stringify(planetsArray)); // Use the converted array
-            planetsWithCoords = this.renderers.planet.render(this.svgManager.getGroup('planets'), planetsArray);
-            console.log('NocturnaWheel: Planets returned from PlanetRenderer:', JSON.stringify(planetsWithCoords)); 
+            // Get the enabled states for primary and secondary planets
+            const primaryEnabled = this.config.planetSettings.primaryEnabled !== false;
+            const secondaryEnabled = this.config.planetSettings.secondaryEnabled !== false;
+            
+            // Use the consolidated renderAllPlanetTypes method
+            const renderedPlanets = this.renderers.planet.renderAllPlanetTypes({
+                svgManager: this.svgManager,
+                planetsData: this.planets,
+                config: this.config,
+                primaryEnabled: primaryEnabled,
+                secondaryEnabled: secondaryEnabled
+            });
+            
+            // For aspect rendering, use primary planets by default
+            planetsWithCoords = renderedPlanets.primary;
+            
+            console.log(`NocturnaWheel: Rendered ${renderedPlanets.primary.length} primary planets and ${renderedPlanets.secondary.length} secondary planets`);
         }
         
         // Render aspects if enabled, passing planets with coordinates
@@ -338,6 +344,44 @@ class NocturnaWheel {
      */
     getCurrentHouseSystem() {
         return this.config.houseSettings.houseSystems.currentSystem;
+    }
+
+    /**
+     * Toggles the visibility of primary planets (inner circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {NocturnaWheel} - Instance for chaining
+     */
+    togglePrimaryPlanets(visible) {
+        // Use the config's method to update the settings
+        this.config.togglePrimaryPlanetsVisibility(visible);
+        
+        // Update the group visibility in the DOM
+        const primaryGroup = this.svgManager.getGroup('primaryPlanets');
+        if (primaryGroup) {
+            primaryGroup.style.display = visible ? 'block' : 'none';
+        }
+        
+        console.log(`NocturnaWheel: Primary planets ${visible ? 'enabled' : 'disabled'}`);
+        return this;
+    }
+    
+    /**
+     * Toggles the visibility of secondary planets (innermost circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {NocturnaWheel} - Instance for chaining
+     */
+    toggleSecondaryPlanets(visible) {
+        // Use the config's method to update the settings
+        this.config.toggleSecondaryPlanetsVisibility(visible);
+        
+        // Update the group visibility in the DOM
+        const secondaryGroup = this.svgManager.getGroup('secondaryPlanets');
+        if (secondaryGroup) {
+            secondaryGroup.style.display = visible ? 'block' : 'none';
+        }
+        
+        console.log(`NocturnaWheel: Secondary planets ${visible ? 'enabled' : 'disabled'}`);
+        return this;
     }
 }
 

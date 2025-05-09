@@ -102,6 +102,24 @@ class WheelChart {
         return this._delegateAndRedraw('toggleAspects', visible);
     }
     
+    /**
+     * Toggles the visibility of primary planets (inner circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {WheelChart} - Instance for chaining
+     */
+    togglePrimaryPlanets(visible) {
+        return this._delegateAndRedraw('togglePrimaryPlanets', visible);
+    }
+    
+    /**
+     * Toggles the visibility of secondary planets (innermost circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {WheelChart} - Instance for chaining
+     */
+    toggleSecondaryPlanets(visible) {
+        return this._delegateAndRedraw('toggleSecondaryPlanets', visible);
+    }
+    
     setHouseRotation(angle) {
         return this._delegateAndRedraw('setHouseRotation', angle);
     }
