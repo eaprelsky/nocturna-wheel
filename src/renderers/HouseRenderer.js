@@ -51,9 +51,13 @@ class HouseRenderer extends BaseRenderer {
         const elements = [];
         let ascendantAlignmentOffset = 0;
         
+        // Log house data for debugging
+        console.log("HouseRenderer: House data for divisions:", this.houseData);
+        
         // Calculate offset only if house data is present
         if (this.houseData && this.houseData.length >= 12) {
-            const ascendantLon = this.houseData[0].lon;
+            // Handle both legacy format { lon: value } and new format [value1, value2, ...]
+            const ascendantLon = this.getHouseLongitude(this.houseData[0]);
             // Offset needed to place Ascendant (house 1 cusp) at 0 degrees (top side)
             ascendantAlignmentOffset = (360 - ascendantLon) % 360;
         }
@@ -63,7 +67,7 @@ class HouseRenderer extends BaseRenderer {
             // Use custom house positions if available, otherwise evenly distribute
             let baseAngle;
             if (this.houseData && this.houseData.length >= 12) {
-                baseAngle = this.houseData[i].lon;
+                baseAngle = this.getHouseLongitude(this.houseData[i]);
             } else {
                 baseAngle = i * 30; // Default if no data
             }
@@ -138,9 +142,12 @@ class HouseRenderer extends BaseRenderer {
         const elements = [];
         let ascendantAlignmentOffset = 0;
         
+        // Log house data for debugging
+        console.log("HouseRenderer: House data for numbers:", this.houseData);
+        
         // Calculate offset only if house data is present
         if (this.houseData && this.houseData.length >= 12) {
-            const ascendantLon = this.houseData[0].lon;
+            const ascendantLon = this.getHouseLongitude(this.houseData[0]);
             // Offset needed to place Ascendant (house 1 cusp) at 0 degrees (top side)
             ascendantAlignmentOffset = (360 - ascendantLon) % 360;
         }
@@ -150,7 +157,7 @@ class HouseRenderer extends BaseRenderer {
             // Get house angle with rotation
             let baseHouseAngle;
             if (this.houseData && this.houseData.length >= 12) {
-                baseHouseAngle = this.houseData[i].lon;
+                baseHouseAngle = this.getHouseLongitude(this.houseData[i]);
             } else {
                 baseHouseAngle = i * 30; // Default if no data
             }
@@ -202,5 +209,32 @@ class HouseRenderer extends BaseRenderer {
         }
         
         return elements;
+    }
+    
+    /**
+     * Helper method to get the longitude from various house data formats
+     * @param {Object|number} houseData - House cusp data (can be object with lon property or direct number)
+     * @returns {number} The house cusp longitude in degrees
+     */
+    getHouseLongitude(houseData) {
+        // Handle different data formats
+        if (houseData === null || houseData === undefined) {
+            console.warn("HouseRenderer: Null or undefined house data");
+            return 0;
+        }
+        
+        // If it's an object with a lon property (legacy format)
+        if (typeof houseData === 'object' && houseData !== null && 'lon' in houseData) {
+            return houseData.lon;
+        }
+        
+        // If it's a direct number (new format from HouseCalculator)
+        if (typeof houseData === 'number') {
+            return houseData;
+        }
+        
+        // If it's some other format we don't recognize
+        console.warn("HouseRenderer: Unrecognized house data format", houseData);
+        return 0;
     }
 } 

@@ -84,9 +84,9 @@ class NocturnaWheel {
         this.renderers.zodiac = new ZodiacRenderer(rendererOptions);
         
         // Initialize house renderer with house data
-        const currentHouseCusps = this.config.getCurrentHouseCusps();
-        const houseData = (currentHouseCusps && currentHouseCusps.length > 0) 
-            ? currentHouseCusps 
+        const houseCusps = this.config.getHouseCusps();
+        const houseData = (houseCusps && houseCusps.length > 0) 
+            ? houseCusps 
             : this.houses;
         
         this.renderers.house = new HouseRenderer({
@@ -131,10 +131,10 @@ class NocturnaWheel {
             const houseDivisionsGroup = this.svgManager.getGroup('houseDivisions');
             
             // Get the current house cusps based on selected system
-            const currentHouseCusps = this.config.getCurrentHouseCusps();
-            if (currentHouseCusps && currentHouseCusps.length > 0) {
+            const houseCusps = this.config.getHouseCusps();
+            if (houseCusps && houseCusps.length > 0) {
                 // Update house renderer with current house system cusps
-                this.renderers.house.houseData = currentHouseCusps;
+                this.renderers.house.houseData = houseCusps;
             }
             
             // Render house divisions and numbers
@@ -340,10 +340,10 @@ class NocturnaWheel {
     
     /**
      * Gets the current house system
-     * @returns {string} - Name of the current house system
+     * @returns {string} - Current house system name
      */
     getCurrentHouseSystem() {
-        return this.config.houseSettings.houseSystems.currentSystem;
+        return this.config.getHouseSystem();
     }
 
     /**
