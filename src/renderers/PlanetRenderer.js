@@ -115,10 +115,14 @@ class PlanetRenderer extends BaseRenderer {
     adjustOverlappingPlanets(planets) {
         if (planets.length <= 1) return; // Nothing to adjust with 0 or 1 planets
         
+        console.log(`PlanetRenderer: Adjusting overlapping planets, count: ${planets.length}`);
+        
         // Define parameters for collision detection and distribution
         const iconSize = 24;
         const baseRadius = this.iconBaseRadius; // Use the middle of the band
         const minDistance = iconSize * 1.2;
+        
+        console.log(`PlanetRenderer: Using baseRadius: ${baseRadius}, minDistance: ${minDistance}`);
         
         // Prepare planets array in format expected by PlanetPositionCalculator
         const positions = planets.map((planet, index) => ({
@@ -130,7 +134,8 @@ class PlanetRenderer extends BaseRenderer {
             iconCenterY: planet.iconY,
             longitude: planet.position,
             radius: baseRadius,
-            originalIndex: index
+            originalIndex: index,
+            name: planet.name // Include name for better logging
         }));
         
         // Use the consolidated PlanetPositionCalculator for overlap adjustment
@@ -145,13 +150,25 @@ class PlanetRenderer extends BaseRenderer {
         // Apply the adjusted positions back to the planets
         adjustedPositions.forEach((pos, idx) => {
             const planet = planets[idx];
+            const originalPos = planet.position;
+            
+            // Set the adjusted icon position
             planet.adjustedIconX = pos.iconCenterX;
             planet.adjustedIconY = pos.iconCenterY;
+            
             // If there was an adjustment, store it
             if (pos.adjustedLongitude !== undefined) {
                 planet.adjustedPosition = pos.adjustedLongitude;
+                
+                // Log significant adjustments
+                const adjustment = Math.abs(originalPos - pos.adjustedLongitude);
+                if (adjustment > 0.1) { // Only log if adjustment is significant
+                    console.log(`PlanetRenderer: Planet ${planet.name} adjusted from ${originalPos.toFixed(2)}° to ${pos.adjustedLongitude.toFixed(2)}° (shift: ${adjustment.toFixed(2)}°)`);
+                }
             }
         });
+        
+        console.log('PlanetRenderer: Planet overlap adjustment complete');
     }
 
     /**
