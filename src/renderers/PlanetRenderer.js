@@ -115,130 +115,43 @@ class PlanetRenderer extends BaseRenderer {
     adjustOverlappingPlanets(planets) {
         if (planets.length <= 1) return; // Nothing to adjust with 0 or 1 planets
         
-        // Store original positions and ordering
-        const originalOrder = planets.map((p, idx) => ({ planet: p, index: idx, position: p.position }));
-        
         // Define parameters for collision detection and distribution
         const iconSize = 24;
-        // The minimum angular distance needed to prevent overlap at base radius
-        const baseRadius = this.iconBaseRadius; // Always use the middle of the band
-        const minAngularDistance = (iconSize * 1.2 / baseRadius) * (180 / Math.PI);
+        const baseRadius = this.iconBaseRadius; // Use the middle of the band
+        const minDistance = iconSize * 1.2;
         
-        // Sort planets by position for overlap detection
-        const sortedPlanets = [...planets].sort((a, b) => a.position - b.position);
+        // Prepare planets array in format expected by PlanetPositionCalculator
+        const positions = planets.map((planet, index) => ({
+            x: planet.iconX,
+            y: planet.iconY,
+            iconX: planet.iconX,
+            iconY: planet.iconY,
+            iconCenterX: planet.iconX,
+            iconCenterY: planet.iconY,
+            longitude: planet.position,
+            radius: baseRadius,
+            originalIndex: index
+        }));
         
-        // Find clusters of overlapping planets (sequential planets too close angularly)
-        const clusters = this._findOverlappingClusters(sortedPlanets, minAngularDistance);
+        // Use the consolidated PlanetPositionCalculator for overlap adjustment
+        const adjustedPositions = PlanetPositionCalculator.adjustOverlaps(positions, {
+            minDistance: minDistance,
+            centerX: this.centerX,
+            centerY: this.centerY,
+            baseRadius: baseRadius,
+            iconSize: iconSize
+        });
         
-        // Process each cluster to avoid overlaps
-        clusters.forEach(cluster => {
-            if (cluster.length <= 1) {
-                // Single planet - just place at exact base radius with no angle change
-                const planet = cluster[0];
-                this._setExactPosition(planet, planet.position, baseRadius);
-            } else {
-                // Handle cluster with multiple planets - adjust angles only
-                this._distributeClusterByAngle(cluster, baseRadius, minAngularDistance);
+        // Apply the adjusted positions back to the planets
+        adjustedPositions.forEach((pos, idx) => {
+            const planet = planets[idx];
+            planet.adjustedIconX = pos.iconCenterX;
+            planet.adjustedIconY = pos.iconCenterY;
+            // If there was an adjustment, store it
+            if (pos.adjustedLongitude !== undefined) {
+                planet.adjustedPosition = pos.adjustedLongitude;
             }
         });
-    }
-    
-    /**
-     * Find clusters of planets that are too close angularly
-     * @private
-     * @param {Array} sortedPlanets - Planets sorted by position
-     * @param {number} minAngularDistance - Minimum angular separation needed
-     * @returns {Array} Array of arrays containing planets in each cluster
-     */
-    _findOverlappingClusters(sortedPlanets, minAngularDistance) {
-        const clusters = [];
-        let currentCluster = [sortedPlanets[0]];
-        
-        // Create clusters by checking consecutive planets
-        for (let i = 1; i < sortedPlanets.length; i++) {
-            const prevPlanet = sortedPlanets[i-1];
-            const currPlanet = sortedPlanets[i];
-            
-            // Check angular distance, considering wrap-around at 360°
-            let angleDiff = currPlanet.position - prevPlanet.position;
-            if (angleDiff < 0) angleDiff += 360;
-            
-            if (angleDiff < minAngularDistance || (360 - angleDiff) < minAngularDistance) {
-                // Too close - add to current cluster
-                currentCluster.push(currPlanet);
-            } else {
-                // Far enough - finish current cluster and start a new one
-                if (currentCluster.length > 0) {
-                    clusters.push(currentCluster);
-                }
-                currentCluster = [currPlanet];
-            }
-        }
-        
-        // Add the final cluster if it exists
-        if (currentCluster.length > 0) {
-            clusters.push(currentCluster);
-        }
-        
-        return clusters;
-    }
-    
-    /**
-     * Distribute planets in a cluster by adjusting only their angles
-     * @private
-     * @param {Array} planets - Array of planets in the cluster
-     * @param {number} radius - The exact radius to place all planets
-     * @param {number} minAngularDistance - Minimum angular distance needed
-     */
-    _distributeClusterByAngle(planets, radius, minAngularDistance) {
-        const n = planets.length;
-        
-        // Sort planets by their original position to maintain order
-        planets.sort((a, b) => a.position - b.position);
-        
-        // Calculate central angle and total span needed
-        const firstPos = planets[0].position;
-        const lastPos = planets[n-1].position;
-        let totalArc = lastPos - firstPos;
-        
-        // Handle wrap-around case (e.g., planets at 350° and 10°)
-        if (totalArc < 0 || totalArc > 180) {
-            totalArc = (360 + lastPos - firstPos) % 360;
-        }
-        
-        // Determine minimum arc needed for n planets with minimum spacing
-        const minRequiredArc = (n - 1) * minAngularDistance;
-        
-        // If there's enough natural space, just distribute evenly in the existing arc
-        if (totalArc >= minRequiredArc) {
-            // Calculate even spacing
-            const spacing = totalArc / (n - 1);
-            
-            // Distribute planets evenly
-            for (let i = 0; i < n; i++) {
-                const angle = (firstPos + i * spacing) % 360;
-                this._setExactPosition(planets[i], angle, radius);
-            }
-        } else {
-            // Not enough natural space, force minimum spacing
-            for (let i = 0; i < n; i++) {
-                const angle = (firstPos + i * minAngularDistance) % 360;
-                this._setExactPosition(planets[i], angle, radius);
-            }
-        }
-    }
-    
-    /**
-     * Set a planet's exact position at the given angle and radius
-     * @private
-     * @param {Object} planet - The planet object to position
-     * @param {number} angle - The angle in degrees (0-360)
-     * @param {number} radius - The exact radius to place the planet
-     */
-    _setExactPosition(planet, angle, radius) {
-        const point = this.svgUtils.pointOnCircle(this.centerX, this.centerY, radius, angle);
-        planet.adjustedIconX = point.x;
-        planet.adjustedIconY = point.y;
     }
 
     /**
