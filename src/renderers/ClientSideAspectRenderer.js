@@ -16,6 +16,7 @@ class ClientSideAspectRenderer extends BaseRenderer { // No longer extends IAspe
         this.renderedAspects = []; // Store calculated aspects
         this._aspectCacheKey = null; // Cache key for aspect calculations
         this._aspectCache = [];      // Cached aspect results
+        this.assetBasePath = options.assetBasePath || ''; // Store asset base path
         // Define major aspects and their angles (can be overridden/extended by config)
         this.defaultAspectDefinitions = {
             'conjunction': { angle: 0, orb: 8, color: '#FF4500', symbol: '☌' }, // OrangeRed
@@ -244,19 +245,19 @@ class ClientSideAspectRenderer extends BaseRenderer { // No longer extends IAspe
         }
         
         // Create the aspect glyph/symbol
-        const symbol = this.svgUtils.createSVGElement("text", {
-            x: midX,
-            y: midY,
-            'text-anchor': 'middle',
-            'dominant-baseline': 'middle',
-            'font-size': '12px',
-            'font-weight': 'bold',
-            class: `aspect-element aspect-symbol aspect-${aspect.type}`,
-            fill: aspect.color || '#888888'
+        const symbol = this.svgUtils.createSVGElement("image", {
+            x: midX - 8, // Offset by half the icon width
+            y: midY - 8, // Offset by half the icon height
+            width: 16,
+            height: 16,
+            href: `${this.assetBasePath}/svg/zodiac/zodiac-aspect-${aspect.type}.svg`,
+            class: `aspect-element aspect-symbol aspect-${aspect.type}`
         });
         
-        // Set the symbol text
-        symbol.textContent = aspect.symbol || '⚹'; // Default to sextile symbol if none provided
+        // Add error handling for image loading
+        symbol.addEventListener('error', () => {
+            console.warn(`Failed to load aspect icon for ${aspect.type} from path: ${this.assetBasePath}/svg/zodiac/zodiac-aspect-${aspect.type}.svg`);
+        });
         
         // Add tooltip
         this.svgUtils.addTooltip(symbol, tooltipText);
