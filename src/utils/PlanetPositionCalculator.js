@@ -94,11 +94,19 @@ class PlanetPositionCalculator {
             return positions; // Nothing to adjust with 0 or 1 planets
         }
         
+        if (!centerX || !centerY || !baseRadius) {
+            console.error("PlanetPositionCalculator: Missing required parameters (centerX, centerY, or baseRadius)");
+            return positions; // Return original positions if missing required parameters
+        }
+        
+        console.log(`PlanetPositionCalculator: Adjusting overlaps for ${positions.length} positions`);
+        
         // Make a copy to not modify originals
         const adjustedPositions = [...positions];
         
         // The minimum angular distance needed to prevent overlap at base radius
         const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI);
+        console.log(`PlanetPositionCalculator: Minimum angular distance: ${minAngularDistance.toFixed(2)}°`);
         
         // Sort positions by longitude for overlap detection
         const sortedPositionIndices = adjustedPositions
@@ -112,16 +120,29 @@ class PlanetPositionCalculator {
         
         // Find clusters of planets that are too close angularly
         const clusters = this._findOverlappingClusters(sortedPositions, minAngularDistance);
+        console.log(`PlanetPositionCalculator: Found ${clusters.length} clusters of overlapping positions`);
+        clusters.forEach((cluster, i) => {
+            console.log(`PlanetPositionCalculator: Cluster ${i+1} has ${cluster.length} positions`);
+        });
         
         // Process each cluster
-        clusters.forEach(cluster => {
+        clusters.forEach((cluster, clusterIndex) => {
+            console.log(`PlanetPositionCalculator: Processing cluster ${clusterIndex+1}`);
+            
             if (cluster.length <= 1) {
                 // Single planet - just place at exact base radius with no angle change
                 const planet = cluster[0];
+                console.log(`PlanetPositionCalculator: Single position in cluster, keeping at original longitude ${planet.longitude.toFixed(2)}°`);
                 this._setExactPosition(planet, planet.longitude, baseRadius, centerX, centerY, iconSize);
             } else {
                 // Handle cluster with multiple planets - distribute by angle
+                console.log(`PlanetPositionCalculator: Distributing ${cluster.length} positions in cluster`);
                 this._distributeClusterByAngle(cluster, baseRadius, minAngularDistance, centerX, centerY, iconSize);
+                
+                // Log the distributions
+                cluster.forEach((pos, i) => {
+                    console.log(`PlanetPositionCalculator: Position ${i+1} in cluster ${clusterIndex+1} adjusted from ${pos.longitude.toFixed(2)}° to ${pos.adjustedLongitude.toFixed(2)}°`);
+                });
             }
         });
         
@@ -129,16 +150,19 @@ class PlanetPositionCalculator {
         sortedPositions.forEach(pos => {
             const origIndex = pos.originalIndex;
             
-            adjustedPositions[origIndex].x = pos.x;
-            adjustedPositions[origIndex].y = pos.y;
-            adjustedPositions[origIndex].iconX = pos.iconX;
-            adjustedPositions[origIndex].iconY = pos.iconY;
-            adjustedPositions[origIndex].iconCenterX = pos.iconCenterX;
-            adjustedPositions[origIndex].iconCenterY = pos.iconCenterY;
-            
-            // Also add any adjusted longitude for reference
-            if (pos.adjustedLongitude !== undefined) {
-                adjustedPositions[origIndex].adjustedLongitude = pos.adjustedLongitude;
+            // Only copy if we have valid data
+            if (origIndex !== undefined && origIndex >= 0 && origIndex < adjustedPositions.length) {
+                adjustedPositions[origIndex].x = pos.x;
+                adjustedPositions[origIndex].y = pos.y;
+                adjustedPositions[origIndex].iconX = pos.iconX;
+                adjustedPositions[origIndex].iconY = pos.iconY;
+                adjustedPositions[origIndex].iconCenterX = pos.iconCenterX;
+                adjustedPositions[origIndex].iconCenterY = pos.iconCenterY;
+                
+                // Also add any adjusted longitude for reference
+                if (pos.adjustedLongitude !== undefined) {
+                    adjustedPositions[origIndex].adjustedLongitude = pos.adjustedLongitude;
+                }
             }
         });
         
@@ -153,11 +177,21 @@ class PlanetPositionCalculator {
      * @returns {Array} Array of arrays containing positions in each cluster
      */
     static _findOverlappingClusters(sortedPositions, minAngularDistance) {
+        if (!sortedPositions.length) return [];
+        if (sortedPositions.length === 1) return [sortedPositions];
+        
         const clusters = [];
         let currentCluster = [sortedPositions[0]];
+        const posCount = sortedPositions.length;
         
-        // Create clusters by checking consecutive positions
-        for (let i = 1; i < sortedPositions.length; i++) {
+        // Check for wrap-around at the edges (e.g., planet at 359° and another at 1°)
+        // Add the first planet to the end of the array for checking wraparound
+        const wrappedCheck = [...sortedPositions];
+        const firstPlanet = {...sortedPositions[0], longitude: sortedPositions[0].longitude + 360};
+        wrappedCheck.push(firstPlanet);
+        
+        // First identify standard clusters within the 0-360° range
+        for (let i = 1; i < posCount; i++) {
             const prevPosition = sortedPositions[i-1];
             const currPosition = sortedPositions[i];
             
@@ -165,7 +199,7 @@ class PlanetPositionCalculator {
             let angleDiff = currPosition.longitude - prevPosition.longitude;
             if (angleDiff < 0) angleDiff += 360;
             
-            if (angleDiff < minAngularDistance || (360 - angleDiff) < minAngularDistance) {
+            if (angleDiff < minAngularDistance) {
                 // Too close - add to current cluster
                 currentCluster.push(currPosition);
             } else {
@@ -177,9 +211,33 @@ class PlanetPositionCalculator {
             }
         }
         
-        // Add the final cluster if it exists
+        // Add the final regular cluster if it exists
         if (currentCluster.length > 0) {
             clusters.push(currentCluster);
+        }
+        
+        // Check for a wrap-around cluster (where last and first planets are close)
+        const lastPlanet = sortedPositions[posCount - 1];
+        const firstPlanetOriginal = sortedPositions[0];
+        
+        let wrapDiff = (firstPlanetOriginal.longitude + 360) - lastPlanet.longitude;
+        if (wrapDiff < 0) wrapDiff += 360;
+        
+        if (wrapDiff < minAngularDistance) {
+            // We have a wraparound cluster
+            // If first and last clusters both exist, merge them
+            if (clusters.length >= 2) {
+                const firstCluster = clusters[0];
+                const lastCluster = clusters[clusters.length - 1];
+                
+                // If first element is in first cluster and last element is in last cluster
+                if (firstCluster.includes(firstPlanetOriginal) && lastCluster.includes(lastPlanet)) {
+                    // Merge the first and last clusters
+                    const mergedCluster = [...lastCluster, ...firstCluster];
+                    clusters.pop(); // Remove last cluster
+                    clusters[0] = mergedCluster; // Replace first cluster with merged
+                }
+            }
         }
         
         return clusters;
@@ -211,25 +269,28 @@ class PlanetPositionCalculator {
             totalArc = (360 + lastPos - firstPos) % 360;
         }
         
-        // Determine minimum arc needed for n positions with minimum spacing
+        // Calculate the center of the cluster
+        let centerAngle = (firstPos + totalArc/2) % 360;
+        
+        // Determine minimum arc needed for n planets with minimum spacing
         const minRequiredArc = (n - 1) * minAngularDistance;
         
-        // If there's enough natural space, just distribute evenly in the existing arc
-        if (totalArc >= minRequiredArc) {
-            // Calculate even spacing
-            const spacing = totalArc / (n - 1);
+        // Calculate total span to use (either natural spacing or minimum required)
+        const spanToUse = Math.max(totalArc, minRequiredArc);
+        
+        // Calculate start angle (center - half of span)
+        const startAngle = (centerAngle - spanToUse/2 + 360) % 360;
+        
+        // Distribute planets evenly from the start angle
+        for (let i = 0; i < n; i++) {
+            // If only one planet, keep its original position
+            if (n === 1) {
+                this._setExactPosition(positions[i], positions[i].longitude, radius, centerX, centerY, iconSize);
+                continue;
+            }
             
-            // Distribute positions evenly
-            for (let i = 0; i < n; i++) {
-                const angle = (firstPos + i * spacing) % 360;
-                this._setExactPosition(positions[i], angle, radius, centerX, centerY, iconSize);
-            }
-        } else {
-            // Not enough natural space, force minimum spacing
-            for (let i = 0; i < n; i++) {
-                const angle = (firstPos + i * minAngularDistance) % 360;
-                this._setExactPosition(positions[i], angle, radius, centerX, centerY, iconSize);
-            }
+            const angle = (startAngle + i * (spanToUse / (n-1))) % 360;
+            this._setExactPosition(positions[i], angle, radius, centerX, centerY, iconSize);
         }
     }
     
