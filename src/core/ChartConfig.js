@@ -24,22 +24,39 @@ class ChartConfig {
         
         // Planet settings
         this.planetSettings = {
-            size: 12,
             enabled: true,
-            colors: {
-                sun: "#ffcc00",
-                moon: "#cccccc",
-                mercury: "#9999ff",
-                venus: "#ff66cc",
-                mars: "#ff0000",
-                jupiter: "#ffcc66",
-                saturn: "#333333",
-                uranus: "#99ccff",
-                neptune: "#6666ff",
-                pluto: "#996699"
+            primaryEnabled: true,     // Toggle for primary (inner circle) planets
+            secondaryEnabled: true,   // Toggle for secondary (innermost circle) planets
+            dotSize: 3,               // Size of the position dot
+            iconSize: 24,             // Size of the planet icon
+            orbs: {
+                // Default orbs for each planet
+                sun: 8,
+                moon: 8,
+                mercury: 6,
+                venus: 6,
+                mars: 6,
+                jupiter: 6,
+                saturn: 6,
+                uranus: 4,
+                neptune: 4,
+                pluto: 4
             },
-            // Individual planet visibility
-            visibility: {
+            colors: {
+                // Default colors for each planet
+                sun: "#ff9900",
+                moon: "#aaaaaa",
+                mercury: "#3399cc",
+                venus: "#cc66cc",
+                mars: "#cc3333",
+                jupiter: "#9966cc",
+                saturn: "#336633",
+                uranus: "#33cccc",
+                neptune: "#3366ff",
+                pluto: "#663366"
+            },
+            visible: {
+                // Default visibility for each planet
                 sun: true,
                 moon: true,
                 mercury: true,
@@ -287,7 +304,7 @@ class ChartConfig {
         return {
             color: this.planetSettings.colors[planetLower] || "#000000",
             size: this.planetSettings.size,
-            visible: this.planetSettings.visibility[planetLower] !== false
+            visible: this.planetSettings.visible[planetLower] !== false
         };
     }
 
@@ -359,31 +376,46 @@ class ChartConfig {
     }
 
     /**
-     * Toggles visibility of a specific planet
+     * Toggles the visibility of a planet
      * @param {string} planetName - Name of the planet
-     * @param {boolean} visible - Visibility state
+     * @param {boolean} visible - Whether the planet should be visible
      */
     togglePlanetVisibility(planetName, visible) {
-        const planetLower = planetName.toLowerCase();
-        if (Object.prototype.hasOwnProperty.call(this.planetSettings.visibility, planetLower)) {
-            this.planetSettings.visibility[planetLower] = visible;
+        if (this.planetSettings && this.planetSettings.visible) {
+            this.planetSettings.visible[planetName] = visible;
         }
     }
-
+    
     /**
-     * Toggles visibility of all houses
-     * @param {boolean} visible - Visibility state
+     * Toggles the visibility of houses
+     * @param {boolean} visible - Whether houses should be visible
      */
     toggleHousesVisibility(visible) {
         this.houseSettings.enabled = visible;
     }
-
+    
     /**
-     * Toggles visibility of aspects
-     * @param {boolean} visible - Visibility state
+     * Toggles the visibility of aspects
+     * @param {boolean} visible - Whether aspects should be visible
      */
     toggleAspectsVisibility(visible) {
         this.aspectSettings.enabled = visible;
+    }
+    
+    /**
+     * Toggles the visibility of primary planets (inner circle)
+     * @param {boolean} visible - Whether primary planets should be visible
+     */
+    togglePrimaryPlanetsVisibility(visible) {
+        this.planetSettings.primaryEnabled = visible;
+    }
+    
+    /**
+     * Toggles the visibility of secondary planets (innermost circle)
+     * @param {boolean} visible - Whether secondary planets should be visible
+     */
+    toggleSecondaryPlanetsVisibility(visible) {
+        this.planetSettings.secondaryEnabled = visible;
     }
 
     /**

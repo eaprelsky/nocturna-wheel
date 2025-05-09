@@ -16,12 +16,21 @@ class PlanetRenderer extends BaseRenderer {
             throw new Error("PlanetRenderer: Missing required option assetBasePath");
         }
         // Use config radii for positions
-        this.iconBaseRadius = (this.innerRadius + this.middleRadius) / 2;
-        this.dotRadius = this.innerRadius;
+        this.primaryRadii = {
+            dotRadius: this.innerRadius,
+            iconRadius: (this.innerRadius + this.middleRadius) / 2
+        };
+        
+        // Default secondary radii - these will be updated when rendering
+        this.secondaryRadii = {
+            dotRadius: null,  // Will be set during rendering
+            iconRadius: null  // Will be set during rendering
+        };
+        
         // Define layers for overlap adjustments
         this.iconRadiusLayers = [
             this.innerRadius + 5,
-            this.iconBaseRadius,
+            this.primaryRadii.iconRadius,
             this.middleRadius - 5
         ].sort((a, b) => a - b);
     }
@@ -31,14 +40,46 @@ class PlanetRenderer extends BaseRenderer {
      * @param {Element} parentGroup - The parent SVG group element.
      * @param {Array} planetsData - Array of planet objects { name: string, position: number }.
      * @param {number} houseRotationAngle - (currently unused, but kept for potential future use)
+     * @param {Object} options - Additional rendering options
+     * @param {number} options.dotRadius - Custom radius for planet dots (optional)
+     * @param {number} options.iconRadius - Custom radius for planet icons (optional)
+     * @param {string} options.type - Type of planets: 'primary' or 'secondary' (optional, default: 'primary')
      * @returns {Array} Array of planet objects with added coordinates (x, y) and other calculated data.
      */
-    render(parentGroup, planetsData, houseRotationAngle = 0) {
+    render(parentGroup, planetsData, houseRotationAngle = 0, options = {}) {
         if (!parentGroup) {
              console.error("PlanetRenderer: parentGroup is null or undefined.");
              return [];
         }
-        console.log('PlanetRenderer: Rendering planets count:', planetsData.length);
+        
+        // Determine planet type (primary or secondary)
+        const planetType = options.type || 'primary';
+        const isPrimary = planetType === 'primary';
+        
+        console.log(`PlanetRenderer: Rendering ${planetType} planets, count:`, planetsData.length);
+
+        // Use appropriate radii based on type and options
+        let dotRadius, iconRadius;
+        
+        if (isPrimary) {
+            dotRadius = options.dotRadius || this.primaryRadii.dotRadius;
+            iconRadius = options.iconRadius || this.primaryRadii.iconRadius;
+        } else {
+            // For secondary planets, use provided values or update stored values
+            if (options.dotRadius) this.secondaryRadii.dotRadius = options.dotRadius;
+            if (options.iconRadius) this.secondaryRadii.iconRadius = options.iconRadius;
+            
+            dotRadius = this.secondaryRadii.dotRadius;
+            iconRadius = this.secondaryRadii.iconRadius;
+            
+            if (!dotRadius || !iconRadius) {
+                console.error(`PlanetRenderer: Missing radius values for secondary planets`);
+                return [];
+            }
+        }
+        
+        console.log(`PlanetRenderer: Using dotRadius: ${dotRadius}, iconRadius: ${iconRadius} for ${planetType} planets`);
+        
         // Clear the group before rendering new planets
         this.clearGroup(parentGroup);
 
@@ -55,15 +96,19 @@ class PlanetRenderer extends BaseRenderer {
             // Calculate sign index and get name from AstrologyUtils
             zodiacSign: AstrologyUtils.getZodiacSigns()[Math.floor(p.position / 30) % 12],
             position_in_sign: p.position % 30, // Calculate position within sign
-            isPrimary: p.isPrimary || false,
-            color: p.color || '#000000'
+            isPrimary: isPrimary,
+            type: planetType,
+            color: p.color || '#000000',
+            // Track which radius this planet is being rendered at
+            dotRadius: dotRadius,
+            iconRadius: iconRadius
         }));
 
         // Sort planets by position for overlap calculations
         planets.sort((a, b) => a.position - b.position);
 
         // Calculate base positions (dot and icon)
-        this.calculateBasePositions(planets);
+        this.calculateBasePositions(planets, dotRadius, iconRadius);
 
         // Calculate adjustments for overlapping planets
         this.adjustOverlappingPlanets(planets);
@@ -76,10 +121,95 @@ class PlanetRenderer extends BaseRenderer {
     }
 
     /**
+     * Renders both primary and secondary planets in one call.
+     * This consolidated method handles rendering all planets.
+     * 
+     * @param {Object} params - Rendering parameters
+     * @param {SVGManager} params.svgManager - SVG manager instance
+     * @param {Object} params.planetsData - Planet data object
+     * @param {Object} params.config - Chart configuration with radii
+     * @param {boolean} params.primaryEnabled - Whether primary planets are enabled
+     * @param {boolean} params.secondaryEnabled - Whether secondary planets are enabled
+     * @returns {Object} Object containing both sets of rendered planets
+     */
+    renderAllPlanetTypes(params) {
+        const { 
+            svgManager, 
+            planetsData, 
+            config,
+            primaryEnabled = true,
+            secondaryEnabled = true
+        } = params;
+        
+        if (!svgManager || !planetsData || !config) {
+            console.error("PlanetRenderer: Missing required parameters");
+            return { primary: [], secondary: [] };
+        }
+        
+        // Convert planet data to array format
+        const planetsArray = Object.entries(planetsData).map(([name, data]) => ({
+            name: name,
+            position: data.lon,
+            color: data.color || '#000000'
+        }));
+        
+        const result = {
+            primary: [],
+            secondary: []
+        };
+        
+        // Get center coordinates
+        const centerX = config.svg.center.x;
+        const centerY = config.svg.center.y;
+        
+        // Save original center values
+        const originalCenterX = this.centerX;
+        const originalCenterY = this.centerY;
+        
+        // Update center for this rendering
+        this.centerX = centerX;
+        this.centerY = centerY;
+        
+        // Render primary planets if enabled
+        if (primaryEnabled) {
+            const primaryGroup = svgManager.getGroup('primaryPlanets');
+            result.primary = this.render(primaryGroup, planetsArray, 0, {
+                type: 'primary'
+                // Use default primary radii from constructor
+            });
+            console.log(`PlanetRenderer: Rendered ${result.primary.length} primary planets`);
+        }
+        
+        // Render secondary planets if enabled
+        if (secondaryEnabled) {
+            const secondaryGroup = svgManager.getGroup('secondaryPlanets');
+            
+            // Get secondary (innermost) radii from config
+            const dotRadius = config.radius.innermost;
+            const iconRadius = (config.radius.innermost + config.radius.zodiacInner) / 2;
+            
+            result.secondary = this.render(secondaryGroup, planetsArray, 0, {
+                type: 'secondary',
+                dotRadius: dotRadius,
+                iconRadius: iconRadius
+            });
+            console.log(`PlanetRenderer: Rendered ${result.secondary.length} secondary planets`);
+        }
+        
+        // Restore original center values
+        this.centerX = originalCenterX;
+        this.centerY = originalCenterY;
+        
+        return result;
+    }
+
+    /**
      * Calculates base positions (dot and icon) for planets.
      * @param {Array} planets - Array of planet objects.
+     * @param {number} dotRadius - Radius for planet dots
+     * @param {number} iconRadius - Radius for planet icons
      */
-    calculateBasePositions(planets) {
+    calculateBasePositions(planets, dotRadius, iconRadius) {
         planets.forEach(planet => {
             // Convert position to radians (0 degrees = East, anti-clockwise)
             // Subtract 90 to make 0 degrees = North (top)
@@ -88,14 +218,14 @@ class PlanetRenderer extends BaseRenderer {
 
             // Calculate position on the dot radius circle
             // Use position directly with pointOnCircle which expects degrees
-            const point = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.dotRadius, planet.position);
+            const point = this.svgUtils.pointOnCircle(this.centerX, this.centerY, dotRadius, planet.position);
             console.log(`PlanetRenderer: Calculated dot position for ${planet.name}:`, JSON.stringify(point)); // Log the calculated point
             planet.x = point.x;
             planet.y = point.y;
             console.log(`PlanetRenderer: Assigned planet.x=${planet.x}, planet.y=${planet.y} for ${planet.name}`); // Log assigned values
 
             // Calculate base position for the planet icon
-            const iconPoint = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.iconBaseRadius, planet.position);
+            const iconPoint = this.svgUtils.pointOnCircle(this.centerX, this.centerY, iconRadius, planet.position);
             // Store base icon coordinates (center of icon)
             console.log(`PlanetRenderer: Calculated icon position for ${planet.name}:`, JSON.stringify(iconPoint)); // Log the calculated icon point
             planet.iconX = iconPoint.x;
@@ -115,11 +245,13 @@ class PlanetRenderer extends BaseRenderer {
     adjustOverlappingPlanets(planets) {
         if (planets.length <= 1) return; // Nothing to adjust with 0 or 1 planets
         
-        console.log(`PlanetRenderer: Adjusting overlapping planets, count: ${planets.length}`);
+        const planetType = planets[0].type || 'primary';
+        console.log(`PlanetRenderer: Adjusting overlapping ${planetType} planets, count: ${planets.length}`);
         
         // Define parameters for collision detection and distribution
         const iconSize = 24;
-        const baseRadius = this.iconBaseRadius; // Use the middle of the band
+        // Use the iconRadius from the first planet (they should all be the same)
+        const baseRadius = planets[0].iconRadius; 
         const minDistance = iconSize * 1.2;
         
         console.log(`PlanetRenderer: Using baseRadius: ${baseRadius}, minDistance: ${minDistance}`);
@@ -163,12 +295,12 @@ class PlanetRenderer extends BaseRenderer {
                 // Log significant adjustments
                 const adjustment = Math.abs(originalPos - pos.adjustedLongitude);
                 if (adjustment > 0.1) { // Only log if adjustment is significant
-                    console.log(`PlanetRenderer: Planet ${planet.name} adjusted from ${originalPos.toFixed(2)}° to ${pos.adjustedLongitude.toFixed(2)}° (shift: ${adjustment.toFixed(2)}°)`);
+                    console.log(`PlanetRenderer: ${planetType} planet ${planet.name} adjusted from ${originalPos.toFixed(2)}° to ${pos.adjustedLongitude.toFixed(2)}° (shift: ${adjustment.toFixed(2)}°)`);
                 }
             }
         });
         
-        console.log('PlanetRenderer: Planet overlap adjustment complete');
+        console.log(`PlanetRenderer: ${planetType} planet overlap adjustment complete`);
     }
 
     /**
@@ -178,11 +310,14 @@ class PlanetRenderer extends BaseRenderer {
      */
     drawPlanets(parentGroup, planets) {
         planets.forEach(planet => {
+            // Get planet type for CSS classes
+            const typeClass = planet.isPrimary ? 'primary' : 'secondary';
+            
             // Create group for this planet (contains dot, symbol, and label)
             const planetGroup = this.svgUtils.createSVGElement("g", {
                 'data-planet': planet.name,
-                'data-primary': planet.isPrimary ? 'true' : 'false',
-                class: `planet-element planet-${planet.name} ${planet.isPrimary ? 'primary' : 'secondary'}`,
+                'data-type': planet.type,
+                class: `planet-element planet-${planet.name} planet-${typeClass}`,
                 transform: `translate(0,0)` // No transforms for now, may be useful later for animations
             });
             
@@ -191,7 +326,7 @@ class PlanetRenderer extends BaseRenderer {
                 cx: planet.x,
                 cy: planet.y,
                 r: 3, // Small fixed size for position indicator
-                class: `planet-dot planet-${planet.name}-dot`,
+                class: `planet-dot planet-${planet.name}-dot planet-${typeClass}-dot`,
                 fill: planet.color || '#000000'
             });
             planetGroup.appendChild(dot);
@@ -215,7 +350,7 @@ class PlanetRenderer extends BaseRenderer {
                 width: iconSize,
                 height: iconSize,
                 href: iconPath,
-                class: `planet-icon planet-${planet.name}-icon`
+                class: `planet-icon planet-${planet.name}-icon planet-${typeClass}-icon`
             });
             
             // Add error handling for missing icons
@@ -230,7 +365,7 @@ class PlanetRenderer extends BaseRenderer {
                     'text-anchor': 'middle',
                     'dominant-baseline': 'middle',
                     'font-size': `${iconSize}px`,
-                    class: `planet-symbol planet-${planet.name}-symbol`,
+                    class: `planet-symbol planet-${planet.name}-symbol planet-${typeClass}-symbol`,
                     fill: planet.color || '#000000'
                 });
                 
@@ -242,12 +377,38 @@ class PlanetRenderer extends BaseRenderer {
             planetGroup.appendChild(icon);
             
             // Add tooltip with full planet name and position
-            const tooltipText = `${AstrologyUtils.getPlanetFullName(planet.name)}: ${planet.position.toFixed(1)}° ${planet.zodiacSign.toUpperCase()} (${planet.position_in_sign.toFixed(1)}°)`;
+            const typeLabel = planet.isPrimary ? "Primary" : "Secondary";
+            const tooltipText = `${typeLabel} ${AstrologyUtils.getPlanetFullName(planet.name)}: ${planet.position.toFixed(1)}° ${planet.zodiacSign.toUpperCase()} (${planet.position_in_sign.toFixed(1)}°)`;
             this.svgUtils.addTooltip(planetGroup, tooltipText);
+            
+            // Draw connector line if the dot and icon are far enough apart
+            const distX = planet.x - planet.adjustedIconX;
+            const distY = planet.y - planet.adjustedIconY;
+            const distance = Math.sqrt(distX * distX + distY * distY);
+            
+            if (distance > iconSize * 0.3) {
+                const connector = this.svgUtils.createSVGElement('line', {
+                    x1: planet.x,
+                    y1: planet.y,
+                    x2: planet.adjustedIconX,
+                    y2: planet.adjustedIconY,
+                    class: `planet-element planet-${planet.name.toLowerCase()} planet-connector planet-${typeClass}-connector`,
+                    stroke: planet.color || '#000000',
+                    'stroke-width': 0.75,
+                    'stroke-opacity': 0.5
+                });
+                planetGroup.appendChild(connector);
+            }
             
             // Add to parent group
             parentGroup.appendChild(planetGroup);
         });
+    }
+
+    // Legacy method - deprecated, use renderAllPlanetTypes instead
+    renderAllPlanets(params) {
+        console.warn("PlanetRenderer: renderAllPlanets is deprecated, use renderAllPlanetTypes instead");
+        return this.renderAllPlanetTypes(params);
     }
 
     /**

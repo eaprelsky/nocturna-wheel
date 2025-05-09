@@ -12,7 +12,8 @@ class SVGManager {
             'zodiac',
             'houseDivisions',
             'aspects', // Render aspects below planets and houses
-            'planets',
+            'primaryPlanets', // Inner circle planets
+            'secondaryPlanets', // Innermost circle planets
             'houses' // House numbers on top
             // Add other groups if needed, e.g., 'tooltips'
         ];
@@ -86,6 +87,10 @@ class SVGManager {
         this.groupOrder.forEach(groupName => {
             this.createGroup(groupName);
         });
+        
+        // Create a legacy 'planets' group for backward compatibility
+        // This will be deprecated in future versions
+        this.createGroup('planets');
     }
 
     /**
@@ -123,6 +128,13 @@ class SVGManager {
              console.warn(`SVGManager: Cannot get group '${name}', SVG not initialized.`);
              return null;
         }
+        
+        // For backward compatibility, map 'planets' to 'primaryPlanets'
+        if (name === 'planets') {
+            console.warn('SVGManager: Using deprecated "planets" group. Use "primaryPlanets" or "secondaryPlanets" instead.');
+            name = 'primaryPlanets';
+        }
+        
         if (!this.groups[name]) {
              console.warn(`SVGManager: Group '${name}' not found. Creating it.`);
              // Attempt to create if missing, might indicate an issue elsewhere
