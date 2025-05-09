@@ -15,6 +15,157 @@
     <link href="assets/css/nocturna-wheel.css" rel="stylesheet">
     <link href="assets/css/nocturna-wheel-cardinal.css" rel="stylesheet">
     <link href="assets/css/demo.css" rel="stylesheet">
+    
+    <!-- Custom fixes -->
+    <style>
+        /* Fix for any unwanted elements in the corners */
+        .chart-container svg text:not(.house-number):not(.zodiac-sign-label) {
+            display: none;
+        }
+        
+        /* Ensure house divisions are visible */
+        .house-element {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .house-division-line {
+            stroke: #666 !important;
+            stroke-width: 1px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .house-division-line.axis,
+        .house-division-line.asc,
+        .house-division-line.dsc,
+        .house-division-line.ic,
+        .house-division-line.mc {
+            stroke: #333 !important;
+            stroke-width: 1.5px !important;
+        }
+        
+        /* Make sure house numbers are visible and correctly positioned */
+        .house-number {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            fill: #333333;
+            font-weight: bold;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Force planet colors to black */
+        .planet-icon, .planet-dot {
+            fill: #000000 !important;
+            stroke: #000000 !important;
+        }
+        
+        /* Ensure correct aspect colors */
+        .aspect-line.conjunction {
+            stroke: #000000 !important;
+        }
+        
+        /* Fix for aspect selector overlap issues */
+        .aspect-item .form-check {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        
+        .aspect-item .form-check-input {
+            margin-top: 3px;
+            flex-shrink: 0;
+            z-index: 1;
+            margin-right: 8px;
+        }
+        
+        .aspect-item .form-check-label {
+            display: flex;
+            align-items: center;
+            padding-left: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .aspect-item .aspect-name {
+            padding-left: 2px;
+            display: inline-block;
+            display: flex;
+            align-items: center;
+        }
+        
+        .aspect-indicator {
+            display: inline-block; 
+            width: 12px; 
+            height: 12px;
+            margin-right: 6px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+        
+        /* Ensure controls row has enough space and doesn't overlap */
+        .aspect-item .controls-row {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Ensure color picker doesn't overlap */
+        .aspect-item .color-picker-wrapper {
+            margin-top: 2px;
+        }
+        
+        /* Fix Line Style dropdowns layout */
+        .aspect-item .control-group {
+            margin-bottom: 8px;
+        }
+        
+        /* Visually hidden class for accessibility */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        /* Fix for aspect item spacing */
+        #aspect-types {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        /* Additional styling for aspect types container */
+        .aspect-types-container {
+            padding-top: 4px;
+            max-height: 280px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+        }
+        
+        /* Ensure aspect items are well-spaced */
+        .aspect-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: rgba(248, 249, 250, 0.7);
+        }
+        
+        /* Fix form-check alignment */
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -125,7 +276,7 @@
                                 <label class="form-check-label" for="toggle-aspects">Show Aspects</label>
                             </div>
                             
-                            <div id="aspect-types">
+                            <div id="aspect-types" class="aspect-types-container">
                                 <!-- Dynamically generated aspect controls -->
                             </div>
                         </div>
@@ -245,6 +396,9 @@ wheelChart.toggleAspects(false);</code></pre>
     <script src="src/utils/AstrologyUtils.js"></script>
     <script src="src/utils/PlanetPositionCalculator.js"></script>
     
+    <!-- Core calculation classes -->
+    <script src="src/core/HouseCalculator.js"></script>
+    
     <!-- Core configuration -->
     <script src="src/core/ChartConfig.js"></script>
     
@@ -269,7 +423,7 @@ wheelChart.toggleAspects(false);</code></pre>
             // Sample data for the chart
             let chartData = {
                 planets: {
-                    sun: { lon: 85.83, color: '#000000' }, // Add default color
+                    sun: { lon: 85.83, color: '#000000' },
                     moon: { lon: 133.21, color: '#000000' },
                     mercury: { lon: 70.18, color: '#000000' },
                     venus: { lon: 42.57, color: '#000000' },
@@ -317,6 +471,18 @@ wheelChart.toggleAspects(false);</code></pre>
                     assets: {
                         basePath: "./assets/",
                         showCardinalLabels: false
+                    },
+                    astronomicalData: {
+                        ascendant: 300.32,  // 1st house cusp (Ascendant)
+                        mc: 200.32,         // 10th house cusp (Midheaven)
+                        latitude: 51.5      // Default latitude (London)
+                    },
+                    houseSettings: {
+                        enabled: true,
+                        lineColor: "#666666",
+                        textColor: "#333333",
+                        fontSize: 10,
+                        rotationAngle: 0
                     }
                 }
             });
@@ -528,15 +694,15 @@ wheelChart.toggleAspects(false);</code></pre>
                 
                 // Get current thickness value
                 const currentThickness = aspectDef.strokeWidth || 1;
-                
-                // Create a color box with the aspect's color for better visual identification
-                const aspectColorBox = `<div style="display: inline-block; width: 16px; height: 16px; background-color: ${aspectDef.color}; border-radius: 3px; margin-right: 6px; vertical-align: middle;"></div>`;
 
                 controlDiv.innerHTML = `
                     <div class="form-check">
                         <input class="form-check-input aspect-checkbox" type="checkbox" id="toggle-${aspect}" data-aspect="${aspect}" checked>
                         <label class="form-check-label fw-bold" for="toggle-${aspect}">
-                            ${aspectColorBox} ${aspectDef.symbol || ''} ${aspectName}
+                            <span class="aspect-name">
+                                <span class="aspect-indicator" style="display: inline-block; width: 12px; height: 12px; margin-right: 6px; background-color: ${aspectDef.color || '#888888'}; border-radius: 2px; border: 1px solid #ccc;"></span>
+                                ${aspectDef.symbol || ''} ${aspectName}
+                            </span>
                         </label>
                     </div>
                     <div class="controls-row">
@@ -708,20 +874,26 @@ wheelChart.toggleAspects(false);</code></pre>
                     const color = e.target.value;
                     
                     if (chart.config.aspectSettings.types[aspect]) {
-                        // Store previous color to update CSS selectors
-                        const oldColor = chart.config.aspectSettings.types[aspect].color;
-                        
                         // Update the aspect type's color in the configuration
                         chart.config.aspectSettings.types[aspect].color = color;
                         
-                        // Update the color preview
-                        e.target.parentElement.style.backgroundColor = color;
-                        e.target.parentElement.nextElementSibling.textContent = color;
+                        // Update color preview in the controls section
+                        const colorPreview = e.target.parentElement;
+                        if (colorPreview) {
+                            colorPreview.style.backgroundColor = color;
+                            if (colorPreview.nextElementSibling) {
+                                colorPreview.nextElementSibling.textContent = color;
+                            }
+                        }
                         
-                        // Update the color box in the label
-                        const label = e.target.closest('.aspect-item').querySelector('.form-check-label');
-                        const colorBox = label.querySelector('div');
-                        if (colorBox) colorBox.style.backgroundColor = color;
+                        // Update the aspect indicator color
+                        const aspectItem = document.querySelector(`.aspect-item [data-aspect="${aspect}"]`).closest('.aspect-item');
+                        if (aspectItem) {
+                            const indicator = aspectItem.querySelector('.aspect-indicator');
+                            if (indicator) {
+                                indicator.style.backgroundColor = color;
+                            }
+                        }
                         
                         // Update aspect line styles
                         updateAspectLineStyles();

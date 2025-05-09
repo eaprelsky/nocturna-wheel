@@ -2,12 +2,34 @@
  * ChartConfig.js
  * Configuration class for the natal chart rendering.
  */
+
 class ChartConfig {
     /**
      * Creates a new configuration with default settings
      * @param {Object} customConfig - Custom configuration to merge with defaults
      */
     constructor(customConfig = {}) {
+        // Astronomical data - pure positional data without styling
+        this.astronomicalData = {
+            ascendant: 0,       // Ascendant longitude in degrees
+            mc: 90,             // Midheaven longitude in degrees
+            latitude: 51.5,     // Default latitude (London)
+            houseSystem: "Placidus", // Default house system
+            planets: {
+                // Default planet positions
+                sun: 0,
+                moon: 0,
+                mercury: 0,
+                venus: 0,
+                mars: 0,
+                jupiter: 0,
+                saturn: 0,
+                uranus: 0,
+                neptune: 0,
+                pluto: 0
+            }
+        };
+        
         // Aspect settings
         this.aspectSettings = {
             enabled: true,
@@ -70,19 +92,13 @@ class ChartConfig {
             }
         };
         
-        // House settings
+        // House settings - only UI related settings, no calculations
         this.houseSettings = {
             enabled: true,
-            system: "Placidus", // Default house system
             lineColor: "#666666",
             textColor: "#333333",
             fontSize: 10,
-            rotationAngle: 0, // Custom rotation angle for house system
-            houseSystems: {
-                currentSystem: "Placidus", // Default house system
-                // House systems data will be populated during initialization
-                systems: {}
-            }
+            rotationAngle: 0  // Custom rotation angle for house system
         };
         
         // Zodiac settings
@@ -141,11 +157,14 @@ class ChartConfig {
             fontFamily: "'Arial', sans-serif"
         };
         
+        // House cusps cache - will be populated by HouseCalculator
+        this.houseCusps = [];
+        
         // Merge custom config with defaults (deep merge)
         this.mergeConfig(customConfig);
         
-        // Initialize house systems data after merging config
-        this._initializeHouseSystems();
+        // Initialize house cusps if we have enough data
+        this._initializeHouseCusps();
     }
 
     /**
@@ -185,112 +204,32 @@ class ChartConfig {
     }
 
     /**
-     * Initializes available house systems with default house cusps
+     * Initializes house cusps using the HouseCalculator
      * @private
      */
-    _initializeHouseSystems() {
-        // Get available house systems from AstrologyUtils
-        const availableSystems = AstrologyUtils.getHouseSystems();
-        const systems = {};
-        
-        // For each house system, create default house cusps
-        // In a real implementation, these would be calculated based on the birth data and house system formula
-        Object.keys(availableSystems).forEach(system => {
-            // For demo purposes, we'll use slightly different house cusps for each system
-            switch(system) {
-                case "Placidus":
-                    systems[system] = [
-                        { lon: 300.32 },  // 1st house cusp
-                        { lon: 330.15 },  // 2nd house cusp
-                        { lon: 355.24 },  // 3rd house cusp
-                        { lon: 20.32 },   // 4th house cusp
-                        { lon: 45.15 },   // 5th house cusp
-                        { lon: 75.24 },   // 6th house cusp
-                        { lon: 120.32 },  // 7th house cusp
-                        { lon: 150.15 },  // 8th house cusp
-                        { lon: 175.24 },  // 9th house cusp
-                        { lon: 200.32 },  // 10th house cusp
-                        { lon: 225.15 },  // 11th house cusp
-                        { lon: 255.24 }   // 12th house cusp
-                    ];
-                    break;
-                case "Koch":
-                    systems[system] = [
-                        { lon: 300.32 },
-                        { lon: 325.48 },
-                        { lon: 352.76 },
-                        { lon: 22.45 },
-                        { lon: 48.26 },
-                        { lon: 77.65 },
-                        { lon: 120.32 },
-                        { lon: 145.48 },
-                        { lon: 172.76 },
-                        { lon: 202.45 },
-                        { lon: 228.26 },
-                        { lon: 257.65 }
-                    ];
-                    break;
-                case "Equal":
-                    // Equal house system has cusps exactly 30° apart
-                    const cusps = [];
-                    for (let i = 0; i < 12; i++) {
-                        cusps.push({ lon: (300 + i * 30) % 360 });
+    _initializeHouseCusps() {
+        // Only calculate if we have the necessary data
+        if (typeof this.astronomicalData.ascendant === 'number' && 
+            typeof this.astronomicalData.mc === 'number') {
+            
+            try {
+                // Create calculator instance
+                const houseCalculator = new HouseCalculator();
+                
+                // Calculate house cusps using the current house system
+                this.houseCusps = houseCalculator.calculateHouseCusps(
+                    this.astronomicalData.ascendant,
+                    this.astronomicalData.houseSystem,
+                    {
+                        latitude: this.astronomicalData.latitude,
+                        mc: this.astronomicalData.mc
                     }
-                    systems[system] = cusps;
-                    break;
-                case "Whole Sign":
-                    // Whole Sign has cusps at the beginning of each sign
-                    const wholeSignCusps = [];
-                    // Assuming ASC is at 300.32° (in Aquarius)
-                    const ascSign = Math.floor(300.32 / 30);
-                    for (let i = 0; i < 12; i++) {
-                        wholeSignCusps.push({ lon: ((ascSign + i) % 12) * 30 });
-                    }
-                    systems[system] = wholeSignCusps;
-                    break;
-                case "Porphyry":
-                    systems[system] = [
-                        { lon: 300.32 },
-                        { lon: 320.21 },
-                        { lon: 340.1 },
-                        { lon: 20.32 },
-                        { lon: 53.77 },
-                        { lon: 87.22 },
-                        { lon: 120.32 },
-                        { lon: 140.21 },
-                        { lon: 160.1 },
-                        { lon: 200.32 },
-                        { lon: 233.77 },
-                        { lon: 267.22 }
-                    ];
-                    break;
-                // Add other systems with different house cusp values for demo purposes
-                default:
-                    // For other systems, use Placidus values with a slight variation
-                    systems[system] = [
-                        { lon: (300.32 + (system.length * 2)) % 360 },
-                        { lon: (330.15 + (system.length * 2)) % 360 },
-                        { lon: (355.24 + (system.length * 2)) % 360 },
-                        { lon: (20.32 + (system.length * 2)) % 360 },
-                        { lon: (45.15 + (system.length * 2)) % 360 },
-                        { lon: (75.24 + (system.length * 2)) % 360 },
-                        { lon: (120.32 + (system.length * 2)) % 360 },
-                        { lon: (150.15 + (system.length * 2)) % 360 },
-                        { lon: (175.24 + (system.length * 2)) % 360 },
-                        { lon: (200.32 + (system.length * 2)) % 360 },
-                        { lon: (225.15 + (system.length * 2)) % 360 },
-                        { lon: (255.24 + (system.length * 2)) % 360 }
-                    ];
+                );
+            } catch (error) {
+                console.error("Failed to calculate house cusps:", error);
+                // Set empty cusps array if calculation fails
+                this.houseCusps = [];
             }
-        });
-        
-        // Store house systems in configuration
-        this.houseSettings.houseSystems.systems = systems;
-        
-        // Set current system to default if not already set
-        if (!this.houseSettings.houseSystems.currentSystem || 
-            !systems[this.houseSettings.houseSystems.currentSystem]) {
-            this.houseSettings.houseSystems.currentSystem = "Placidus";
         }
     }
 
@@ -349,7 +288,7 @@ class ChartConfig {
     }
 
     /**
-     * Updates house settings
+     * Updates house settings (visual settings only)
      * @param {Object} settings - New house settings
      */
     updateHouseSettings(settings) {
@@ -419,33 +358,133 @@ class ChartConfig {
     }
 
     /**
-     * Sets the current house system
+     * Sets the current house system and recalculates house cusps
      * @param {string} systemName - Name of the house system to use
      * @returns {boolean} - Success status
      */
     setHouseSystem(systemName) {
-        if (this.houseSettings.houseSystems.systems[systemName]) {
-            this.houseSettings.houseSystems.currentSystem = systemName;
-            this.houseSettings.system = systemName; // For backward compatibility
+        // Update the house system name
+        this.astronomicalData.houseSystem = systemName;
+        
+        // Recalculate house cusps with new system
+        this._initializeHouseCusps();
+        
+        return true;
+    }
+    
+    /**
+     * Gets the current house cusps
+     * @returns {Array} - Array of house cusps
+     */
+    getHouseCusps() {
+        // If we don't have house cusps data yet, calculate it
+        if (!this.houseCusps || this.houseCusps.length === 0) {
+            this._initializeHouseCusps();
+        }
+        
+        // Ensure we're returning the correct format - convert to legacy format if needed
+        if (this.houseCusps.length > 0 && typeof this.houseCusps[0] === 'number') {
+            return this.houseCusps.map(longitude => ({ lon: longitude }));
+        }
+        
+        return this.houseCusps;
+    }
+    
+    /**
+     * Sets the Ascendant position and recalculates house cusps
+     * @param {number} ascendant - Ascendant longitude in degrees
+     * @returns {boolean} - Success status
+     */
+    setAscendant(ascendant) {
+        if (typeof ascendant !== 'number' || ascendant < 0 || ascendant >= 360) {
+            return false;
+        }
+        
+        this.astronomicalData.ascendant = ascendant;
+        this._initializeHouseCusps();
+        return true;
+    }
+    
+    /**
+     * Sets the Midheaven position and recalculates house cusps
+     * @param {number} mc - Midheaven longitude in degrees
+     * @returns {boolean} - Success status
+     */
+    setMidheaven(mc) {
+        if (typeof mc !== 'number' || mc < 0 || mc >= 360) {
+            return false;
+        }
+        
+        this.astronomicalData.mc = mc;
+        this._initializeHouseCusps();
+        return true;
+    }
+    
+    /**
+     * Sets the geographic latitude and recalculates house cusps
+     * @param {number} latitude - Geographic latitude in degrees
+     * @returns {boolean} - Success status
+     */
+    setLatitude(latitude) {
+        if (typeof latitude !== 'number' || latitude < -90 || latitude > 90) {
+            return false;
+        }
+        
+        this.astronomicalData.latitude = latitude;
+        this._initializeHouseCusps();
+        return true;
+    }
+    
+    /**
+     * Sets a planet's position
+     * @param {string} planetName - Name of the planet
+     * @param {number} longitude - Longitude in degrees
+     * @returns {boolean} - Success status
+     */
+    setPlanetPosition(planetName, longitude) {
+        const planetLower = planetName.toLowerCase();
+        
+        if (typeof longitude !== 'number' || longitude < 0 || longitude >= 360) {
+            return false;
+        }
+        
+        if (this.astronomicalData.planets.hasOwnProperty(planetLower)) {
+            this.astronomicalData.planets[planetLower] = longitude;
             return true;
         }
+        
         return false;
     }
     
     /**
-     * Gets the house cusps for the current house system
-     * @returns {Array} - Array of house cusps
+     * Gets a planet's position
+     * @param {string} planetName - Name of the planet
+     * @returns {number|null} - Planet longitude or null if not found
      */
-    getCurrentHouseCusps() {
-        const currentSystem = this.houseSettings.houseSystems.currentSystem;
-        return this.houseSettings.houseSystems.systems[currentSystem] || [];
+    getPlanetPosition(planetName) {
+        const planetLower = planetName.toLowerCase();
+        
+        if (this.astronomicalData.planets.hasOwnProperty(planetLower)) {
+            return this.astronomicalData.planets[planetLower];
+        }
+        
+        return null;
     }
     
     /**
-     * Gets the available house systems
-     * @returns {Object} - Object with available house systems
+     * Gets the current house system
+     * @returns {string} - Name of the current house system
+     */
+    getHouseSystem() {
+        return this.astronomicalData.houseSystem;
+    }
+    
+    /**
+     * Gets the available house systems by creating a temporary calculator
+     * @returns {Array} - Array of available house system names
      */
     getAvailableHouseSystems() {
-        return Object.keys(this.houseSettings.houseSystems.systems);
+        const calculator = new HouseCalculator();
+        return calculator.getAvailableHouseSystems();
     }
 } 
