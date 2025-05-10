@@ -29,17 +29,25 @@ class ChartRenderer {
             return;
         }
         
+        // Remove only the previous innermost circle if it exists
+        const prevCircle = zodiacGroup.querySelector('.chart-innermost-circle');
+        if (prevCircle) {
+            zodiacGroup.removeChild(prevCircle);
+        }
+
         const svgUtils = new SvgUtils();
         const centerX = this.chart.config.svg.center.x;
         const centerY = this.chart.config.svg.center.y;
         const c3Radius = this.chart.config.radius.innermost;     // C3
         
-        // Draw innermost circle
-        this.drawInnermostCircle(zodiacGroup, svgUtils, centerX, centerY, c3Radius);
+        // Only draw the innermost circle if secondary planets are enabled
+        if (this.chart.config.planetSettings.secondaryEnabled !== false) {
+            this.drawInnermostCircle(zodiacGroup, svgUtils, centerX, centerY, c3Radius);
+        }
         
         // Note: Planet rendering is now fully handled by NocturnaWheel.js
         // using the PlanetRenderer.renderAllPlanetTypes method
-        console.log('ChartRenderer: Innermost circle rendered. Planet rendering is now handled by NocturnaWheel.');
+        console.log('ChartRenderer: Innermost circle rendered (if enabled). Planet rendering is now handled by NocturnaWheel.');
     }
     
     /**
