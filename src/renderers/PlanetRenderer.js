@@ -191,12 +191,14 @@ class PlanetRenderer extends BaseRenderer {
             return {};
         }
         
-        // Convert planet data to array format
-        const planetsArray = Object.entries(planetsData).map(([name, data]) => ({
-            name: name,
-            position: data.lon,
-            color: data.color || '#000000'
-        }));
+        // Convert planet data to array format, filtering by visibility
+        const planetsArray = Object.entries(planetsData)
+            .filter(([name, data]) => config.planetSettings.visible?.[name] !== false)
+            .map(([name, data]) => ({
+                name: name,
+                position: data.lon,
+                color: data.color || '#000000'
+            }));
         
         const result = {};
         

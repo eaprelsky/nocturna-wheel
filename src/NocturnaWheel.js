@@ -379,6 +379,12 @@ class NocturnaWheel {
         if (secondaryGroup) {
             secondaryGroup.style.display = visible ? 'block' : 'none';
         }
+
+        // Update the innermost circle visibility
+        const innermostCircle = document.querySelector('.chart-innermost-circle');
+        if (innermostCircle) {
+            innermostCircle.style.display = visible ? 'block' : 'none';
+        }
         
         console.log(`NocturnaWheel: Secondary planets ${visible ? 'enabled' : 'disabled'}`);
         return this;
