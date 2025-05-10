@@ -259,6 +259,12 @@
                             Planets <i class="fas fa-chevron-down"></i>
                         </div>
                         <div id="planet-controls" class="collapse show section-body">
+                            <!-- Main planet circle toggles -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="toggle-secondary-planets" checked>
+                                <label class="form-check-label" for="toggle-secondary-planets">Show Inner Circle Planets</label>
+                            </div>
+                            
                             <div id="planet-toggles">
                                 <!-- Dynamically generated planet controls -->
                             </div>
@@ -786,6 +792,13 @@ wheelChart.toggleAspects(false);</code></pre>
                         chart.render();
                     }
                 });
+            });
+            
+            // Secondary planets toggle (innermost circle)
+            const secondaryPlanetsToggle = document.getElementById('toggle-secondary-planets');
+            secondaryPlanetsToggle.addEventListener('change', function(e) {
+                const visible = e.target.checked;
+                chart.toggleSecondaryPlanets(visible);
             });
             
             // Planet Rotation Listeners

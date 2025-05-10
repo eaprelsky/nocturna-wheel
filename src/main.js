@@ -81,6 +81,12 @@ function setupEventListeners() {
     });
   }
   
+  // Initialize secondary planets toggle to match current state (enabled)
+  const secondaryPlanetsToggle = document.getElementById('toggle-secondary-planets');
+  if (secondaryPlanetsToggle) {
+    secondaryPlanetsToggle.checked = true;
+  }
+  
   // Add more event listeners for other controls as needed
 }
 
