@@ -3,7 +3,14 @@
  * Main class for the nocturna-wheel.js library.
  * Serves as the facade for all chart rendering operations.
  */
-class NocturnaWheel {
+import { ChartConfig } from './core/ChartConfig.js';
+import { SVGManager } from './managers/SVGManager.js';
+import { ZodiacRenderer } from './renderers/ZodiacRenderer.js';
+import { HouseRenderer } from './renderers/HouseRenderer.js';
+import { PlanetRenderer } from './renderers/PlanetRenderer.js';
+import { ClientSideAspectRenderer } from './renderers/ClientSideAspectRenderer.js';
+
+export class NocturnaWheel {
     /**
      * Constructor
      * @param {Object} options - Configuration options
@@ -392,8 +399,8 @@ class NocturnaWheel {
 }
 
 // Export for module environments or expose globally for browser
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NocturnaWheel;
-} else {
-    window.NocturnaWheel = NocturnaWheel;
-} 
+// if (typeof module !== 'undefined' && module.exports) {
+// module.exports = NocturnaWheel;
+// } else {
+// window.NocturnaWheel = NocturnaWheel;
+// } 

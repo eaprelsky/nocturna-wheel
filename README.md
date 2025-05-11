@@ -1,51 +1,45 @@
-# Nocturna Wheel.js
+# Nocturna Wheel
 
-A JavaScript library for rendering astrological natal charts. The library provides a customizable and interactive SVG-based chart renderer for astrological data visualization.
+A JavaScript library for rendering astrological natal charts.
 
 ## Features
 
-- SVG-based rendering for crisp visuals at any scale
-- Customizable appearance and themes
-- Support for different house systems
-- Interactive elements with events
-- Responsive design
-- Cross-browser compatibility
-- No external dependencies
+- Responsive SVG-based chart rendering
+- Zodiac sign display with customizable styling
+- House system rendering with multiple system options
+- Planet placement with customizable icons and colors
+- Aspect calculation and visualization
+- Interactive tooltips for celestial objects
 
 ## Installation
 
-### Using npm
+### Direct Script Include
+
+```html
+<!-- Include the Nocturna Wheel stylesheet -->
+<link rel="stylesheet" href="path/to/nocturna-wheel.css">
+
+<!-- Include the Nocturna Wheel library -->
+<script src="path/to/nocturna-wheel.js"></script>
+```
+
+### NPM Installation
 
 ```bash
 npm install nocturna-wheel
 ```
 
-### Direct script include
+## Basic Usage
 
 ```html
-<script src="https://unpkg.com/nocturna-wheel/dist/nocturna-wheel.min.js"></script>
-```
-
-## Usage
-
-```html
-<div id="chart-container" style="width: 500px; height: 500px;"></div>
+<div id="chart-container"></div>
 
 <script>
-  // Initialize chart with configuration
-  const chart = new NocturnaWheel({
-    container: 'chart-container',
+  const chart = new NocturnaWheel.WheelChart({
+    container: "#chart-container",
     planets: {
       sun: { lon: 85.83 },
-      moon: { lon: 133.21 },
-      mercury: { lon: 70.18 },
-      venus: { lon: 42.57 },
-      mars: { lon: 112.56 },
-      jupiter: { lon: 169.48 },
-      saturn: { lon: 188.04 },
-      uranus: { lon: 275.25 },
-      neptune: { lon: 298.32 },
-      pluto: { lon: 247.12 }
+      moon: { lon: 133.21 }
     },
     houses: [
       { lon: 300.32 },  // 1st house cusp
@@ -60,84 +54,190 @@ npm install nocturna-wheel
       { lon: 200.32 },  // 10th house cusp
       { lon: 225.15 },  // 11th house cusp
       { lon: 255.24 }   // 12th house cusp
-    ],
-    aspectSettings: {
-      calculateAspects: true,
-      showAspects: true,
-      orbs: {
-        conjunction: 8,
-        opposition: 8,
-        trine: 6,
-        square: 6,
-        sextile: 4
-      }
-    }
+    ]
   });
   
-  // Render the chart
   chart.render();
-
-  // Toggle planets visibility
-  chart.togglePlanet('pluto', false);
-
-  // Toggle houses visibility
-  chart.toggleHouses(false);
 </script>
 ```
 
 ## API Documentation
 
-### Constructor
+### WheelChart Class
+
+Main class for creating and managing astrological charts.
+
+#### Constructor Options
+
+- `container`: String selector or DOM element for the chart container
+- `planets`: Object containing planet positions and properties
+- `houses`: Array of house cusp positions
+- `aspectSettings`: Object with aspect calculation settings
+- `config`: Additional configuration options
 
 ```javascript
-const chart = new NocturnaWheel(config);
+const chart = new NocturnaWheel.WheelChart({
+  container: "#chart-container",
+  planets: {
+    sun: { lon: 85.83, color: "#ff0000" },
+    moon: { lon: 133.21 }
+  },
+  houses: [{ lon: 300.32 }, ...],
+  aspectSettings: {
+    enabled: true,
+    orb: 6,
+    types: {
+      conjunction: { angle: 0, orb: 8, color: "#000000", enabled: true }
+    }
+  },
+  config: {
+    zodiacSettings: { enabled: true },
+    planetSettings: { enabled: true }
+  }
+});
 ```
 
-### Configuration
+#### Methods
 
-The configuration object accepts the following parameters:
+- `render()`: Renders the chart
+- `update(config)`: Updates chart configuration
+- `togglePlanet(name, visible)`: Toggles visibility of a planet
+- `toggleHouses(visible)`: Toggles visibility of houses
+- `toggleAspects(visible)`: Toggles visibility of aspects
+- `togglePrimaryPlanets(visible)`: Toggles primary planets
+- `toggleSecondaryPlanets(visible)`: Toggles secondary planets
+- `setHouseRotation(angle)`: Sets house system rotation
+- `setHouseSystem(name)`: Changes the house system
+- `destroy()`: Removes the chart and cleans up resources
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| container | string/Element | Element ID or DOM node to render into |
-| width | number | Chart width in pixels (default: container width) |
-| height | number | Chart height in pixels (default: container height) |
-| planets | object | Planet positions (longitudes in degrees) |
-| houses | array | House cusp positions (longitudes in degrees) |
-| aspectSettings | object | Aspect calculation and rendering settings |
-| theme | object | Chart appearance settings |
+## Advanced Configuration
 
-### Methods
+### ChartConfig Options
 
-- `render()` - Renders the chart
-- `update(config)` - Updates chart with new configuration
-- `togglePlanet(planet, visible)` - Shows/hides specific planet
-- `toggleHouses(visible)` - Shows/hides house system
-- `toggleAspects(visible)` - Shows/hides aspect lines
-- `destroy()` - Removes the chart and cleans up resources
+```javascript
+const chartConfig = {
+  // Astronomical data
+  astronomicalData: {
+    ascendant: 0,
+    mc: 90,
+    latitude: 51.5,
+    houseSystem: "Placidus"
+  },
+  
+  // Aspect settings
+  aspectSettings: {
+    enabled: true,
+    orb: 6,
+    types: {
+      conjunction: { angle: 0, orb: 8, color: "#ff0000", enabled: true },
+      opposition: { angle: 180, orb: 8, color: "#0000ff", enabled: true }
+    }
+  },
+  
+  // Visual settings
+  zodiacSettings: {
+    enabled: true,
+    colors: {
+      aries: "#ff6666",
+      taurus: "#66cc66"
+      // Other signs...
+    }
+  },
+  
+  // SVG dimensions
+  svg: {
+    width: 460,
+    height: 460,
+    viewBox: "0 0 460 460",
+    center: { x: 230, y: 230 }
+  },
+  
+  // Asset paths
+  assets: {
+    basePath: "./assets/",
+    zodiacIconPath: "svg/zodiac/"
+  }
+};
+```
 
-## Development
+## Bundled Library Integration
 
-1. Clone the repository
-   ```
-   git clone https://github.com/eaprelsky/nocturna-wheel.git
-   ```
+The Nocturna Wheel library is available as both UMD and ES modules bundles for easy integration into modern web applications.
 
-2. Install dependencies
-   ```
-   npm install
-   ```
+### Using the UMD Bundle with Global Stubs
 
-3. Start the development server
-   ```
-   npm run dev
-   ```
+Due to the library's architecture, which was originally designed for direct script inclusion, we provide a "global stubs" approach for integrating the bundled version:
 
-4. Build for production
-   ```
-   npm run build
-   ```
+1. Include the global stubs file before loading the bundle:
+
+```html
+<!-- Load globals.js first to ensure all classes are defined -->
+<script src="path/to/globals.js"></script>
+
+<!-- Then load the Nocturna Wheel UMD bundle -->
+<script src="path/to/nocturna-wheel.umd.js"></script>
+```
+
+2. Use the library with proper script loading practices:
+
+```html
+<script>
+  // Use window.onload to ensure all scripts are fully loaded
+  window.onload = function() {
+    // Access NocturnaWheel from the window object for safety
+    const { NocturnaWheel, WheelChart } = window.NocturnaWheel;
+    
+    // Create a chart instance
+    const chart = new WheelChart({
+        container: '#chart-container',
+        planets: {
+            sun: { lon: 85.83 },
+            moon: { lon: 133.21 }
+        },
+        // ... other options
+    });
+    
+    // Render the chart
+    chart.render();
+  };
+</script>
+```
+
+Important notes:
+- Always wait for scripts to fully load by using `window.onload` 
+- Access the library through `window.NocturnaWheel` rather than directly using `NocturnaWheel`
+- This ensures proper initialization order and prevents "Cannot access before initialization" errors
+
+### Using the ES Module Bundle in Modern Applications
+
+For modern web applications using build tools like Webpack, Rollup, or Vite:
+
+```javascript
+// Import the globals module first to ensure all classes are defined
+import 'nocturna-wheel/globals.js';
+
+// Then import the ES module
+import { NocturnaWheel, WheelChart } from 'nocturna-wheel';
+
+// Create a chart instance
+const chart = new WheelChart({
+    container: '#chart-container',
+    planets: {
+        sun: { lon: 85.83 },
+        moon: { lon: 133.21 }
+    }
+});
+
+// Render the chart
+chart.render();
+```
+
+### Why Global Stubs?
+
+The Nocturna Wheel library was originally designed to be loaded through direct `<script>` tags, where classes are defined in the global scope. The bundling process creates proper ES modules with encapsulated scope, but certain classes expect other classes to be available globally.
+
+The "global stubs" approach provides minimal implementations of these classes in the global scope, ensuring compatibility with the bundled code while maintaining the benefits of module bundling.
 
 ## License
 
-MIT License 
+This project is licensed under the MIT License - see the LICENSE file for details. 

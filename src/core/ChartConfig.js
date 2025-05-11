@@ -3,7 +3,7 @@
  * Configuration class for the natal chart rendering.
  */
 
-class ChartConfig {
+export class ChartConfig {
     /**
      * Creates a new configuration with default settings
      * @param {Object} customConfig - Custom configuration to merge with defaults

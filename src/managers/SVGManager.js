@@ -2,7 +2,7 @@
  * SVGManager.js
  * Handles the creation, management, and querying of the main SVG element and its layer groups.
  */
-class SVGManager {
+export class SVGManager {
     constructor() {
         this.svgNS = "http://www.w3.org/2000/svg";
         this.svg = null; // Reference to the main SVG element

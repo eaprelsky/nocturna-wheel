@@ -1,8 +1,10 @@
+import { BaseRenderer } from './BaseRenderer.js';
+
 /**
  * ZodiacRenderer.js
  * Class for rendering the zodiac circle and signs.
  */
-class ZodiacRenderer extends BaseRenderer {
+export class ZodiacRenderer extends BaseRenderer {
     /**
      * Constructor
      * @param {Object} options - Renderer options.

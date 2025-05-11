@@ -12,9 +12,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Nocturna Wheel CSS -->
-    <link href="assets/css/nocturna-wheel.css" rel="stylesheet">
-    <link href="assets/css/nocturna-wheel-cardinal.css" rel="stylesheet">
-    <link href="assets/css/demo.css" rel="stylesheet">
+    <link href="/assets/css/nocturna-wheel.css" rel="stylesheet">
+    <link href="/assets/css/nocturna-wheel-cardinal.css" rel="stylesheet">
+    <link href="/assets/css/demo.css" rel="stylesheet">
     
     <!-- Custom fixes -->
     <style>
@@ -172,7 +172,7 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="https://www.nocturna.ru">
-                <img src="assets/png/nocturna-logo.png" alt="Nocturna Logo" class="logo" width="auto" height="80">
+                <img src="/assets/png/nocturna-logo.png" alt="Nocturna Logo" class="logo" width="auto" height="80">
             </a>
             <a class="navbar-brand" href="#">
                 <span class="brand-text">Nocturna Wheel JS</span>
@@ -396,32 +396,14 @@ wheelChart.toggleAspects(false);</code></pre>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Include library dependencies in correct order -->
-    <!-- Utilities first (no dependencies) -->
-    <script src="src/utils/SvgUtils.js"></script>
-    <script src="src/utils/AstrologyUtils.js"></script>
-    <script src="src/utils/PlanetPositionCalculator.js"></script>
+    <!-- Load globals.js first to ensure all classes are defined -->
+    <script src="/dist/globals.js"></script>
     
-    <!-- Core calculation classes -->
-    <script src="src/core/HouseCalculator.js"></script>
+    <!-- Nocturna Wheel Library -->
+    <script src="/dist/nocturna-wheel.umd.js"></script>
     
-    <!-- Core configuration -->
-    <script src="src/core/ChartConfig.js"></script>
-    
-    <!-- Managers -->
-    <script src="src/managers/SVGManager.js"></script>
-    
-    <!-- Renderers (base class first, then implementations) -->
-    <script src="src/renderers/BaseRenderer.js"></script>
-    <script src="src/renderers/ZodiacRenderer.js"></script>
-    <script src="src/renderers/HouseRenderer.js"></script>
-    <script src="src/renderers/PlanetRenderer.js"></script>
-    <script src="src/renderers/ClientSideAspectRenderer.js"></script>
-    
-    <!-- Main application -->
-    <script src="src/NocturnaWheel.js"></script>
-    <script src="src/components/ChartRenderer.js"></script>
-    <script src="src/components/WheelChart.js"></script>
+    <!-- Nocturna Fix script to ensure global availability -->
+    <script src="/dist/nocturna-fix.js"></script>
 
     <!-- Demo script -->
     <script>
@@ -456,15 +438,14 @@ wheelChart.toggleAspects(false);</code></pre>
                 ]
             };
             
-            // Initialize chart with modified aspect settings
-            const chart = new WheelChart({
+            // Initialize chart using the global NocturnaWheel (which contains WheelChart)
+            const chart = new NocturnaWheel.WheelChart({
                 container: '#chart-container',
                 planets: chartData.planets,
                 houses: chartData.houses,
                 aspectSettings: {
                     enabled: true,
                     orb: 6,
-                    // Define aspect types with defaults for color and style
                     types: {
                         'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
                         'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
@@ -475,13 +456,13 @@ wheelChart.toggleAspects(false);</code></pre>
                 },
                 config: {
                     assets: {
-                        basePath: "./assets/",
+                        basePath: "/assets/",
                         showCardinalLabels: false
                     },
                     astronomicalData: {
-                        ascendant: 300.32,  // 1st house cusp (Ascendant)
-                        mc: 200.32,         // 10th house cusp (Midheaven)
-                        latitude: 51.5      // Default latitude (London)
+                        ascendant: 300.32,
+                        mc: 200.32,
+                        latitude: 51.5
                     },
                     houseSettings: {
                         enabled: true,

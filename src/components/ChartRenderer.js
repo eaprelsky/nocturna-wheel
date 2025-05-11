@@ -2,15 +2,16 @@
  * ChartRenderer.js
  * Responsible for rendering chart elements
  */
-class ChartRenderer {
+export class ChartRenderer {
     /**
      * Constructor
      * @param {NocturnaWheel} chart - Chart instance
      * @param {Object} options - Chart options
      */
-    constructor(chart, options) {
+    constructor(chart, options = {}) {
         this.chart = chart;
         this.options = options;
+        console.log("ChartRenderer: Initialized with chart", chart);
     }
     
     /**

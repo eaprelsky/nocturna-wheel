@@ -1,8 +1,10 @@
+import { BaseRenderer } from './BaseRenderer.js';
+
 /**
  * HouseRenderer.js
  * Class for rendering astrological houses in a natal chart.
  */
-class HouseRenderer extends BaseRenderer {
+export class HouseRenderer extends BaseRenderer {
     /**
      * Constructor
      * @param {Object} options - Renderer options.

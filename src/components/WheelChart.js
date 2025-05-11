@@ -2,7 +2,7 @@
  * WheelChart.js
  * Component class for rendering astrological wheel chart with customizable circles
  */
-class WheelChart {
+export class WheelChart {
     /**
      * Constructor
      * @param {Object} options - Configuration options
@@ -22,8 +22,17 @@ class WheelChart {
         // Initialize configuration
         const config = options.config || {};
         
-        // Create the NocturnaWheel instance
-        this.chart = new NocturnaWheel({
+        // Create the NocturnaWheel instance - use the class from the global namespace safely
+        // access window.NocturnaWheel.NocturnaWheel which is always the constructor
+        const NocturnaWheelClass = typeof window !== 'undefined' && window.NocturnaWheel ? 
+            window.NocturnaWheel.NocturnaWheel : 
+            (typeof NocturnaWheel !== 'undefined' ? NocturnaWheel : null);
+            
+        if (!NocturnaWheelClass) {
+            throw new Error("WheelChart: NocturnaWheel class not found in global scope");
+        }
+        
+        this.chart = new NocturnaWheelClass({
             ...options,
             config: config
         });
