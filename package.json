@@ -5,10 +5,13 @@
   "type": "module",
   "main": "dist/nocturna-wheel.umd.js",
   "module": "dist/nocturna-wheel.es.js",
+  "bundle": "dist/nocturna-wheel.bundle.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:lib": "vite build",
+    "build:bundle": "cross-env NODE_ENV=production rollup -c",
+    "build:all": "npm run build && npm run build:bundle",
     "preview": "vite preview",
     "serve": "http-server . -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +27,9 @@
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
+    "cross-env": "^7.0.3",
     "http-server": "^14.1.1",
     "rollup": "^2.79.1",
     "rollup-plugin-copy": "^3.4.0",
