@@ -1,10 +1,42 @@
 /**
+ * Nocturna Wheel JS - Main Entry Point
+ * 
+ * This file combines all components of the Nocturna Wheel library:
+ * - globals.js - Global utilities and constants
+ * - NocturnaWheel.js - Main chart functionality
+ * - WheelChart.js - Enhanced chart component
+ * - ChartRenderer.js - Chart rendering functionality
+ * - nocturna-fix.js - Fixes and patches
+ */
+
+// Import all components in the correct order
+import './globals';
+import { NocturnaWheel } from './NocturnaWheel';
+import { WheelChart } from './components/WheelChart';
+import { ChartRenderer } from './components/ChartRenderer';
+
+// Apply any fixes from nocturna-fix.js
+import './nocturna-fix.js';
+
+// Create a namespace structure like the original
+const NocturnaWheelNamespace = {
+    NocturnaWheel,
+    WheelChart,
+    ChartRenderer
+};
+
+// Export the main library with its components
+export { NocturnaWheel, WheelChart, ChartRenderer };
+
+// Also export to the window object for backwards compatibility
+if (typeof window !== 'undefined') {
+    window.NocturnaWheel = NocturnaWheelNamespace;
+}
+
+/**
  * Main entry point for the Nocturna Wheel development environment
  * This file sets up the chart and handles hot module replacement for Vite
  */
-
-// Import your modules
-import NocturnaWheel from './NocturnaWheel.js';
 
 // Import any required helpers or utility functions
 // import { sampleChartData } from './utils/sampleData.js';
