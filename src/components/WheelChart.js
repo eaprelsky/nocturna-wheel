@@ -38,7 +38,7 @@ export class WheelChart {
         });
         
         // Create the renderer
-        this.renderer = new ChartRenderer(this.chart, options);
+        this.renderer = new ChartRenderer(this, options);
         
         console.log("WheelChart: Initialized");
     }
@@ -52,7 +52,15 @@ export class WheelChart {
         this.chart.render();
         
         // Add the innermost circle after rendering the main chart
-        this.renderer.renderInnerElements();
+        // Wrap in setTimeout to ensure the chart rendering has completed
+        setTimeout(() => {
+            try {
+                console.log("WheelChart: Rendering inner elements");
+                this.renderer.renderInnerElements();
+            } catch (error) {
+                console.error("WheelChart: Error rendering inner elements:", error);
+            }
+        }, 0);
         
         console.log("WheelChart: Chart rendered with inner circle");
         return this;
