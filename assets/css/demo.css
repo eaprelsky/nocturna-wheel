@@ -365,4 +365,102 @@ footer {
         --bs-gutter-x: 0.75rem;
         --bs-gutter-y: 0.75rem;
     }
+} /* Fix for aspect selector overlap issues */
+.aspect-item .form-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.aspect-item .form-check-input {
+    margin-top: 3px;
+    flex-shrink: 0;
+    z-index: 1;
+    margin-right: 8px;
+}
+
+.aspect-item .form-check-label {
+    display: flex;
+    align-items: center;
+    padding-left: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.aspect-item .aspect-name {
+    padding-left: 2px;
+    display: inline-block;
+    display: flex;
+    align-items: center;
+}
+
+.aspect-indicator {
+    display: inline-block; 
+    width: 12px; 
+    height: 12px;
+    margin-right: 6px;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+/* Ensure controls row has enough space and doesn't overlap */
+.aspect-item .controls-row {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Ensure color picker doesn't overlap */
+.aspect-item .color-picker-wrapper {
+    margin-top: 2px;
+}
+
+/* Fix Line Style dropdowns layout */
+.aspect-item .control-group {
+    margin-bottom: 8px;
+}
+
+/* Visually hidden class for accessibility */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Fix for aspect item spacing */
+#aspect-types {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Additional styling for aspect types container */
+.aspect-types-container {
+    padding-top: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+}
+
+/* Ensure aspect items are well-spaced */
+.aspect-item {
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    background-color: rgba(248, 249, 250, 0.7);
+}
+
+/* Fix form-check alignment */
+.form-check {
+    display: flex;
+    align-items: flex-start;
 } 
