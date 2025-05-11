@@ -134,7 +134,32 @@ export class WheelChart {
      * @returns {WheelChart} - Instance for chaining
      */
     toggleSecondaryPlanets(visible) {
-        return this._delegateAndRedraw('toggleSecondaryPlanets', visible);
+        // First delegate to NocturnaWheel instance
+        const result = this._delegateToChart('toggleSecondaryPlanets', visible);
+        
+        // Explicitly handle innermost circle visibility
+        try {
+            const container = typeof this.options.container === 'string' ?
+                document.querySelector(this.options.container) :
+                this.options.container;
+                
+            if (container) {
+                const innermostCircle = container.querySelector('.chart-innermost-circle');
+                if (innermostCircle) {
+                    console.log(`WheelChart: Setting innermost circle display to ${visible ? 'block' : 'none'}`);
+                    innermostCircle.style.display = visible ? 'block' : 'none';
+                } else {
+                    console.log('WheelChart: No innermost circle found to toggle visibility');
+                }
+            }
+        } catch (error) {
+            console.error('WheelChart: Error toggling innermost circle visibility:', error);
+        }
+        
+        // Also redraw inner elements to ensure everything is in sync
+        this.renderer.renderInnerElements();
+        
+        return result;
     }
     
     setHouseRotation(angle) {
