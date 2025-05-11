@@ -2,7 +2,7 @@
  * BaseRenderer.js
  * Abstract base class for all renderers, providing common setup and utilities.
  */
-class BaseRenderer {
+export class BaseRenderer {
     /**
      * Constructor
      * @param {Object} options - Renderer options.

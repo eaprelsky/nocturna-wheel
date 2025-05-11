@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nocturna Wheel Integration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .description {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        #chart-container {
+            width: 600px;
+            height: 600px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+
+        /* Custom styles to fix the black background */
+        .chart-outer-circle {
+            fill: transparent !important;
+        }
+        
+        .chart-middle-circle, .chart-inner-circle, .chart-innermost-circle {
+            fill: white !important;
+            stroke: #333;
+        }
+        
+        /* Additional styles to improve appearance */
+        .zodiac-element {
+            fill: none;
+        }
+        
+        .zodiac-sign {
+            fill: initial;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nocturna Wheel Integration Example</h1>
+    
+    <div class="description">
+        <p>This example demonstrates how to integrate the Nocturna Wheel library using the bundled UMD version with global stubs.</p>
+        <p>For proper integration, we load the <code>globals.js</code> file first to ensure all required classes are defined in the global scope before loading the main bundle.</p>
+    </div>
+    
+    <div id="chart-container"></div>
+    
+    <!-- Integration Method -->
+    <h2>Integration Code</h2>
+    <pre><code>&lt;!-- Load globals.js first to ensure all classes are defined --&gt;
+&lt;script src="dist/globals.js"&gt;&lt;/script&gt;
+
+&lt;!-- Then load the Nocturna Wheel UMD bundle --&gt;
+&lt;script src="dist/nocturna-wheel.umd.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+    // Use window.onload to ensure all scripts are fully loaded
+    window.onload = function() {
+        // Get the constructors
+        const { NocturnaWheel, WheelChart } = window.NocturnaWheel;
+        
+        // Create a chart instance
+        const chart = new WheelChart({
+            container: '#chart-container',
+            planets: {
+                sun: { lon: 85.83, color: '#ff6600' },
+                moon: { lon: 133.21, color: '#339999' },
+                mercury: { lon: 70.18, color: '#3366cc' },
+                venus: { lon: 42.57, color: '#cc66cc' }
+            },
+            // ... other options
+        });
+        
+        // Render the chart
+        chart.render();
+    };
+&lt;/script&gt;</code></pre>
+    
+    <!-- Load globals.js first to ensure all classes are defined -->
+    <script src="dist/globals.js"></script>
+
+    <!-- Then load the Nocturna Wheel UMD bundle -->
+    <script src="dist/nocturna-wheel.umd.js"></script>
+
+    <!-- Wait for everything to load before attempting to use the libraries -->
+    <script>
+        // Use window.onload to ensure all scripts are fully loaded
+        window.onload = function() {
+            try {
+                console.log('Initializing Nocturna Wheel chart...');
+                
+                // Make sure to access NocturnaWheel from the window object
+                const { NocturnaWheel, WheelChart } = window.NocturnaWheel;
+                
+                console.log('Got NocturnaWheel:', NocturnaWheel);
+                console.log('Got WheelChart:', WheelChart);
+                
+                // Create a chart instance
+                const chart = new WheelChart({
+                    container: '#chart-container',
+                    planets: {
+                        sun: { lon: 85.83, color: '#ff6600' },
+                        moon: { lon: 133.21, color: '#339999' },
+                        mercury: { lon: 70.18, color: '#3366cc' },
+                        venus: { lon: 42.57, color: '#cc66cc' },
+                        mars: { lon: 112.56, color: '#cc3333' },
+                        jupiter: { lon: 169.48, color: '#9966cc' }
+                    },
+                    houses: [
+                        { lon: 300.32 },  // 1st house cusp
+                        { lon: 330.15 },  // 2nd house cusp
+                        { lon: 355.24 },  // 3rd house cusp
+                        { lon: 20.32 },   // 4th house cusp
+                        { lon: 45.15 },   // 5th house cusp
+                        { lon: 75.24 },   // 6th house cusp
+                        { lon: 120.32 },  // 7th house cusp
+                        { lon: 150.15 },  // 8th house cusp
+                        { lon: 175.24 },  // 9th house cusp
+                        { lon: 200.32 },  // 10th house cusp
+                        { lon: 225.15 },  // 11th house cusp
+                        { lon: 255.24 }   // 12th house cusp
+                    ],
+                    aspectSettings: {
+                        enabled: true,
+                        orb: 10, // Increased orb to catch more aspects
+                        types: {
+                            'conjunction': { angle: 0, orb: 10, color: '#000000', lineStyle: 'solid', enabled: true, strokeWidth: 2 },
+                            'opposition': { angle: 180, orb: 10, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 2 },
+                            'trine': { angle: 120, orb: 10, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 2 },
+                            'square': { angle: 90, orb: 10, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 2 },
+                            'sextile': { angle: 60, orb: 8, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 2 },
+                            'quincunx': { angle: 150, orb: 5, color: '#8E35EF', lineStyle: 'dotted', enabled: true, strokeWidth: 1.5 },
+                            'semisextile': { angle: 30, orb: 3, color: '#306754', lineStyle: 'dotted', enabled: true, strokeWidth: 1 }
+                        }
+                    },
+                    config: {
+                        assets: {
+                            basePath: "./assets/"
+                        },
+                        aspectSettings: {
+                            enabled: true,
+                            lineColor: "#666666",
+                            strokeWidth: 1.5
+                        }
+                    }
+                });
+                
+                // Render the chart
+                chart.render();
+                
+                console.log('Chart rendered successfully');
+                
+            } catch (error) {
+                console.error('Error initializing chart:', error);
+            }
+        };
+    </script>
+</body>
+</html> 

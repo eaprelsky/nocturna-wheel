@@ -1,8 +1,10 @@
+import { BaseRenderer } from './BaseRenderer.js';
+
 /**
  * PlanetRenderer.js
  * Class for rendering planets on the natal chart wheel.
  */
-class PlanetRenderer extends BaseRenderer {
+export class PlanetRenderer extends BaseRenderer {
     /**
      * Constructor
      * @param {Object} options - Renderer options.

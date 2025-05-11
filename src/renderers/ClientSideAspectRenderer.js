@@ -1,8 +1,10 @@
+import { BaseRenderer } from './BaseRenderer.js';
+
 /**
  * ClientSideAspectRenderer.js
  * Renders aspects based on client-side calculations using planet coordinates.
  */
-class ClientSideAspectRenderer extends BaseRenderer { // No longer extends IAspectRenderer
+export class ClientSideAspectRenderer extends BaseRenderer { // No longer extends IAspectRenderer
     /**
      * Constructor
      * @param {Object} options - Renderer options.

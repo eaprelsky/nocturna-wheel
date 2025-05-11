@@ -2,11 +2,13 @@
   "name": "nocturna-wheel",
   "version": "0.1.0",
   "description": "A JavaScript library for rendering astrological natal charts",
-  "main": "dist/nocturna-wheel.js",
-  "module": "dist/nocturna-wheel.esm.js",
+  "type": "module",
+  "main": "dist/nocturna-wheel.umd.js",
+  "module": "dist/nocturna-wheel.es.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lib": "vite build",
     "preview": "vite preview",
     "serve": "http-server . -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
