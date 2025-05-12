@@ -45,44 +45,6 @@ export default {
         { src: 'assets/*', dest: 'dist/assets' },
         { src: 'src/css/*', dest: 'dist/css' }
       ]
-    }),
-    // Create a special bundle that includes nocturna-fix.js
-    {
-      name: 'create-bundle',
-      generateBundle(outputOptions, bundle) {
-        // Create a special bundle file that fixes globals issue
-        const fixCode = `
-/**
- * nocturna-wheel.bundle.js - Complete package with fixes
- */
-(function() {
-  // Store original module and exports for proper resolution
-  var module = window.module || {};
-  var exports = window.exports || {};
-  
-  // Ensure ServiceRegistry is initialized immediately
-  if (window.NocturnaWheel && window.NocturnaWheel.ServiceRegistry) {
-    window.NocturnaWheel.ServiceRegistry.initializeServices();
-  }
-  
-  // Fix common reference errors by providing fallbacks
-  window.SvgUtils = window.SvgUtils || 
-    (window.NocturnaWheel && window.NocturnaWheel.SvgUtils) || 
-    function() { console.error('SvgUtils not properly loaded'); };
-  
-  window.AstrologyUtils = window.AstrologyUtils || 
-    (window.NocturnaWheel && window.NocturnaWheel.AstrologyUtils) || 
-    function() { console.error('AstrologyUtils not properly loaded'); };
-})();
-`;
-
-        // Add this to the bundle outputs
-        this.emitFile({
-          type: 'asset',
-          fileName: 'nocturna-wheel.bundle.js',
-          source: fixCode + (bundle['nocturna-wheel.umd.js'] ? bundle['nocturna-wheel.umd.js'].code : '')
-        });
-      }
-    }
+    })
   ]
 }; 
