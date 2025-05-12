@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/nocturna-wheel.umd.js",
   "module": "dist/nocturna-wheel.es.js",
+  "browser": "dist/nocturna-wheel.min.js",
   "exports": {
     ".": {
       "import": "./dist/nocturna-wheel.es.js",
@@ -33,6 +34,10 @@
     "dev": "vite",
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
+    "build:bundle": "cross-env NODE_ENV=production rollup -c --environment BUNDLE:true",
+    "build:min": "cross-env NODE_ENV=production rollup -c --environment MIN:true",
+    "build:all": "npm run build && npm run build:bundle && npm run build:min",
+    "prepublishOnly": "npm run build:all",
     "preview": "vite preview",
     "serve": "http-server . -p 8080",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
@@ -67,10 +72,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/nocturna-wheel.git"
+    "url": "https://github.com/eaprelsky/nocturna-wheel.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/nocturna-wheel/issues"
+    "url": "https://github.com/eaprelsky/nocturna-wheel/issues"
   },
-  "homepage": "https://github.com/yourusername/nocturna-wheel#readme"
+  "homepage": "https://github.com/eaprelsky/nocturna-wheel#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }

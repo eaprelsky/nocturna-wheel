@@ -11,7 +11,7 @@
 - Clear package.json with appropriate metadata
 
 ### Areas for Improvement
-- Incomplete GitHub repository setup (placeholder URLs)
+- ~~Incomplete GitHub repository setup (placeholder URLs)~~ ✅ Fixed: Repository URLs updated to eaprelsky/nocturna-wheel
 - Missing comprehensive API documentation
 - No test suite implementation
 - Demo files need improvement for public consumption
@@ -92,7 +92,7 @@
 ## Plan for Moving to Separate Repository
 
 ### 1. Setup New Repository
-- [ ] Create a new GitHub repository: `nocturna-wheel`
+- [x] Create a new GitHub repository: `nocturna-wheel` (Using eaprelsky/nocturna-wheel)
 - [ ] Initialize with README, LICENSE, and .gitignore
 - [ ] Set up branch protection rules
 - [ ] Configure repository settings and permissions
@@ -104,7 +104,7 @@
 - [ ] Push to the new repository
 
 ### 3. Package Setup
-- [ ] Update package.json with final details
+- [x] Update package.json with final details (Repository URLs updated)
 - [ ] Register the package name on npm
 - [ ] Set up appropriate npm scripts
 
@@ -128,3 +128,7 @@
 ## Conclusion
 
 The nocturna-wheel.js library is well-positioned for open-sourcing with a rating of 6/10. With careful implementation of this plan over approximately 4 weeks, the project can be successfully transitioned to a high-quality open source library. The main focus areas should be improving documentation, setting up proper testing, and preparing for community engagement. 
+
+## Updates
+
+- **2023-05-20**: Fixed GitHub repository URLs in package.json, pointing to eaprelsky/nocturna-wheel 

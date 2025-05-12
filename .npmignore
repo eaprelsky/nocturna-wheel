@@ -1,0 +1,26 @@
+# Development directories
+node_modules/
+src/
+tests/
+examples/
+demo/
+assets/
+logs/
+tmp/
+todo/
+.cursor/
+.git/
+
+# Config files
+.babelrc
+.gitignore
+jest.config.js
+vite.config.js
+rollup.config.js
+
+# Documentation not needed in package
+MODULE_ARCHITECTURE.md
+BUILD.md
+
+# Test files
+test-placidus.js 
