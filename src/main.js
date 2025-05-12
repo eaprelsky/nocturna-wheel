@@ -23,8 +23,7 @@ import { ServiceRegistry } from './services/ServiceRegistry.js';
 ServiceRegistry.initializeServices();
 
 // Import main components for the public API
-import { NocturnaWheel } from './NocturnaWheel';
-import { WheelChart } from './components/WheelChart';
+import { ChartManager, WheelChart } from './components/index.js';
 import { ChartConfig } from './core/ChartConfig';
 import { SvgUtils } from './utils/SvgUtils.js';
 import { AstrologyUtils } from './utils/AstrologyUtils.js';
@@ -32,9 +31,13 @@ import { AstrologyUtils } from './utils/AstrologyUtils.js';
 // Library version
 const VERSION = '0.2.0';
 
+// For backward compatibility (temporary)
+import { NocturnaWheel } from './NocturnaWheel';
+
 // Clean exports for ES modules
 export {
-    NocturnaWheel,
+    ChartManager,
+    NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
     VERSION,
@@ -98,8 +101,8 @@ function initChart() {
     config: chartData.config
   };
   
-  // Initialize the chart
-  chart = new NocturnaWheel(options);
+  // Initialize the chart with the new ChartManager
+  chart = new ChartManager(options);
   
   // Render the chart
   chart.render();
@@ -159,7 +162,8 @@ if (import.meta.hot) {
 
 // Default export for easier imports
 export default {
-    NocturnaWheel,
+    ChartManager,
+    NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
     ServiceRegistry,
