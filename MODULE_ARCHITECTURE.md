@@ -1,120 +1,116 @@
-# ES Module Architecture
+# Nocturna Wheel JS Module Architecture
 
-This document explains the ES module architecture that has been implemented in Nocturna Wheel to eliminate global variables and improve code organization.
+This document outlines the architectural approach for the Nocturna Wheel library, focusing on its module system.
 
-## Changes Made
+## ES Module Architecture
 
-### 1. Eliminated Global Variables
+The Nocturna Wheel library is built using modern ES modules to provide a clean, modular architecture with proper dependency injection. This approach offers several benefits:
 
-Global variables were previously defined in `globals.js`, which exposed all classes to the window object. This made the code harder to maintain, test, and reason about.
+- **Encapsulation**: Each module is self-contained with clear dependencies
+- **Tree-shaking**: Unused code can be eliminated by bundlers
+- **Explicit dependencies**: Dependencies are clearly stated at the top of each module
+- **Testability**: Components can be tested in isolation
 
-The solution:
-- Created a compatibility layer (`src/compatibility.js`) that manages global access
-- Moved all classes to proper ES modules with explicit exports
-- Implemented deprecation warnings for global variable usage
+## Core Structure
 
-### 2. Clean Public API
-
-The main entry point (`src/main.js`) now:
-- Exports a well-defined public API
-- Provides backward compatibility via a namespace object
-- Allows disabling of legacy globals
-
-```javascript
-// ES Module pattern
-import { NocturnaWheel, WheelChart } from 'nocturna-wheel';
-
-// Namespace pattern (backward compatible)
-const chart = new NocturnaWheel.WheelChart(options);
-
-// Disable legacy globals
-NocturnaWheel.config.disableLegacyGlobals();
-```
-
-### 3. Factory Injection Pattern
-
-Added Factory Injection pattern for better component decoupling:
-
-```javascript
-// Create a factory function
-const chartFactory = (options) => {
-    // Custom chart creation logic
-    return new NocturnaWheel(options);
-};
-
-// Use the factory when creating WheelChart
-const chart = new WheelChart(options, chartFactory);
-```
-
-## Directory Structure
+The library is organized into the following directory structure:
 
 ```
 src/
-├── components/      # Higher-level components
-│   ├── ChartRenderer.js
-│   └── WheelChart.js
-├── core/            # Core classes
-│   ├── ChartConfig.js
-│   └── HouseCalculator.js
-├── managers/        # Manager classes
-│   └── SVGManager.js
-├── renderers/       # Rendering components
-│   ├── BaseRenderer.js
-│   ├── ZodiacRenderer.js
-│   ├── HouseRenderer.js
-│   ├── PlanetRenderer.js
-│   └── ClientSideAspectRenderer.js
-├── utils/           # Utility classes
-│   ├── SvgUtils.js
-│   ├── AstrologyUtils.js
-│   └── PlanetPositionCalculator.js
-├── compatibility.js # Backward compatibility layer
-├── globals.js       # Legacy file (now just imports compatibility)
-├── main.js          # Main entry point
-└── NocturnaWheel.js # Primary chart class
+  ├── core/            - Core functionality and configurations
+  ├── utils/           - Utility functions and classes
+  ├── renderers/       - SVG rendering components
+  ├── services/        - Service classes and registries
+  ├── factories/       - Factory classes for component creation
+  ├── managers/        - Managers for specific concerns (SVG, etc.)
+  ├── components/      - Higher-level components
+  └── main.js          - Main entry point for the library
 ```
 
-## Migration Guide
+## Key Components
 
-### For Library Users
+### 1. Entry Points
 
-1. **Preferred Approach (ES Modules)**:
-   ```javascript
-   import { NocturnaWheel, WheelChart } from 'nocturna-wheel';
-   
-   const chart = new WheelChart(options);
-   ```
+- **main.js**: Primary entry point that exports the public API
+- **nocturna-entry.js**: Alternative entry point for different bundling needs
 
-2. **Backward Compatible Approach**:
-   ```javascript
-   const chart = new NocturnaWheel.WheelChart(options);
-   ```
+### 2. Core Classes
 
-3. **Legacy Global Approach (Deprecated)**:
-   ```javascript
-   const chart = new window.WheelChart(options);
-   ```
+- **NocturnaWheel**: Main class for creating and managing astrological charts
+- **ChartConfig**: Configuration management for chart settings
+- **WheelChart**: Enhanced chart with additional features
 
-### For Library Contributors
+### 3. Renderers
 
-1. Always use ES module imports:
-   ```javascript
-   import { SvgUtils } from '../utils/SvgUtils';
-   ```
+- **BaseRenderer**: Abstract base class for all renderers
+- **ZodiacRenderer**: Renders zodiac signs and degrees
+- **HouseRenderer**: Renders house cusps and numbers
+- **PlanetRenderer**: Renders planets and their symbols
+- **ClientSideAspectRenderer**: Renders aspect lines between planets
 
-2. Export classes properly:
-   ```javascript
-   export class MyComponent {
-       // ...
-   }
-   ```
+### 4. Services
 
-3. Add new components to the compatibility layer if needed.
+- **ServiceRegistry**: Central registry for service location
+- Various utility services for calculations and rendering
 
-## Benefits
+## Dependency Management
 
-1. **Improved organization**: Logical directory structure
-2. **Better dependency management**: Explicit imports and exports
-3. **Enhanced testability**: Components can be easily mocked
-4. **Smaller bundle size**: Tree-shaking optimization possible
-5. **Modern JavaScript**: Aligned with best practices 
+Dependencies are managed through proper ES module imports/exports, eliminating the need for global variables:
+
+```javascript
+// Importing dependencies explicitly
+import { SvgUtils } from '../utils/SvgUtils.js';
+import { ServiceRegistry } from '../services/ServiceRegistry.js';
+
+// Exporting for use in other modules
+export class MyComponent {
+  // Implementation
+}
+```
+
+## Build System
+
+The library uses Rollup to build different module formats:
+
+- **UMD (Universal Module Definition)**: For direct browser use
+- **ESM (ECMAScript Module)**: For modern bundlers and ES module imports
+
+## Best Practices
+
+1. **Explicit Dependencies**: All dependencies are explicitly imported
+2. **No Global Variables**: The library avoids global variables completely
+3. **Dependency Injection**: Dependencies are passed via constructors
+4. **Factory Pattern**: Factory classes are used to create complex components
+
+## Usage Examples
+
+### Browser Usage (UMD)
+
+```html
+<script src="dist/nocturna-wheel.umd.js"></script>
+<script>
+  const chart = new NocturnaWheel.NocturnaWheel({
+    container: '#chart-container',
+    planets: { /* planet data */ },
+    houses: [ /* house data */ ]
+  });
+  chart.render();
+</script>
+```
+
+### ES Module Usage
+
+```javascript
+import { NocturnaWheel } from 'nocturna-wheel';
+
+const chart = new NocturnaWheel({
+  container: '#chart-container',
+  planets: { /* planet data */ },
+  houses: [ /* house data */ ]
+});
+chart.render();
+```
+
+## API Documentation
+
+For detailed API documentation, please refer to the project README.md. 

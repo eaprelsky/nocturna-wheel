@@ -1,9 +1,5 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import fs from 'fs';
-
-// Get the globals.js content for the plugin
-const globalsContent = fs.readFileSync('./src/globals.js', 'utf-8');
 
 export default defineConfig({
   // Development server configuration
@@ -48,19 +44,7 @@ export default defineConfig({
       //   globals: {
       //     vue: 'Vue',
       //   },
-      // },
-      plugins: [
-        {
-          name: 'copy-globals-js',
-          generateBundle() {
-            this.emitFile({
-              type: 'asset',
-              fileName: 'globals.js',
-              source: globalsContent
-            });
-          }
-        }
-      ]
+      // }
     }
   },
   
