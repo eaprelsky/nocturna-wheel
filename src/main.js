@@ -1,15 +1,11 @@
 /**
  * Nocturna Wheel JS - Main Entry Point
  * 
- * This file combines all components of the Nocturna Wheel library:
- * - globals.js - Global utilities and constants
- * - NocturnaWheel.js - Main chart functionality
- * - WheelChart.js - Enhanced chart component with factory injection support
- * - ChartRenderer.js - Chart rendering functionality
- * - nocturna-fix.js - Fixes and patches
+ * This file serves as the primary entry point for the Nocturna Wheel library.
+ * It provides a clean public API while internally managing all dependencies.
  * 
  * Factory Injection Pattern:
- * The WheelChart now supports Factory Injection for better decoupling:
+ * The WheelChart supports Factory Injection for better decoupling:
  * 
  * ```javascript
  * // Basic usage (backward compatible)
@@ -23,24 +19,51 @@
  * See examples/factory-injection-example.js for more advanced usage patterns.
  */
 
-// Import all components in the correct order
-import './globals';
+// Import compatibility layer to manage global variables
+import { exposeToGlobal } from './compatibility';
+
+// Import main components for the public API
 import { NocturnaWheel } from './NocturnaWheel';
 import { WheelChart } from './components/WheelChart';
-import { ChartRenderer } from './components/ChartRenderer';
 
-// Apply any fixes from nocturna-fix.js
-import './nocturna-fix.js';
+// Import core components for the public API
+import { ChartConfig } from './core/ChartConfig';
 
-// Create a namespace structure like the original
+// Expose globals for backward compatibility (can be disabled in production)
+// This should be eventually phased out
+const ENABLE_LEGACY_GLOBALS = true;
+exposeToGlobal(ENABLE_LEGACY_GLOBALS);
+
+// Create a namespace structure for the public API
 const NocturnaWheelNamespace = {
+    // Main chart classes
     NocturnaWheel,
     WheelChart,
-    ChartRenderer
+    
+    // Core classes that may be useful for customization
+    ChartConfig,
+    
+    // Version information
+    VERSION: '0.2.0',
+    
+    // Configuration
+    config: {
+        disableLegacyGlobals: () => {
+            exposeToGlobal(false);
+            console.log('Legacy global variables have been disabled');
+        }
+    }
 };
 
-// Export the main library with its components
-export { NocturnaWheel, WheelChart, ChartRenderer };
+// Export the public API for ES modules
+export {
+    NocturnaWheel,
+    WheelChart,
+    ChartConfig
+};
+
+// Export the namespace for backward compatibility
+export default NocturnaWheelNamespace;
 
 // Also export to the window object for backwards compatibility
 if (typeof window !== 'undefined') {

@@ -2,6 +2,8 @@
  * ChartRenderer.js
  * Responsible for rendering chart elements
  */
+import { SvgUtils } from '../utils/SvgUtils';
+
 export class ChartRenderer {
     /**
      * Constructor
@@ -11,6 +13,7 @@ export class ChartRenderer {
     constructor(chart, options = {}) {
         this.chart = chart;
         this.options = options;
+        this.svgUtils = new SvgUtils();
         console.log("ChartRenderer: Initialized with chart", chart);
     }
     
@@ -36,14 +39,13 @@ export class ChartRenderer {
             zodiacGroup.removeChild(prevCircle);
         }
 
-        const svgUtils = new SvgUtils();
         const centerX = this.chart.config.svg.center.x;
         const centerY = this.chart.config.svg.center.y;
         const c3Radius = this.chart.config.radius.innermost;     // C3
         
         // Only draw the innermost circle if secondary planets are enabled
         if (this.chart.config.planetSettings.secondaryEnabled !== false) {
-            this.drawInnermostCircle(zodiacGroup, svgUtils, centerX, centerY, c3Radius);
+            this.drawInnermostCircle(zodiacGroup, this.svgUtils, centerX, centerY, c3Radius);
         }
         
         // Note: Planet rendering is now fully handled by NocturnaWheel.js

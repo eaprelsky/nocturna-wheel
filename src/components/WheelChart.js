@@ -2,6 +2,9 @@
  * WheelChart.js
  * Component class for rendering astrological wheel chart with customizable circles
  */
+import { NocturnaWheel } from '../NocturnaWheel';
+import { ChartRenderer } from './ChartRenderer';
+
 export class WheelChart {
     /**
      * Constructor
@@ -32,16 +35,8 @@ export class WheelChart {
             // Fallback to the original behavior for backward compatibility
             console.log("WheelChart: Using default chart creation");
             
-            // Find the appropriate constructor
-            const NocturnaWheelClass = typeof window !== 'undefined' && window.NocturnaWheel ? 
-                window.NocturnaWheel.NocturnaWheel : 
-                (typeof NocturnaWheel !== 'undefined' ? NocturnaWheel : null);
-                
-            if (!NocturnaWheelClass) {
-                throw new Error("WheelChart: NocturnaWheel class not found in global scope");
-            }
-            
-            this.chart = new NocturnaWheelClass({
+            // Create a new NocturnaWheel instance directly using the imported class
+            this.chart = new NocturnaWheel({
                 ...options,
                 config: config
             });
