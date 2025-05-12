@@ -11,8 +11,10 @@ export class WheelChart {
      * @param {Array} options.houses - House cusps data (optional)
      * @param {Object} options.aspectSettings - Aspect calculation settings (optional)
      * @param {Object} options.config - Additional configuration (optional)
+     * @param {Function} [chartFactory=null] - Factory function to create the chart instance
+     *                                        Function signature: (options) => ChartInstance
      */
-    constructor(options) {
+    constructor(options, chartFactory = null) {
         if (!options || !options.container) {
             throw new Error("WheelChart: Container element or selector is required");
         }
@@ -22,20 +24,33 @@ export class WheelChart {
         // Initialize configuration
         const config = options.config || {};
         
-        // Create the NocturnaWheel instance - use the class from the global namespace safely
-        // access window.NocturnaWheel.NocturnaWheel which is always the constructor
-        const NocturnaWheelClass = typeof window !== 'undefined' && window.NocturnaWheel ? 
-            window.NocturnaWheel.NocturnaWheel : 
-            (typeof NocturnaWheel !== 'undefined' ? NocturnaWheel : null);
+        // Use the factory function if provided
+        if (typeof chartFactory === 'function') {
+            console.log("WheelChart: Using provided chart factory function");
+            this.chart = chartFactory(options);
+        } else {
+            // Fallback to the original behavior for backward compatibility
+            console.log("WheelChart: Using default chart creation");
             
-        if (!NocturnaWheelClass) {
-            throw new Error("WheelChart: NocturnaWheel class not found in global scope");
+            // Find the appropriate constructor
+            const NocturnaWheelClass = typeof window !== 'undefined' && window.NocturnaWheel ? 
+                window.NocturnaWheel.NocturnaWheel : 
+                (typeof NocturnaWheel !== 'undefined' ? NocturnaWheel : null);
+                
+            if (!NocturnaWheelClass) {
+                throw new Error("WheelChart: NocturnaWheel class not found in global scope");
+            }
+            
+            this.chart = new NocturnaWheelClass({
+                ...options,
+                config: config
+            });
         }
         
-        this.chart = new NocturnaWheelClass({
-            ...options,
-            config: config
-        });
+        // Validate the created chart instance has required methods
+        if (!this.chart || typeof this.chart.render !== 'function') {
+            throw new Error("WheelChart: Invalid chart instance created. Missing required methods.");
+        }
         
         // Create the renderer
         this.renderer = new ChartRenderer(this, options);

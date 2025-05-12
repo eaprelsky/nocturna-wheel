@@ -4,9 +4,23 @@
  * This file combines all components of the Nocturna Wheel library:
  * - globals.js - Global utilities and constants
  * - NocturnaWheel.js - Main chart functionality
- * - WheelChart.js - Enhanced chart component
+ * - WheelChart.js - Enhanced chart component with factory injection support
  * - ChartRenderer.js - Chart rendering functionality
  * - nocturna-fix.js - Fixes and patches
+ * 
+ * Factory Injection Pattern:
+ * The WheelChart now supports Factory Injection for better decoupling:
+ * 
+ * ```javascript
+ * // Basic usage (backward compatible)
+ * const chart = new NocturnaWheel.WheelChart(options);
+ * 
+ * // With Factory Injection
+ * const chartFactory = (opts) => new CustomChart(opts);
+ * const chart = new NocturnaWheel.WheelChart(options, chartFactory);
+ * ```
+ * 
+ * See examples/factory-injection-example.js for more advanced usage patterns.
  */
 
 // Import all components in the correct order

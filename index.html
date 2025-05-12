@@ -280,96 +280,83 @@ wheelChart.toggleAspects(false);</code></pre>
                 ]
             };
             
+            // Common chart options
+            const chartOptions = {
+                container: '#chart-container',
+                planets: chartData.planets,
+                houses: chartData.houses,
+                aspectSettings: {
+                    enabled: true,
+                    orb: 6,
+                    types: {
+                        'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
+                        'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                        'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                        'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
+                        'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
+                    }
+                },
+                config: {
+                    radius: {
+                        innermost: 90
+                    },
+                    assets: {
+                        basePath: "/assets/"
+                    },
+                    astronomicalData: {
+                        ascendant: 300.32,
+                        mc: 200.32,
+                        latitude: 51.5
+                    },
+                    houseSettings: {
+                        enabled: true,
+                        lineColor: "#666666",
+                        textColor: "#333333",
+                        fontSize: 10,
+                        rotationAngle: 0
+                    }
+                }
+            };
+            
+            // Define a custom factory function that logs creation and adds monitoring
+            const customChartFactory = (options) => {
+                console.log("Custom factory: Creating enhanced NocturnaWheel instance");
+                
+                // Create base chart
+                const baseChart = typeof NocturnaWheel.NocturnaWheel === 'function' 
+                    ? new NocturnaWheel.NocturnaWheel(options)
+                    : new NocturnaWheel(options);
+                
+                // Enhance with monitoring capabilities
+                const originalRender = baseChart.render;
+                baseChart.render = function() {
+                    console.log("Custom factory: Chart render started");
+                    const startTime = performance.now();
+                    const result = originalRender.apply(this, arguments);
+                    const endTime = performance.now();
+                    console.log(`Custom factory: Chart rendered in ${(endTime - startTime).toFixed(2)}ms`);
+                    return result;
+                };
+                
+                return baseChart;
+            };
+            
             // Initialize chart with proper constructor based on what's available
             let chart;
             try {
                 // Check which constructor is available
                 if (typeof NocturnaWheel.WheelChart === 'function') {
-                    // Original nested structure
-                    console.log("Using original NocturnaWheel.WheelChart structure");
-                    chart = new NocturnaWheel.WheelChart({
-                        container: '#chart-container',
-                        planets: chartData.planets,
-                        houses: chartData.houses,
-                        aspectSettings: {
-                            enabled: true,
-                            orb: 6,
-                            types: {
-                                'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
-                                'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                                'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                                'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
-                                'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
-                            }
-                        },
-                        config: {
-                            radius: {
-                                innermost: 90
-                            },
-                            assets: {
-                                basePath: "/assets/"
-                            },
-                            astronomicalData: {
-                                ascendant: 300.32,
-                                mc: 200.32,
-                                latitude: 51.5
-                            },
-                            houseSettings: {
-                                enabled: true,
-                                lineColor: "#666666",
-                                textColor: "#333333",
-                                fontSize: 10,
-                                rotationAngle: 0
-                            }
-                        }
-                    });
+                    // Original nested structure with factory injection
+                    console.log("Using WheelChart with factory injection");
+                    chart = new NocturnaWheel.WheelChart(chartOptions, customChartFactory);
                 } else if (typeof WheelChart === 'function') {
-                    // Flat exported structure
-                    console.log("Using flat exported WheelChart structure");
-                    chart = new WheelChart({
-                        container: '#chart-container',
-                        planets: chartData.planets,
-                        houses: chartData.houses,
-                        aspectSettings: {
-                            enabled: true,
-                            orb: 6,
-                            types: {
-                                'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
-                                'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                                'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                                'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
-                                'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
-                            }
-                        },
-                        config: {
-                            radius: {
-                                innermost: 90
-                            },
-                            assets: {
-                                basePath: "/assets/"
-                            },
-                            astronomicalData: {
-                                ascendant: 300.32,
-                                mc: 200.32,
-                                latitude: 51.5
-                            },
-                            houseSettings: {
-                                enabled: true,
-                                lineColor: "#666666",
-                                textColor: "#333333",
-                                fontSize: 10,
-                                rotationAngle: 0
-                            }
-                        }
-                    });
+                    // Flat exported structure with factory injection
+                    console.log("Using flat exported WheelChart with factory injection");
+                    chart = new WheelChart(chartOptions, customChartFactory);
                 } else {
                     console.error("WheelChart constructor not found in any expected location");
                     // Fallback to basic NocturnaWheel if needed
-                    chart = new NocturnaWheel({
-                        container: '#chart-container',
-                        planets: chartData.planets,
-                        houses: chartData.houses
-                    });
+                    chart = new NocturnaWheel(chartOptions);
                 }
             } catch (error) {
                 console.error("Error initializing chart:", error);
