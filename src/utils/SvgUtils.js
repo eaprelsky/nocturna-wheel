@@ -2,7 +2,7 @@
  * SvgUtils.js
  * Utility class for working with SVG elements
  */
-class SvgUtils {
+export class SvgUtils {
     constructor() {
         this.svgNS = "http://www.w3.org/2000/svg";
     }
