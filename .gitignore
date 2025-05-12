@@ -20,6 +20,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.cursor/
 
 # Logs
 logs/
@@ -35,6 +36,8 @@ coverage/
 # Miscellaneous
 .cache/
 .tmp/
+tmp/
+todo/
 # Vite specific
 .vite/
 *.local

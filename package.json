@@ -1,5 +1,5 @@
 {
-  "name": "nocturna-wheel",
+  "name": "@eaprelsky/nocturna-wheel",
   "version": "0.2.0",
   "description": "A JavaScript library for rendering astrological natal charts",
   "type": "module",
@@ -79,6 +79,6 @@
   },
   "homepage": "https://github.com/eaprelsky/nocturna-wheel#readme",
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   }
 }
