@@ -5,7 +5,10 @@
 import { ServiceRegistry } from '../services/ServiceRegistry.js';
 import { ZodiacRenderer } from '../renderers/ZodiacRenderer.js';
 import { HouseRenderer } from '../renderers/HouseRenderer.js';
-import { PlanetRenderer } from '../renderers/PlanetRenderer.js';
+import { PlanetSymbolRenderer } from '../renderers/PlanetSymbolRenderer.js';
+import { PrimaryPlanetRenderer } from '../renderers/PrimaryPlanetRenderer.js';
+import { SecondaryPlanetRenderer } from '../renderers/SecondaryPlanetRenderer.js';
+import { PlanetRendererCoordinator } from '../renderers/PlanetRendererCoordinator.js';
 import { ClientSideAspectRenderer } from '../renderers/ClientSideAspectRenderer.js';
 
 export class RendererFactory {
@@ -53,15 +56,53 @@ export class RendererFactory {
     
     /**
      * Creates a PlanetRenderer instance
+     * This now creates a PlanetRendererCoordinator with specialized renderers
      * @param {Object} options - Additional options for the renderer
-     * @returns {PlanetRenderer} The PlanetRenderer instance
+     * @returns {PlanetRendererCoordinator} The PlanetRendererCoordinator instance
      */
     createPlanetRenderer(options = {}) {
-        return new PlanetRenderer({
+        // First create the symbol renderer
+        const symbolRenderer = new PlanetSymbolRenderer({
             svgNS: this.svgNS,
             config: this.config,
             svgUtils: this.svgUtils,
             iconProvider: this.iconProvider,
+            assetBasePath: options.assetBasePath || this.config.assets?.basePath,
+            ...options
+        });
+        
+        // Create primary planet renderer
+        const primaryRenderer = new PrimaryPlanetRenderer({
+            svgNS: this.svgNS,
+            config: this.config,
+            svgUtils: this.svgUtils,
+            iconProvider: this.iconProvider,
+            symbolRenderer: symbolRenderer,
+            assetBasePath: options.assetBasePath || this.config.assets?.basePath,
+            ...options
+        });
+        
+        // Create secondary planet renderer
+        const secondaryRenderer = new SecondaryPlanetRenderer({
+            svgNS: this.svgNS,
+            config: this.config,
+            svgUtils: this.svgUtils,
+            iconProvider: this.iconProvider,
+            symbolRenderer: symbolRenderer,
+            assetBasePath: options.assetBasePath || this.config.assets?.basePath,
+            ...options
+        });
+        
+        // Create and return the coordinator
+        return new PlanetRendererCoordinator({
+            svgNS: this.svgNS,
+            config: this.config,
+            svgUtils: this.svgUtils,
+            iconProvider: this.iconProvider,
+            primaryRenderer: primaryRenderer,
+            secondaryRenderer: secondaryRenderer,
+            symbolRenderer: symbolRenderer,
+            assetBasePath: options.assetBasePath || this.config.assets?.basePath,
             ...options
         });
     }
