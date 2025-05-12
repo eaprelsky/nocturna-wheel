@@ -5,8 +5,8 @@
  */
 
 // Import all necessary modules and re-export them
-import { NocturnaWheel } from './NocturnaWheel.js';
-import { WheelChart } from './components/WheelChart.js';
+import { ChartManager, WheelChart } from './components/index.js';
+import { NocturnaWheel } from './NocturnaWheel.js'; // For backward compatibility
 import { ChartConfig } from './core/ChartConfig.js';
 import { SvgUtils } from './utils/SvgUtils.js';
 import { AstrologyUtils } from './utils/AstrologyUtils.js';
@@ -21,7 +21,8 @@ const VERSION = '0.2.0';
 // Create a namespace object with all exports
 const NocturnaNamespace = {
     // Core components
-    NocturnaWheel,
+    ChartManager,
+    NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
     
@@ -38,7 +39,8 @@ const NocturnaNamespace = {
 
 // Export everything in named exports 
 export {
-    NocturnaWheel,
+    ChartManager,
+    NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
     SvgUtils,
