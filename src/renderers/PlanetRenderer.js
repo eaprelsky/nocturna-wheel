@@ -1,4 +1,6 @@
 import { BaseRenderer } from './BaseRenderer.js';
+import { AstrologyUtils } from '../utils/AstrologyUtils.js';
+import { PlanetPositionCalculator } from '../utils/PlanetPositionCalculator.js';
 
 /**
  * PlanetRenderer.js
@@ -11,12 +13,16 @@ export class PlanetRenderer extends BaseRenderer {
      * @param {string} options.svgNS - SVG namespace.
      * @param {ChartConfig} options.config - Chart configuration object.
      * @param {string} options.assetBasePath - Base path for assets.
+     * @param {IconProvider} [options.iconProvider] - Icon provider service.
      */
     constructor(options) {
         super(options);
         if (!options.assetBasePath) {
             throw new Error("PlanetRenderer: Missing required option assetBasePath");
         }
+        
+        // Store the icon provider
+        this.iconProvider = options.iconProvider;
         
         // Define the default circle configurations - which circle each planet type should be placed on
         this.circleConfigs = {
@@ -369,9 +375,14 @@ export class PlanetRenderer extends BaseRenderer {
             // Draw the planet icon using SVG image from zodiac folder
             const iconSize = 24;
             
-            // Use the same path construction pattern as in ChartRenderer
-            // this.config is available from BaseRenderer
-            const iconPath = `${this.options.assetBasePath}svg/zodiac/zodiac-planet-${planet.name.toLowerCase()}.svg`;
+            // Get the icon path using IconProvider if available
+            let iconPath;
+            if (this.iconProvider) {
+                iconPath = this.iconProvider.getPlanetIconPath(planet.name);
+            } else {
+                // Fallback to old path construction if IconProvider is not available
+                iconPath = `${this.options.assetBasePath}svg/zodiac/zodiac-planet-${planet.name.toLowerCase()}.svg`;
+            }
             
             console.log(`PlanetRenderer: Loading planet icon: ${iconPath}`);
             
@@ -393,19 +404,37 @@ export class PlanetRenderer extends BaseRenderer {
                 console.warn(`Planet icon not found: ${iconPath}`);
                 icon.setAttribute('href', ''); // Remove broken link
                 
-                // Add text fallback showing the first letter of planet name
-                const textIcon = this.svgUtils.createSVGElement("text", {
-                    x: planet.adjustedIconX,
-                    y: planet.adjustedIconY,
-                    'text-anchor': 'middle',
-                    'dominant-baseline': 'middle',
-                    'font-size': `${iconSize}px`,
-                    class: `planet-symbol planet-${planet.name}-symbol planet-${typeClass}-symbol`,
-                    fill: planet.color || '#000000'
-                });
+                // Create a text fallback with first letter
+                const fallbackText = planet.name.charAt(0).toUpperCase();
                 
-                // Use planet symbol as fallback
-                textIcon.textContent = AstrologyUtils.getPlanetSymbol(planet.name) || planet.name[0].toUpperCase();
+                // Use IconProvider's createTextFallback if available
+                let textIcon;
+                if (this.iconProvider) {
+                    textIcon = this.iconProvider.createTextFallback(
+                        this.svgUtils,
+                        {
+                            x: planet.adjustedIconX,
+                            y: planet.adjustedIconY,
+                            size: `${iconSize}px`,
+                            color: planet.color || '#000000',
+                            className: `planet-symbol planet-${planet.name}-symbol planet-${typeClass}-symbol`
+                        },
+                        fallbackText
+                    );
+                } else {
+                    // Legacy fallback if IconProvider is not available
+                    textIcon = this.svgUtils.createSVGElement("text", {
+                        x: planet.adjustedIconX,
+                        y: planet.adjustedIconY,
+                        'text-anchor': 'middle',
+                        'dominant-baseline': 'middle',
+                        'font-size': `${iconSize}px`,
+                        class: `planet-symbol planet-${planet.name}-symbol planet-${typeClass}-symbol`,
+                        fill: planet.color || '#000000'
+                    });
+                    textIcon.textContent = planet.name.charAt(0).toUpperCase();
+                }
+                
                 planetGroup.appendChild(textIcon);
             });
             
@@ -483,29 +512,49 @@ export class PlanetRenderer extends BaseRenderer {
             console.log('AspectRenderer: this.config?.assets?.basePath =', this.config?.assets?.basePath);
         }
         
-        // Try to use the assetBasePath from options, or fall back to a default
-        const basePath = this.options.assetBasePath || (this.config?.assets?.basePath) || './assets/';
-        console.log(`AspectRenderer: Using basePath: ${basePath}`);
-        
-        // Construct the icon path
-        const iconPath = `${basePath}svg/zodiac/zodiac-aspect-${aspect.type.toLowerCase()}.svg`;
-        console.log(`AspectRenderer: Constructed icon path: ${iconPath}`);
+        // Get icon path using IconProvider if available
+        let iconPath;
+        if (this.iconProvider) {
+            iconPath = this.iconProvider.getAspectIconPath(aspect.type);
+        } else {
+            // Fallback to old path construction
+            const basePath = this.options.assetBasePath || (this.config?.assets?.basePath) || './assets/';
+            iconPath = `${basePath}svg/zodiac/zodiac-aspect-${aspect.type.toLowerCase()}.svg`;
+        }
+        console.log(`AspectRenderer: Using icon path: ${iconPath}`);
         
         try {
-            // Create the aspect glyph/symbol as text first (fallback)
-            const textSymbol = this.svgUtils.createSVGElement("text", {
-                x: midX,
-                y: midY,
-                'text-anchor': 'middle',
-                'dominant-baseline': 'middle',
-                'font-size': '12px',
-                'font-weight': 'bold',
-                class: `aspect-element aspect-symbol aspect-${aspect.type}`,
-                fill: aspect.color || '#888888'
-            });
+            // Create text fallback for aspect
+            const fallbackText = aspect.abbr || aspect.type.substring(0, 3).toUpperCase();
             
-            // Set the symbol text
-            textSymbol.textContent = aspect.symbol || '⚹'; // Default to sextile symbol if none provided
+            // Create text fallback using IconProvider if available
+            let textSymbol;
+            if (this.iconProvider) {
+                textSymbol = this.iconProvider.createTextFallback(
+                    this.svgUtils,
+                    {
+                        x: midX,
+                        y: midY,
+                        size: '12px',
+                        color: aspect.color || '#888888',
+                        className: `aspect-element aspect-symbol aspect-${aspect.type}`
+                    },
+                    fallbackText
+                );
+            } else {
+                // Legacy fallback if IconProvider is unavailable
+                textSymbol = this.svgUtils.createSVGElement("text", {
+                    x: midX,
+                    y: midY,
+                    'text-anchor': 'middle',
+                    'dominant-baseline': 'middle',
+                    'font-size': '12px',
+                    'font-weight': 'bold',
+                    class: `aspect-element aspect-symbol aspect-${aspect.type}`,
+                    fill: aspect.color || '#888888'
+                });
+                textSymbol.textContent = fallbackText;
+            }
             
             // Add tooltip to text symbol
             this.svgUtils.addTooltip(textSymbol, tooltipText);

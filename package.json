@@ -1,17 +1,38 @@
 {
   "name": "nocturna-wheel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A JavaScript library for rendering astrological natal charts",
   "type": "module",
   "main": "dist/nocturna-wheel.umd.js",
   "module": "dist/nocturna-wheel.es.js",
-  "bundle": "dist/nocturna-wheel.bundle.js",
+  "exports": {
+    ".": {
+      "import": "./dist/nocturna-wheel.es.js",
+      "require": "./dist/nocturna-wheel.umd.js",
+      "default": "./dist/nocturna-wheel.umd.js"
+    },
+    "./utils/*": {
+      "import": "./dist/utils/*",
+      "default": "./dist/utils/*"
+    },
+    "./services/*": {
+      "import": "./dist/services/*",
+      "default": "./dist/services/*"
+    },
+    "./renderers/*": {
+      "import": "./dist/renderers/*",
+      "default": "./dist/renderers/*"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:lib": "vite build",
-    "build:bundle": "cross-env NODE_ENV=production rollup -c",
-    "build:all": "npm run build && npm run build:bundle",
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
     "preview": "vite preview",
     "serve": "http-server . -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
