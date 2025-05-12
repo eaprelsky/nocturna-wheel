@@ -45,7 +45,12 @@ src/
 - **BaseRenderer**: Abstract base class for all renderers
 - **ZodiacRenderer**: Renders zodiac signs and degrees
 - **HouseRenderer**: Renders house cusps and numbers
-- **PlanetRenderer**: Renders planets and their symbols
+- **Planet Rendering System**:
+  - **BasePlanetRenderer**: Abstract base class for planet renderers
+  - **PlanetSymbolRenderer**: Renders planet symbols and glyphs
+  - **PrimaryPlanetRenderer**: Renders primary planets (inner circle)
+  - **SecondaryPlanetRenderer**: Renders secondary planets (innermost circle)
+  - **PlanetRendererCoordinator**: Coordinates planet renderers and maintains API compatibility
 - **ClientSideAspectRenderer**: Renders aspect lines between planets
 
 ### 4. Services
@@ -81,6 +86,8 @@ The library uses Rollup to build different module formats:
 2. **No Global Variables**: The library avoids global variables completely
 3. **Dependency Injection**: Dependencies are passed via constructors
 4. **Factory Pattern**: Factory classes are used to create complex components
+5. **Single Responsibility Principle**: Each class has a well-defined responsibility
+6. **Composition Over Inheritance**: Components use composition patterns where appropriate
 
 ## Usage Examples
 

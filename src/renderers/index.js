@@ -9,5 +9,9 @@
 export { BaseRenderer } from './BaseRenderer.js';
 export { ZodiacRenderer } from './ZodiacRenderer.js';
 export { HouseRenderer } from './HouseRenderer.js';
-export { PlanetRenderer } from './PlanetRenderer.js';
+export { BasePlanetRenderer } from './BasePlanetRenderer.js';
+export { PlanetSymbolRenderer } from './PlanetSymbolRenderer.js';
+export { PrimaryPlanetRenderer } from './PrimaryPlanetRenderer.js';
+export { SecondaryPlanetRenderer } from './SecondaryPlanetRenderer.js';
+export { PlanetRendererCoordinator } from './PlanetRendererCoordinator.js';
 export { ClientSideAspectRenderer } from './ClientSideAspectRenderer.js'; 
