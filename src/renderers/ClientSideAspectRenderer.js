@@ -1,4 +1,5 @@
 import { BaseRenderer } from './BaseRenderer.js';
+import { AstrologyUtils } from '../utils/AstrologyUtils.js';
 
 /**
  * ClientSideAspectRenderer.js
@@ -11,6 +12,7 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
      * @param {string} options.svgNS - SVG namespace.
      * @param {ChartConfig} options.config - Chart configuration object. Contains aspect settings like orb.
      * @param {string} options.assetBasePath - Base path for assets (unused here but standard).
+     * @param {IconProvider} [options.iconProvider] - Icon provider service.
      */
     constructor(options) {
         super(options);
@@ -19,16 +21,18 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
         this._aspectCacheKey = null; // Cache key for aspect calculations
         this._aspectCache = [];      // Cached aspect results
         this.assetBasePath = options.assetBasePath || ''; // Store asset base path
+        this.iconProvider = options.iconProvider; // Store the icon provider
+        
         // Define major aspects and their angles (can be overridden/extended by config)
         this.defaultAspectDefinitions = {
-            'conjunction': { angle: 0, orb: 8, color: '#FF4500', symbol: '☌' }, // OrangeRed
-            'opposition': { angle: 180, orb: 6, color: '#DC143C', symbol: '☍' }, // Crimson
-            'trine': { angle: 120, orb: 6, color: '#2E8B57', symbol: '△' }, // SeaGreen
-            'square': { angle: 90, orb: 6, color: '#FF0000', symbol: '□' }, // Red
-            'sextile': { angle: 60, orb: 4, color: '#4682B4', symbol: '⚹' }, // SteelBlue
+            'conjunction': { angle: 0, orb: 8, color: '#FF4500', abbr: 'CON' }, // OrangeRed
+            'opposition': { angle: 180, orb: 6, color: '#DC143C', abbr: 'OPP' }, // Crimson
+            'trine': { angle: 120, orb: 6, color: '#2E8B57', abbr: 'TRI' }, // SeaGreen
+            'square': { angle: 90, orb: 6, color: '#FF0000', abbr: 'SQR' }, // Red
+            'sextile': { angle: 60, orb: 4, color: '#4682B4', abbr: 'SEX' }, // SteelBlue
              // Add minors if needed
-             // 'semisextile': { angle: 30, orb: 2, color: '#90EE90' }, // LightGreen
-             // 'quincunx': { angle: 150, orb: 2, color: '#DAA520' }  // Goldenrod
+             // 'semisextile': { angle: 30, orb: 2, color: '#90EE90', abbr: 'SSX' }, // LightGreen
+             // 'quincunx': { angle: 150, orb: 2, color: '#DAA520', abbr: 'QCX' }  // Goldenrod
         };
     }
 
@@ -97,11 +101,8 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
                             // Add default color/style from definition
                             color: aspectDef.color || '#888', // Default color
                             lineStyle: aspectDef.lineStyle, // e.g., 'dashed', 'dotted' (used later in styling)
-                            symbol: aspectDef.symbol || '?' // Use symbol from definition or '?'
+                            abbr: aspectDef.abbr || aspectName.substring(0, 3).toUpperCase() // Use abbreviation from definition or default
                         });
-                         // Optional: Stop checking other aspects for this pair if one is found?
-                         // Usually, multiple aspects aren't formed between the same pair unless orbs overlap significantly.
-                         // break; // Uncomment if only the tightest aspect should be recorded.
                     }
                 }
             }
@@ -246,19 +247,72 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
             return; // Skip icon if too close to center
         }
         
-        // Create the aspect glyph/symbol
+        // Define the icon size
+        const iconSize = 16;
+        
+        // Get icon path using IconProvider if available
+        let iconPath;
+        if (this.iconProvider) {
+            iconPath = this.iconProvider.getAspectIconPath(aspect.type);
+        } else {
+            // Fallback to old path construction
+            iconPath = `${this.assetBasePath}/svg/zodiac/zodiac-aspect-${aspect.type}.svg`;
+        }
+        
+        // Create the aspect glyph/symbol image
         const symbol = this.svgUtils.createSVGElement("image", {
-            x: midX - 8, // Offset by half the icon width
-            y: midY - 8, // Offset by half the icon height
-            width: 16,
-            height: 16,
-            href: `${this.assetBasePath}/svg/zodiac/zodiac-aspect-${aspect.type}.svg`,
+            x: midX - iconSize/2, // Offset by half the icon width
+            y: midY - iconSize/2, // Offset by half the icon height
+            width: iconSize,
+            height: iconSize,
+            href: iconPath,
             class: `aspect-element aspect-symbol aspect-${aspect.type}`
         });
         
         // Add error handling for image loading
         symbol.addEventListener('error', () => {
-            console.warn(`Failed to load aspect icon for ${aspect.type} from path: ${this.assetBasePath}/svg/zodiac/zodiac-aspect-${aspect.type}.svg`);
+            console.warn(`Failed to load aspect icon for ${aspect.type} from path: ${iconPath}`);
+            
+            // Get the abbreviation for text fallback from aspect definition or default to first 3 letters
+            const aspectDef = this.defaultAspectDefinitions[aspect.type];
+            const fallbackText = aspectDef && aspectDef.abbr 
+                ? aspectDef.abbr 
+                : aspect.type.substring(0, 3).toUpperCase();
+            
+            // Use IconProvider's createTextFallback if available
+            let textSymbol;
+            if (this.iconProvider) {
+                textSymbol = this.iconProvider.createTextFallback(
+                    this.svgUtils,
+                    {
+                        x: midX,
+                        y: midY,
+                        size: '12px',
+                        color: aspect.color || '#888888',
+                        className: `aspect-element aspect-symbol aspect-${aspect.type}`
+                    },
+                    fallbackText
+                );
+            } else {
+                // Legacy fallback
+                textSymbol = this.svgUtils.createSVGElement("text", {
+                    x: midX,
+                    y: midY,
+                    'text-anchor': 'middle',
+                    'dominant-baseline': 'middle',
+                    'font-size': '12px',
+                    'font-weight': 'bold',
+                    class: `aspect-element aspect-symbol aspect-${aspect.type}`,
+                    fill: aspect.color || '#888888'
+                });
+                textSymbol.textContent = fallbackText;
+            }
+            
+            // Add tooltip
+            this.svgUtils.addTooltip(textSymbol, tooltipText);
+            
+            // Add to parent group
+            parentGroup.appendChild(textSymbol);
         });
         
         // Add tooltip

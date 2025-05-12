@@ -1,39 +1,60 @@
-// src/nocturna-entry.js
+/**
+ * nocturna-entry.js
+ * Alternative entry point for the Nocturna Wheel library.
+ * This version is optimized for direct browser use with compatibility fixes.
+ */
 
-// Import all your script files in the correct order for their side effects.
-// These scripts will execute and set up their functions/classes/globals
-// as they did when loaded via <script> tags.
-
-// Utilities
-import './utils/SvgUtils.js';
-import './utils/AstrologyUtils.js';
-import './utils/PlanetPositionCalculator.js';
-
-// Core calculation classes
-import './core/HouseCalculator.js';
-
-// Core configuration
-import { ChartConfig } from './core/ChartConfig.js';
-
-// Managers
-import { SVGManager } from './managers/SVGManager.js';
-
-// Renderers (base class first, then implementations)
-import { BaseRenderer } from './renderers/BaseRenderer.js';
-import { ZodiacRenderer } from './renderers/ZodiacRenderer.js';
-import { HouseRenderer } from './renderers/HouseRenderer.js';
-import { PlanetRenderer } from './renderers/PlanetRenderer.js';
-import { ClientSideAspectRenderer } from './renderers/ClientSideAspectRenderer.js';
-
-// Main application logic/classes
+// Import all necessary modules and re-export them
 import { NocturnaWheel } from './NocturnaWheel.js';
-import { ChartRenderer } from './components/ChartRenderer.js';
 import { WheelChart } from './components/WheelChart.js';
+import { ChartConfig } from './core/ChartConfig.js';
+import { SvgUtils } from './utils/SvgUtils.js';
+import { AstrologyUtils } from './utils/AstrologyUtils.js';
+import { ServiceRegistry } from './services/ServiceRegistry.js';
 
-// Export the main classes that users will interact with.
-// Vite will use these to create the UMD global object.
+// Initialize core services immediately on load
+ServiceRegistry.initializeServices();
+
+// Version information
+const VERSION = '0.2.0';
+
+// Create a namespace object with all exports
+const NocturnaNamespace = {
+    // Core components
+    NocturnaWheel,
+    WheelChart,
+    ChartConfig,
+    
+    // Utilities
+    SvgUtils,
+    AstrologyUtils,
+    
+    // Services
+    ServiceRegistry,
+    
+    // Version info
+    VERSION
+};
+
+// Export everything in named exports 
 export {
     NocturnaWheel,
     WheelChart,
-    ChartConfig // Ensure ChartConfig is part of the main export for the library
-}; 
+    ChartConfig,
+    SvgUtils,
+    AstrologyUtils,
+    ServiceRegistry,
+    VERSION
+};
+
+// Default export for simpler imports
+export default NocturnaNamespace;
+
+// Also expose to global scope when in browser environment - temporary bridge solution
+if (typeof window !== 'undefined') {
+    // Expose the namespace as NocturnaWheel global
+    window.NocturnaWheel = NocturnaNamespace;
+    
+    // Notify about initialization
+    console.log('NocturnaWheel library initialized via ES modules.');
+} 

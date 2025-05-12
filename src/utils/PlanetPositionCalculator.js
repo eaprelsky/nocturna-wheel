@@ -2,6 +2,8 @@
  * PlanetPositionCalculator.js
  * Utility class for calculating planet positions on any circle
  */
+import { SvgUtils } from './SvgUtils.js';
+
 class PlanetPositionCalculator {
     /**
      * Calculate position for a planet on a circle
@@ -316,4 +318,6 @@ class PlanetPositionCalculator {
         position.iconY = point.y - (iconSize / 2);
         position.adjustedLongitude = angle;
     }
-} 
+}
+
+export { PlanetPositionCalculator }; 

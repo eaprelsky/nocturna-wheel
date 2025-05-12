@@ -20,7 +20,7 @@ A JavaScript library for rendering astrological natal charts.
 <link rel="stylesheet" href="path/to/nocturna-wheel.css">
 
 <!-- Include the Nocturna Wheel library -->
-<script src="path/to/nocturna-wheel.js"></script>
+<script src="path/to/nocturna-wheel.min.js"></script>
 ```
 
 ### NPM Installation
@@ -31,11 +31,46 @@ npm install nocturna-wheel
 
 ## Basic Usage
 
+### ES Module (Recommended)
+
+```javascript
+import { WheelChart } from 'nocturna-wheel';
+
+const chart = new WheelChart({
+  container: "#chart-container",
+  planets: {
+    sun: { lon: 85.83 },
+    moon: { lon: 133.21 }
+  },
+  houses: [
+    { lon: 300.32 },  // 1st house cusp
+    { lon: 330.15 },  // 2nd house cusp
+    { lon: 355.24 },  // 3rd house cusp
+    { lon: 20.32 },   // 4th house cusp
+    { lon: 45.15 },   // 5th house cusp
+    { lon: 75.24 },   // 6th house cusp
+    { lon: 120.32 },  // 7th house cusp
+    { lon: 150.15 },  // 8th house cusp
+    { lon: 175.24 },  // 9th house cusp
+    { lon: 200.32 },  // 10th house cusp
+    { lon: 225.15 },  // 11th house cusp
+    { lon: 255.24 }   // 12th house cusp
+  ]
+});
+
+chart.render();
+```
+
+### Browser Script
+
 ```html
 <div id="chart-container"></div>
 
 <script>
-  const chart = new NocturnaWheel.WheelChart({
+  // The library exports a NocturnaWheel object with all components
+  const { WheelChart } = NocturnaWheel;
+  
+  const chart = new WheelChart({
     container: "#chart-container",
     planets: {
       sun: { lon: 85.83 },
@@ -160,83 +195,55 @@ const chartConfig = {
 };
 ```
 
-## Bundled Library Integration
+## Library Integration
 
 The Nocturna Wheel library is available as both UMD and ES modules bundles for easy integration into modern web applications.
 
-### Using the UMD Bundle with Global Stubs
-
-Due to the library's architecture, which was originally designed for direct script inclusion, we provide a "global stubs" approach for integrating the bundled version:
-
-1. Include the global stubs file before loading the bundle:
-
-```html
-<!-- Load globals.js first to ensure all classes are defined -->
-<script src="path/to/globals.js"></script>
-
-<!-- Then load the Nocturna Wheel UMD bundle -->
-<script src="path/to/nocturna-wheel.umd.js"></script>
-```
-
-2. Use the library with proper script loading practices:
-
-```html
-<script>
-  // Use window.onload to ensure all scripts are fully loaded
-  window.onload = function() {
-    // Access NocturnaWheel from the window object for safety
-    const { NocturnaWheel, WheelChart } = window.NocturnaWheel;
-    
-    // Create a chart instance
-    const chart = new WheelChart({
-        container: '#chart-container',
-        planets: {
-            sun: { lon: 85.83 },
-            moon: { lon: 133.21 }
-        },
-        // ... other options
-    });
-    
-    // Render the chart
-    chart.render();
-  };
-</script>
-```
-
-Important notes:
-- Always wait for scripts to fully load by using `window.onload` 
-- Access the library through `window.NocturnaWheel` rather than directly using `NocturnaWheel`
-- This ensures proper initialization order and prevents "Cannot access before initialization" errors
-
-### Using the ES Module Bundle in Modern Applications
-
-For modern web applications using build tools like Webpack, Rollup, or Vite:
+### Using with Module Bundlers (Webpack, Rollup, Vite)
 
 ```javascript
-// Import the globals module first to ensure all classes are defined
-import 'nocturna-wheel/globals.js';
-
-// Then import the ES module
-import { NocturnaWheel, WheelChart } from 'nocturna-wheel';
+// Import specific components
+import { WheelChart, ChartConfig } from 'nocturna-wheel';
 
 // Create a chart instance
 const chart = new WheelChart({
-    container: '#chart-container',
-    planets: {
-        sun: { lon: 85.83 },
-        moon: { lon: 133.21 }
-    }
+  container: '#chart-container',
+  planets: {
+    sun: { lon: 85.83 },
+    moon: { lon: 133.21 }
+  }
 });
 
 // Render the chart
 chart.render();
 ```
 
-### Why Global Stubs?
+### Using with Factory Injection Pattern
 
-The Nocturna Wheel library was originally designed to be loaded through direct `<script>` tags, where classes are defined in the global scope. The bundling process creates proper ES modules with encapsulated scope, but certain classes expect other classes to be available globally.
+The library supports Factory Injection for better decoupling and testability:
 
-The "global stubs" approach provides minimal implementations of these classes in the global scope, ensuring compatibility with the bundled code while maintaining the benefits of module bundling.
+```javascript
+import { WheelChart, NocturnaWheel } from 'nocturna-wheel';
+
+// Create a custom factory
+const chartFactory = (options) => {
+  console.log("Creating chart with custom factory");
+  return new NocturnaWheel({
+    ...options,
+    // Apply custom configurations
+    config: {
+      ...options.config,
+      theme: 'dark'
+    }
+  });
+};
+
+// Use the factory when creating WheelChart
+const chart = new WheelChart(options, chartFactory);
+chart.render();
+```
+
+See MODULE_ARCHITECTURE.md for more details on the library's architecture.
 
 ## License
 

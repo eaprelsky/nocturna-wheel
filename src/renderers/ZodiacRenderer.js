@@ -1,4 +1,5 @@
 import { BaseRenderer } from './BaseRenderer.js';
+import { AstrologyUtils } from '../utils/AstrologyUtils.js';
 
 /**
  * ZodiacRenderer.js
@@ -11,6 +12,7 @@ export class ZodiacRenderer extends BaseRenderer {
      * @param {string} options.svgNS - SVG namespace.
      * @param {ChartConfig} options.config - Chart configuration object.
      * @param {string} options.assetBasePath - Base path for assets.
+     * @param {IconProvider} [options.iconProvider] - Icon provider service.
      */
     constructor(options) {
         super(options);
@@ -18,6 +20,7 @@ export class ZodiacRenderer extends BaseRenderer {
             throw new Error("ZodiacRenderer: Missing required option assetBasePath");
         }
 
+        this.iconProvider = options.iconProvider; // Store the icon provider
         this.signIconRadius = (this.outerRadius + this.middleRadius) / 2;
         this.signIconSize = 30;
     }
@@ -122,8 +125,14 @@ export class ZodiacRenderer extends BaseRenderer {
             // Calculate position for the icon center
             const point = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.signIconRadius, angle);
 
-            // Using the correct SVG icon path format: zodiac-sign-*.svg
-            const iconHref = `${this.options.assetBasePath}svg/zodiac/zodiac-sign-${signName}.svg`;
+            // Get icon path using IconProvider if available
+            let iconHref;
+            if (this.iconProvider) {
+                iconHref = this.iconProvider.getZodiacIconPath(signName);
+            } else {
+                // Fallback to old path construction
+                iconHref = `${this.options.assetBasePath}svg/zodiac/zodiac-sign-${signName}.svg`;
+            }
             
             console.log(`Loading zodiac sign: ${iconHref}`);
             
@@ -140,19 +149,40 @@ export class ZodiacRenderer extends BaseRenderer {
              icon.addEventListener('error', () => {
                  console.warn(`Zodiac sign icon not found: ${iconHref}`);
                  icon.setAttribute('href', ''); // Remove broken link
-                 // Optionally add placeholder text
-                 const text = this.svgUtils.createSVGElement('text', {
-                     x: point.x,
-                     y: point.y,
-                     'text-anchor': 'middle',
-                     'dominant-baseline': 'central',
-                     'font-size': '10px',
-                     fill: '#ccc',
-                     class: `zodiac-element zodiac-sign zodiac-sign-${signName}`
-                 });
-                 text.textContent = signName.substring(0, 3).toUpperCase();
-                 parentGroup.appendChild(text);
-                 elements.push(text); // Add placeholder to rendered elements
+                 
+                 // Create a text fallback
+                 const fallbackText = signName.substring(0, 3).toUpperCase();
+                 
+                 // Use IconProvider's createTextFallback if available
+                 let textElement;
+                 if (this.iconProvider) {
+                     textElement = this.iconProvider.createTextFallback(
+                         this.svgUtils,
+                         {
+                             x: point.x,
+                             y: point.y,
+                             size: '10px',
+                             color: '#ccc',
+                             className: `zodiac-element zodiac-sign zodiac-sign-${signName}`
+                         },
+                         fallbackText
+                     );
+                 } else {
+                     // Legacy fallback
+                     textElement = this.svgUtils.createSVGElement('text', {
+                         x: point.x,
+                         y: point.y,
+                         'text-anchor': 'middle',
+                         'dominant-baseline': 'central',
+                         'font-size': '10px',
+                         fill: '#ccc',
+                         class: `zodiac-element zodiac-sign zodiac-sign-${signName}`
+                     });
+                     textElement.textContent = fallbackText;
+                 }
+                 
+                 parentGroup.appendChild(textElement);
+                 elements.push(textElement); // Add placeholder to rendered elements
              });
 
 

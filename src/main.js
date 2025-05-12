@@ -2,83 +2,53 @@
  * Nocturna Wheel JS - Main Entry Point
  * 
  * This file serves as the primary entry point for the Nocturna Wheel library.
- * It provides a clean public API while internally managing all dependencies.
+ * It provides a clean public API with ES module exports.
  * 
  * Factory Injection Pattern:
  * The WheelChart supports Factory Injection for better decoupling:
  * 
  * ```javascript
- * // Basic usage (backward compatible)
- * const chart = new NocturnaWheel.WheelChart(options);
- * 
- * // With Factory Injection
+ * // Example usage with factory injection
  * const chartFactory = (opts) => new CustomChart(opts);
- * const chart = new NocturnaWheel.WheelChart(options, chartFactory);
+ * const chart = new WheelChart(options, chartFactory);
  * ```
  * 
  * See examples/factory-injection-example.js for more advanced usage patterns.
  */
 
-// Import compatibility layer to manage global variables
-import { exposeToGlobal } from './compatibility';
+// Import core services
+import { ServiceRegistry } from './services/ServiceRegistry.js';
+
+// Initialize core services immediately
+ServiceRegistry.initializeServices();
 
 // Import main components for the public API
 import { NocturnaWheel } from './NocturnaWheel';
 import { WheelChart } from './components/WheelChart';
-
-// Import core components for the public API
 import { ChartConfig } from './core/ChartConfig';
+import { SvgUtils } from './utils/SvgUtils.js';
+import { AstrologyUtils } from './utils/AstrologyUtils.js';
 
-// Expose globals for backward compatibility (can be disabled in production)
-// This should be eventually phased out
-const ENABLE_LEGACY_GLOBALS = true;
-exposeToGlobal(ENABLE_LEGACY_GLOBALS);
+// Library version
+const VERSION = '0.2.0';
 
-// Create a namespace structure for the public API
-const NocturnaWheelNamespace = {
-    // Main chart classes
-    NocturnaWheel,
-    WheelChart,
-    
-    // Core classes that may be useful for customization
-    ChartConfig,
-    
-    // Version information
-    VERSION: '0.2.0',
-    
-    // Configuration
-    config: {
-        disableLegacyGlobals: () => {
-            exposeToGlobal(false);
-            console.log('Legacy global variables have been disabled');
-        }
-    }
-};
-
-// Export the public API for ES modules
+// Clean exports for ES modules
 export {
     NocturnaWheel,
     WheelChart,
-    ChartConfig
+    ChartConfig,
+    VERSION,
+    ServiceRegistry,
+    SvgUtils,
+    AstrologyUtils
 };
-
-// Export the namespace for backward compatibility
-export default NocturnaWheelNamespace;
-
-// Also export to the window object for backwards compatibility
-if (typeof window !== 'undefined') {
-    window.NocturnaWheel = NocturnaWheelNamespace;
-}
 
 /**
  * Main entry point for the Nocturna Wheel development environment
  * This file sets up the chart and handles hot module replacement for Vite
  */
 
-// Import any required helpers or utility functions
-// import { sampleChartData } from './utils/sampleData.js';
-
-// Sample chart data - replace with actual implementation
+// Sample chart data - for development and testing
 const chartData = {
   planets: {
     sun: { lon: 0, lat: 0, color: '#F9A825' },
@@ -185,4 +155,14 @@ if (import.meta.hot) {
     console.log('HMR dispose for main.js');
     cleanup();
   });
-} 
+}
+
+// Default export for easier imports
+export default {
+    NocturnaWheel,
+    WheelChart,
+    ChartConfig,
+    ServiceRegistry,
+    SvgUtils,
+    AstrologyUtils
+}; 

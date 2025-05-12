@@ -7,20 +7,27 @@ import { SvgUtils } from '../utils/SvgUtils';
 export class ChartRenderer {
     /**
      * Constructor
-     * @param {NocturnaWheel} chart - Chart instance
+     * @param {WheelChart} wheelChart - WheelChart instance
      * @param {Object} options - Chart options
      */
-    constructor(chart, options = {}) {
-        this.chart = chart;
+    constructor(wheelChart, options = {}) {
+        this.wheelChart = wheelChart;  // Store reference to WheelChart instance
+        this.chart = wheelChart.chart; // Store direct reference to underlying NocturnaWheel instance
         this.options = options;
         this.svgUtils = new SvgUtils();
-        console.log("ChartRenderer: Initialized with chart", chart);
+        console.log("ChartRenderer: Initialized with chart", this.chart);
     }
     
     /**
      * Renders inner circle and planets
      */
     renderInnerElements() {
+        // Make sure we have a valid NocturnaWheel instance with svgManager
+        if (!this.chart || !this.chart.svgManager) {
+            console.error("ChartRenderer: Invalid chart or missing svgManager");
+            return;
+        }
+        
         const svg = this.chart.svgManager.getSVG();
         if (!svg) {
             console.error("ChartRenderer: SVG not found");

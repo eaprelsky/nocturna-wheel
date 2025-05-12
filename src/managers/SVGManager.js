@@ -2,11 +2,23 @@
  * SVGManager.js
  * Handles the creation, management, and querying of the main SVG element and its layer groups.
  */
+import { ServiceRegistry } from '../services/ServiceRegistry.js';
+import { SvgUtils } from '../utils/SvgUtils.js';
+
 export class SVGManager {
-    constructor() {
+    /**
+     * Constructor
+     * @param {Object} options - Manager options
+     * @param {SvgUtils} [options.svgUtils] - SvgUtils instance (optional, will use from registry if not provided)
+     */
+    constructor(options = {}) {
         this.svgNS = "http://www.w3.org/2000/svg";
         this.svg = null; // Reference to the main SVG element
         this.groups = {}; // References to the layer groups (g elements)
+        
+        // Use injected svgUtils or get from registry
+        this.svgUtils = options.svgUtils || ServiceRegistry.getSvgUtils();
+        
         // Define standard group order (bottom to top)
         this.groupOrder = [
             'zodiac',

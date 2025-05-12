@@ -5,10 +5,8 @@
  */
 import { ChartConfig } from './core/ChartConfig.js';
 import { SVGManager } from './managers/SVGManager.js';
-import { ZodiacRenderer } from './renderers/ZodiacRenderer.js';
-import { HouseRenderer } from './renderers/HouseRenderer.js';
-import { PlanetRenderer } from './renderers/PlanetRenderer.js';
-import { ClientSideAspectRenderer } from './renderers/ClientSideAspectRenderer.js';
+import { ServiceRegistry } from './services/ServiceRegistry.js';
+import { RendererFactory } from './factories/RendererFactory.js';
 
 export class NocturnaWheel {
     /**
@@ -46,8 +44,12 @@ export class NocturnaWheel {
             this.config.updateAspectSettings(options.aspectSettings);
         }
         
-        // Initialize SVG manager
-        this.svgManager = new SVGManager();
+        // Initialize services
+        ServiceRegistry.initializeServices();
+        
+        // Initialize SVG manager with shared svgUtils instance
+        const svgUtils = ServiceRegistry.getSvgUtils();
+        this.svgManager = new SVGManager({ svgUtils });
         
         // Initialize renderers dictionary
         this.renderers = {};
@@ -77,18 +79,20 @@ export class NocturnaWheel {
     }
 
     /**
-     * Initializes all renderers
+     * Initializes all renderers using the factory
      * @private
      */
     _initializeRenderers() {
-        const rendererOptions = {
-            svgNS: this.svgManager.svgNS,
-            config: this.config,
-            assetBasePath: this.config.assets.basePath
-        };
+        // Create renderer factory
+        this.rendererFactory = new RendererFactory(
+            this.config, 
+            this.svgManager.svgNS
+        );
         
         // Initialize zodiac renderer
-        this.renderers.zodiac = new ZodiacRenderer(rendererOptions);
+        this.renderers.zodiac = this.rendererFactory.createZodiacRenderer({
+            assetBasePath: this.config.assets.basePath
+        });
         
         // Initialize house renderer with house data
         const houseCusps = this.config.getHouseCusps();
@@ -96,21 +100,18 @@ export class NocturnaWheel {
             ? houseCusps 
             : this.houses;
         
-        this.renderers.house = new HouseRenderer({
-            ...rendererOptions,
+        this.renderers.house = this.rendererFactory.createHouseRenderer({
             houseData: houseData
         });
         
-        // Initialize planet renderer with planet data
-        this.renderers.planet = new PlanetRenderer({
-            ...rendererOptions,
-            planetData: this.planets
+        // Initialize planet renderer
+        this.renderers.planet = this.rendererFactory.createPlanetRenderer({
+            assetBasePath: this.config.assets.basePath
         });
         
         // Initialize aspect renderer
-        this.renderers.aspect = new ClientSideAspectRenderer({
-            ...rendererOptions,
-            planetData: this.planets
+        this.renderers.aspect = this.rendererFactory.createAspectRenderer({
+            assetBasePath: this.config.assets.basePath
         });
     }
 
@@ -188,10 +189,6 @@ export class NocturnaWheel {
     update(config) {
         if (config.planets) {
             this.planets = config.planets;
-            // Removed incorrect call to non-existent updatePlanetData
-            // if (this.renderers.planet) {
-            //     this.renderers.planet.updatePlanetData(this.planets);
-            // }
         }
         
         if (config.houses) {

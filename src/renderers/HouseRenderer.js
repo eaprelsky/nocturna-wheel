@@ -1,4 +1,5 @@
 import { BaseRenderer } from './BaseRenderer.js';
+import { AstrologyUtils } from '../utils/AstrologyUtils.js';
 
 /**
  * HouseRenderer.js

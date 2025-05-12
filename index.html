@@ -14,6 +14,9 @@
     <!-- Nocturna Wheel CSS -->
     <link href="/assets/css/nocturna-wheel.css" rel="stylesheet">
     <link href="/assets/css/demo.css" rel="stylesheet">
+
+    <!-- Preload critical external scripts -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" as="script" crossorigin>
 </head>
 <body>
     <!-- Navigation -->
@@ -241,15 +244,50 @@ wheelChart.toggleAspects(false);</code></pre>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Nocturna Wheel Library - Bundled Version -->
-    <script src="/dist/nocturna-wheel.bundle.js?v=3"></script>
+    <!-- No direct script tags for external resources -->
+    <!-- Scripts loaded via async pattern in the next script block -->
 
     <!-- Demo script -->
     <script>
+        // Modern async script loading
+        function loadScript(url, callback) {
+            const script = document.createElement('script');
+            script.src = url;
+            script.crossOrigin = "anonymous";
+            script.onload = callback || function() {};
+            script.onerror = function() {
+                console.warn(`Failed to load script: ${url}`);
+            };
+            document.head.appendChild(script);
+        }
+
+        // Load scripts in proper sequence
         document.addEventListener('DOMContentLoaded', function() {
+            // Load Bootstrap
+            loadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', function() {
+                console.log('Bootstrap loaded successfully');
+                
+                // First load our compatibility fix to ensure all needed globals are defined
+                loadScript('/dist/nocturna-fix.js', function() {
+                    console.log('NocturnaWheel compatibility layer loaded');
+                    
+                    // Then load the main bundle
+                    loadScript('/dist/nocturna-wheel.bundle.js?v=5', initializeChart);
+                });
+            });
+        });
+
+        // Chart initialization function
+        function initializeChart() {
+            console.log("Initializing Nocturna Wheel chart...");
+            
+            // Check if Nocturna Wheel is loaded properly
+            if (!window.NocturnaWheel) {
+                console.error("NocturnaWheel object not found! Library may not have loaded correctly.");
+                document.getElementById('chart-container').innerHTML = '<div class="alert alert-danger">Failed to load the chart library. Please check the console for details.</div>';
+                return;
+            }
+            
             // Sample data for the chart
             let chartData = {
                 planets: {
@@ -322,10 +360,11 @@ wheelChart.toggleAspects(false);</code></pre>
             const customChartFactory = (options) => {
                 console.log("Custom factory: Creating enhanced NocturnaWheel instance");
                 
+                // Get the NocturnaWheel constructor from the exported UMD
+                const { NocturnaWheel } = window.NocturnaWheel;
+                
                 // Create base chart
-                const baseChart = typeof NocturnaWheel.NocturnaWheel === 'function' 
-                    ? new NocturnaWheel.NocturnaWheel(options)
-                    : new NocturnaWheel(options);
+                const baseChart = new NocturnaWheel(options);
                 
                 // Enhance with monitoring capabilities
                 const originalRender = baseChart.render;
@@ -341,23 +380,14 @@ wheelChart.toggleAspects(false);</code></pre>
                 return baseChart;
             };
             
-            // Initialize chart with proper constructor based on what's available
+            // Extract constructors from the global object
+            const { WheelChart, NocturnaWheel, AstrologyUtils } = window.NocturnaWheel;
+            
+            // Initialize chart with factory injection
             let chart;
             try {
-                // Check which constructor is available
-                if (typeof NocturnaWheel.WheelChart === 'function') {
-                    // Original nested structure with factory injection
-                    console.log("Using WheelChart with factory injection");
-                    chart = new NocturnaWheel.WheelChart(chartOptions, customChartFactory);
-                } else if (typeof WheelChart === 'function') {
-                    // Flat exported structure with factory injection
-                    console.log("Using flat exported WheelChart with factory injection");
-                    chart = new WheelChart(chartOptions, customChartFactory);
-                } else {
-                    console.error("WheelChart constructor not found in any expected location");
-                    // Fallback to basic NocturnaWheel if needed
-                    chart = new NocturnaWheel(chartOptions);
-                }
+                console.log("Using WheelChart with factory injection");
+                chart = new WheelChart(chartOptions, customChartFactory);
             } catch (error) {
                 console.error("Error initializing chart:", error);
                 alert("There was an error initializing the chart. See console for details.");
@@ -879,7 +909,7 @@ wheelChart.toggleAspects(false);</code></pre>
 
             // Initialize all color previews
             document.querySelectorAll('input[type="color"]').forEach(updateColorPreview);
-        });
+        }
     </script>
 </body>
 </html>
