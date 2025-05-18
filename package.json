@@ -42,7 +42,8 @@
     "serve": "http-server . -p 8080",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "release": "semantic-release"
   },
   "keywords": [
     "astrology",
@@ -58,6 +59,10 @@
     "@babel/preset-env": "^7.27.2",
     "@rollup/plugin-commonjs": "^24.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.2",
+    "@semantic-release/npm": "^12.0.1",
     "babel-jest": "^29.7.0",
     "cross-env": "^7.0.3",
     "http-server": "^14.1.1",
@@ -68,6 +73,7 @@
     "rollup": "^2.79.1",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-terser": "^7.0.2",
+    "semantic-release": "^24.2.4",
     "vite": "^6.3.5"
   },
   "repository": {
@@ -78,8 +84,7 @@
     "url": "https://github.com/eaprelsky/nocturna-wheel/issues"
   },
   "homepage": "https://github.com/eaprelsky/nocturna-wheel#readme",
-
   "publishConfig": {
-  "registry": "https://registry.npmjs.org/"
-}
+    "registry": "https://registry.npmjs.org/"
+  }
 }
