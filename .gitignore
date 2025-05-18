@@ -38,7 +38,11 @@ coverage/
 .tmp/
 tmp/
 todo/
+
 # Vite specific
 .vite/
 *.local
 dist-ssr/
+
+# Temporary scripts
+tmp_name.sh
