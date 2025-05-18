@@ -26,7 +26,7 @@ A JavaScript library for rendering astrological natal charts.
 ### NPM Installation
 
 ```bash
-npm install nocturna-wheel
+npm install @eaprelsky/nocturna-wheel
 ```
 
 ## Basic Usage
