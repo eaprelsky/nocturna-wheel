@@ -78,7 +78,8 @@
     "url": "https://github.com/eaprelsky/nocturna-wheel/issues"
   },
   "homepage": "https://github.com/eaprelsky/nocturna-wheel#readme",
+
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  }
+  "registry": "https://registry.npmjs.org/"
+}
 }

@@ -1,0 +1,7 @@
+{
+    "workbench.colorTheme": "Visual Studio Light",
+    "terminal.integrated.fontWeight": "normal",
+    "terminal.integrated.profiles.windows": {
+// ... existing code ...
+    }
+} 
