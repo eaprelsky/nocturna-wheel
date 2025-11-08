@@ -241,12 +241,6 @@ export class NocturnaWheel {
             console.log("NocturnaWheel: Rendered synastry aspects");
         }
         
-        // Legacy aspect rendering for backward compatibility
-        if (this.config.aspectSettings.enabled && primaryPlanetsWithCoords.length >= 2) {
-            this.renderers.aspect.render(this.svgManager.getGroup('aspects'), primaryPlanetsWithCoords, this.config.aspectSettings);
-            console.log("NocturnaWheel: Rendered legacy aspects");
-        }
-        
         console.log("NocturnaWheel: Chart rendered");
         return this;
     }
