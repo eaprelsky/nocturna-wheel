@@ -224,18 +224,26 @@ chart.render();
 // Toggle features
 chart.togglePlanet('pluto', false);
 chart.toggleHouses(false);
-chart.toggleAspects(false);</code></pre>
+chart.togglePrimaryPlanets(true);
+chart.toggleSecondaryPlanets(true);</code></pre>
                     </div>
                     
-                    <h4>Using the WheelChart Component</h4>
+                    <h4>Dual Charts (Synastry, Transits)</h4>
                     <div class="code-block">
-                        <pre><code>// Create enhanced chart with additional inner circle
+                        <pre><code>// Create dual chart with independent inner and outer circles
 const wheelChart = new WheelChart({
     container: 'chart-container',
+    // Natal chart (outer circle)
     planets: {
-        sun: { lon: 85.83 },
-        moon: { lon: 133.21 },
-        // ... other planets
+        sun: { lon: 85.83, color: '#000000' },
+        moon: { lon: 133.21, color: '#000000' },
+        // ... other natal planets
+    },
+    // Transit/Partner chart (inner circle)
+    secondaryPlanets: {
+        sun: { lon: 115.20, color: '#FF5500' },
+        moon: { lon: 200.45, color: '#0066CC' },
+        // ... other transit/partner planets
     },
     houses: [
         { lon: 300.32 },  // 1st house cusp
@@ -243,28 +251,34 @@ const wheelChart = new WheelChart({
     ],
     config: {
         radius: {
-            innermost: 90 // Set the radius for the innermost circle
-        }
+            innermost: 90 // Radius for the inner circle
+        },
+        // Three independent aspect systems
+        primaryAspectSettings: { /* natal-to-natal */ },
+        secondaryAspectSettings: { /* transit-to-transit */ },
+        synastryAspectSettings: { /* natal-to-transit */ }
     }
 });
 
-// Render the chart with the inner circle
+// Render the dual chart
 wheelChart.render();
 
-// WheelChart has the same API as NocturnaWheel
-wheelChart.togglePlanet('pluto', false);
-wheelChart.toggleHouses(false);
-wheelChart.toggleAspects(false);</code></pre>
+// Control each aspect type independently
+wheelChart.togglePrimaryAspects(true);   // Outer circle aspects
+wheelChart.toggleSecondaryAspects(false); // Inner circle aspects
+wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
                     </div>
                     
                     <h4>Configuration Options</h4>
                     <p>The Nocturna Wheel.js library provides extensive configuration options:</p>
                     <ul>
-                        <li>Custom colors and styling</li>
-                        <li>Different house systems</li>
-                        <li>Aspect calculations and filtering</li>
-                        <li>Custom icon sets</li>
-                        <li>Event handling</li>
+                        <li><strong>Dual chart support</strong> - Independent inner and outer circles</li>
+                        <li><strong>Three aspect systems</strong> - Primary, Secondary, and Synastry aspects</li>
+                        <li><strong>Multiple house systems</strong> - Placidus, Koch, Equal, and more</li>
+                        <li><strong>Custom colors and styling</strong> - Full control over colors, line styles, and thickness</li>
+                        <li><strong>Projection dots</strong> - Hollow circles showing outer planet projections</li>
+                        <li><strong>Custom icon sets</strong> - Use your own planet and sign symbols</li>
+                        <li><strong>Interactive tooltips</strong> - Hover information for all elements</li>
                     </ul>
                     
                     <p>For more detailed documentation, please visit the <a href="https://github.com/eaprelsky/nocturna-wheel" class="text-decoration-none" style="color: var(--nocturna-primary);">GitHub repository</a>.</p>

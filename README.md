@@ -4,12 +4,17 @@ A JavaScript library for rendering astrological natal charts.
 
 ## Features
 
-- Responsive SVG-based chart rendering
-- Zodiac sign display with customizable styling
-- House system rendering with multiple system options
-- Planet placement with customizable icons and colors
-- Aspect calculation and visualization
-- Interactive tooltips for celestial objects
+- **Responsive SVG-based chart rendering**
+- **Dual chart support** - independent inner and outer circles for synastry and transit charts
+- **Zodiac sign display** with customizable styling
+- **House system rendering** with multiple system options (Placidus, Koch, Equal, etc.)
+- **Planet placement** with customizable icons and colors on two independent circles
+- **Three types of aspects:**
+  - Primary aspects (outer circle to outer circle)
+  - Secondary aspects (inner circle to inner circle)
+  - Synastry aspects (outer to inner circle with projection dots)
+- **Interactive tooltips** for celestial objects
+- **Full control** over colors, line styles, and orbs for each aspect type
 
 ## Installation
 
@@ -105,29 +110,47 @@ Main class for creating and managing astrological charts.
 #### Constructor Options
 
 - `container`: String selector or DOM element for the chart container
-- `planets`: Object containing planet positions and properties
+- `planets`: Object containing primary planet positions (outer circle)
+- `secondaryPlanets`: Object containing secondary planet positions (inner circle, optional)
 - `houses`: Array of house cusp positions
-- `aspectSettings`: Object with aspect calculation settings
-- `config`: Additional configuration options
+- `config`: Additional configuration options including aspect settings
 
 ```javascript
 const chart = new NocturnaWheel.WheelChart({
   container: "#chart-container",
   planets: {
-    sun: { lon: 85.83, color: "#ff0000" },
-    moon: { lon: 133.21 }
+    sun: { lon: 85.83, color: "#000000" },
+    moon: { lon: 133.21, color: "#000000" }
+  },
+  secondaryPlanets: {
+    sun: { lon: 115.20, color: "#FF5500" },
+    moon: { lon: 200.45, color: "#0066CC" }
   },
   houses: [{ lon: 300.32 }, ...],
-  aspectSettings: {
-    enabled: true,
-    orb: 6,
-    types: {
-      conjunction: { angle: 0, orb: 8, color: "#000000", enabled: true }
-    }
-  },
   config: {
     zodiacSettings: { enabled: true },
-    planetSettings: { enabled: true }
+    planetSettings: { enabled: true },
+    // Primary aspects (outer circle to outer circle)
+    primaryAspectSettings: {
+      enabled: true,
+      orb: 6,
+      types: {
+        conjunction: { angle: 0, orb: 8, color: "#000000", enabled: true, lineStyle: 'none', strokeWidth: 1 },
+        opposition: { angle: 180, orb: 6, color: "#E41B17", enabled: true, lineStyle: 'solid', strokeWidth: 1 }
+      }
+    },
+    // Secondary aspects (inner circle to inner circle)
+    secondaryAspectSettings: {
+      enabled: true,
+      orb: 6,
+      types: { /* ... */ }
+    },
+    // Synastry aspects (outer to inner circle projections)
+    synastryAspectSettings: {
+      enabled: true,
+      orb: 6,
+      types: { /* ... */ }
+    }
   }
 });
 ```
@@ -136,11 +159,14 @@ const chart = new NocturnaWheel.WheelChart({
 
 - `render()`: Renders the chart
 - `update(config)`: Updates chart configuration
-- `togglePlanet(name, visible)`: Toggles visibility of a planet
+- `updateData(data)`: Updates planet and house data
+- `togglePlanet(name, visible)`: Toggles visibility of a specific planet
 - `toggleHouses(visible)`: Toggles visibility of houses
-- `toggleAspects(visible)`: Toggles visibility of aspects
-- `togglePrimaryPlanets(visible)`: Toggles primary planets
-- `toggleSecondaryPlanets(visible)`: Toggles secondary planets
+- `togglePrimaryPlanets(visible)`: Toggles visibility of primary planets (outer circle)
+- `toggleSecondaryPlanets(visible)`: Toggles visibility of secondary planets (inner circle)
+- `togglePrimaryAspects(visible)`: Toggles visibility of primary aspects (outer circle)
+- `toggleSecondaryAspects(visible)`: Toggles visibility of secondary aspects (inner circle)
+- `toggleSynastryAspects(visible)`: Toggles visibility of synastry aspects (cross-circle)
 - `setHouseRotation(angle)`: Sets house system rotation
 - `setHouseSystem(name)`: Changes the house system
 - `destroy()`: Removes the chart and cleans up resources
@@ -159,13 +185,38 @@ const chartConfig = {
     houseSystem: "Placidus"
   },
   
-  // Aspect settings
-  aspectSettings: {
+  // Primary aspect settings (outer circle to outer circle)
+  primaryAspectSettings: {
     enabled: true,
     orb: 6,
     types: {
-      conjunction: { angle: 0, orb: 8, color: "#ff0000", enabled: true },
-      opposition: { angle: 180, orb: 8, color: "#0000ff", enabled: true }
+      conjunction: { angle: 0, orb: 8, color: "#000000", enabled: true, lineStyle: 'none', strokeWidth: 1 },
+      opposition: { angle: 180, orb: 6, color: "#E41B17", enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+      trine: { angle: 120, orb: 6, color: "#4CC417", enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+      square: { angle: 90, orb: 6, color: "#F62817", enabled: true, lineStyle: 'dashed', strokeWidth: 1 },
+      sextile: { angle: 60, orb: 4, color: "#56A5EC", enabled: true, lineStyle: 'dashed', strokeWidth: 1 }
+    }
+  },
+  
+  // Secondary aspect settings (inner circle to inner circle)
+  secondaryAspectSettings: {
+    enabled: true,
+    orb: 6,
+    types: {
+      conjunction: { angle: 0, orb: 8, color: "#AA00AA", enabled: true, lineStyle: 'none', strokeWidth: 1 },
+      opposition: { angle: 180, orb: 6, color: "#FF6600", enabled: true, lineStyle: 'solid', strokeWidth: 1 }
+      // ... other aspects
+    }
+  },
+  
+  // Synastry aspect settings (outer to inner circle)
+  synastryAspectSettings: {
+    enabled: true,
+    orb: 6,
+    types: {
+      conjunction: { angle: 0, orb: 8, color: "#666666", enabled: true, lineStyle: 'none', strokeWidth: 1 },
+      opposition: { angle: 180, orb: 6, color: "#9933CC", enabled: true, lineStyle: 'solid', strokeWidth: 0.5 }
+      // ... other aspects
     }
   },
   
@@ -244,6 +295,39 @@ chart.render();
 ```
 
 See MODULE_ARCHITECTURE.md for more details on the library's architecture.
+
+## Synastry and Dual Charts
+
+The library supports dual charts for synastry, transits, and progressions. Each circle operates independently:
+
+```javascript
+const chart = new WheelChart({
+  container: '#chart-container',
+  // Natal chart (outer circle)
+  planets: {
+    sun: { lon: 85.83, color: '#000000' },
+    moon: { lon: 133.21, color: '#000000' }
+  },
+  // Transit/Partner chart (inner circle)
+  secondaryPlanets: {
+    sun: { lon: 115.20, color: '#FF5500' },
+    moon: { lon: 200.45, color: '#0066CC' }
+  },
+  config: {
+    // Configure three independent aspect systems
+    primaryAspectSettings: { /* natal-to-natal */ },
+    secondaryAspectSettings: { /* transit-to-transit */ },
+    synastryAspectSettings: { /* natal-to-transit with projection dots */ }
+  }
+});
+
+// Toggle each aspect type independently
+chart.togglePrimaryAspects(true);
+chart.toggleSecondaryAspects(false);
+chart.toggleSynastryAspects(true);
+```
+
+**Synastry aspects** are rendered with hollow projection dots on the inner circle, showing where outer circle planets project onto the inner radius. This creates a cleaner, more aesthetically pleasing visualization.
 
 ## License
 
