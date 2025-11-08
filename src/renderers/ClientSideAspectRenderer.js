@@ -299,15 +299,40 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
         const settings = aspectSettings || this.config.synastryAspectSettings || {};
         const aspectTypesConfig = settings.types || {};
 
-        // Map planets by name for coordinate lookup
-        const planetCoords = {};
-        [...primaryPlanets, ...secondaryPlanets].forEach(p => {
-            planetCoords[p.name] = { x: p.x, y: p.y };
+        // Map planets by name for coordinate lookup - keep separate to avoid overwriting
+        const primaryCoords = {};
+        primaryPlanets.forEach(p => {
+            primaryCoords[p.name] = { x: p.x, y: p.y };
+        });
+        
+        const secondaryCoords = {};
+        secondaryPlanets.forEach(p => {
+            secondaryCoords[p.name] = { x: p.x, y: p.y };
         });
 
         aspects.forEach(aspect => {
-            const coords1 = planetCoords[aspect.planet1];
-            const coords2 = planetCoords[aspect.planet2];
+            // For cross-aspects: 
+            // - aspect.planet1 is from primary (outer circle) 
+            // - aspect.planet2 is from secondary (inner circle)
+            // We need to draw line from secondary planet to PRIMARY's projection on inner circle
+            
+            // Get the primary planet to calculate its projection on inner circle
+            const primaryPlanet = aspect.p1; // This has the position (degrees)
+            const secondaryPlanet = aspect.p2;
+            
+            // Calculate projection of primary planet onto inner circle radius
+            // Using the same angle but inner circle radius
+            const innerRadius = this.config.radius.innermost || 90;
+            const angle = primaryPlanet.position;
+            const radians = (angle - 90) * (Math.PI / 180); // Adjust for SVG coordinate system
+            
+            const projectionX = this.centerX + innerRadius * Math.cos(radians);
+            const projectionY = this.centerY + innerRadius * Math.sin(radians);
+            
+            // coords1 is the projection of primary planet on inner circle
+            const coords1 = { x: projectionX, y: projectionY };
+            // coords2 is the actual secondary planet position
+            const coords2 = secondaryCoords[aspect.planet2];
 
             const aspectDef = aspectTypesConfig[aspect.type];
             const isEnabled = aspectDef ? (aspectDef.enabled !== false) : true;
@@ -350,8 +375,47 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
 
             this._addAspectIcon(parentGroup, aspect, coords1, coords2, tooltipText);
         });
+        
+        // Render projection dots (hollow circles) for primary planets on inner circle
+        this._renderProjectionDots(parentGroup, primaryPlanets);
 
         return renderedElements;
+    }
+    
+    /**
+     * Renders projection dots (hollow circles) for primary planets on the inner circle
+     * @private
+     * @param {Element} parentGroup - The SVG group for aspect lines
+     * @param {Array} primaryPlanets - Array of primary planet objects
+     */
+    _renderProjectionDots(parentGroup, primaryPlanets) {
+        const innerRadius = this.config.radius.innermost || 90;
+        const dotRadius = 3; // Size of the hollow circle
+        
+        primaryPlanets.forEach(planet => {
+            const angle = planet.position;
+            const radians = (angle - 90) * (Math.PI / 180); // Adjust for SVG coordinate system
+            
+            const x = this.centerX + innerRadius * Math.cos(radians);
+            const y = this.centerY + innerRadius * Math.sin(radians);
+            
+            // Create hollow circle (stroke only, no fill)
+            const circle = this.svgUtils.createSVGElement("circle", {
+                cx: x,
+                cy: y,
+                r: dotRadius,
+                class: `projection-dot projection-${planet.name}`,
+                fill: 'none',
+                stroke: planet.color || '#666666',
+                'stroke-width': '1.5'
+            });
+            
+            // Add tooltip
+            const tooltipText = `${this.astrologyUtils.capitalizeFirstLetter(planet.name)} projection (${angle.toFixed(1)}°)`;
+            this.svgUtils.addTooltip(circle, tooltipText);
+            
+            parentGroup.appendChild(circle);
+        });
     }
 
     /**
