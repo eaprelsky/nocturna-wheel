@@ -5,7 +5,45 @@
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
       "@semantic-release/npm",
-      "@semantic-release/github",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "dist/nocturna-wheel.bundle.js",
+              "label": "Bundle (nocturna-wheel.bundle.js)"
+            },
+            {
+              "path": "dist/nocturna-wheel.bundle.js.map",
+              "label": "Bundle Source Map"
+            },
+            {
+              "path": "dist/nocturna-wheel.min.js",
+              "label": "Minified Bundle (nocturna-wheel.min.js)"
+            },
+            {
+              "path": "dist/nocturna-wheel.min.js.map",
+              "label": "Minified Bundle Source Map"
+            },
+            {
+              "path": "dist/nocturna-wheel.es.js",
+              "label": "ES Module (nocturna-wheel.es.js)"
+            },
+            {
+              "path": "dist/nocturna-wheel.es.js.map",
+              "label": "ES Module Source Map"
+            },
+            {
+              "path": "dist/nocturna-wheel.umd.js",
+              "label": "UMD Module (nocturna-wheel.umd.js)"
+            },
+            {
+              "path": "dist/nocturna-wheel.umd.js.map",
+              "label": "UMD Module Source Map"
+            }
+          ]
+        }
+      ],
       [
         "@semantic-release/git",
         {
