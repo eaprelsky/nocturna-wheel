@@ -10,9 +10,13 @@ export class WheelChart {
      * Constructor
      * @param {Object} options - Configuration options
      * @param {string|Element} options.container - Container element or selector
-     * @param {Object} options.planets - Planet positions data
+     * @param {Object} options.planets - Primary planet positions data (outer circle)
+     * @param {Object} options.secondaryPlanets - Secondary planet positions data (inner circle, optional)
      * @param {Array} options.houses - House cusps data (optional)
-     * @param {Object} options.aspectSettings - Aspect calculation settings (optional)
+     * @param {Object} options.aspectSettings - Aspect calculation settings (optional, legacy)
+     * @param {Object} options.primaryAspectSettings - Primary aspect settings (optional)
+     * @param {Object} options.secondaryAspectSettings - Secondary aspect settings (optional)
+     * @param {Object} options.synastryAspectSettings - Synastry aspect settings (optional)
      * @param {Object} options.config - Additional configuration (optional)
      * @param {Function} [chartFactory=null] - Factory function to create the chart instance
      *                                        Function signature: (options) => ChartInstance
@@ -127,6 +131,18 @@ export class WheelChart {
     
     toggleAspects(visible) {
         return this._delegateAndRedraw('toggleAspects', visible);
+    }
+    
+    togglePrimaryAspects(visible) {
+        return this._delegateAndRedraw('togglePrimaryAspects', visible);
+    }
+    
+    toggleSecondaryAspects(visible) {
+        return this._delegateAndRedraw('toggleSecondaryAspects', visible);
+    }
+    
+    toggleSynastryAspects(visible) {
+        return this._delegateAndRedraw('toggleSynastryAspects', visible);
     }
     
     /**

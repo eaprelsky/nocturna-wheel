@@ -50,16 +50,20 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
     /**
      * Calculates aspects between planets based on their positions.
      * @param {Array} planets - Array of planet objects MUST include `position` property.
+     * @param {Object} aspectSettings - Aspect settings to use (optional, defaults to config.aspectSettings)
      * @returns {Array} Array of calculated aspect objects.
      */
-    calculateAspects(planets) {
+    calculateAspects(planets, aspectSettings = null) {
         const aspects = [];
         if (!planets || planets.length < 2) {
             return aspects;
         }
 
+        // Use provided aspectSettings or fall back to config
+        const settings = aspectSettings || this.config.aspectSettings || {};
+        
         // Generate a cache key based on aspectSettings and planet positions
-        const settingsString = JSON.stringify(this.config.aspectSettings);
+        const settingsString = JSON.stringify(settings);
         const planetKey = planets.map(p => `${p.name}:${p.position}`).join('|');
         const cacheKey = `${settingsString}|${planetKey}`;
         if (cacheKey === this._aspectCacheKey) {
@@ -67,10 +71,9 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
             return this._aspectCache;
         }
 
-        // Get aspect types and orbs from config, falling back to defaults
-        const aspectSettings = this.config.aspectSettings || {};
-        const calculationOrb = aspectSettings.orb || 6; // Default orb if not specified per aspect
-        const aspectTypes = aspectSettings.types || this.defaultAspectDefinitions;
+        // Get aspect types and orbs from settings, falling back to defaults
+        const calculationOrb = settings.orb || 6; // Default orb if not specified per aspect
+        const aspectTypes = settings.types || this.defaultAspectDefinitions;
 
         // Iterate through all unique pairs of planets
         for (let i = 0; i < planets.length; i++) {
@@ -113,15 +116,75 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
         this._aspectCache = aspects;
         return aspects;
     }
+    
+    /**
+     * Calculates cross-aspects (synastry) between two different planet sets.
+     * @param {Array} planets1 - First array of planet objects (e.g., primary/outer planets)
+     * @param {Array} planets2 - Second array of planet objects (e.g., secondary/inner planets)
+     * @param {Object} aspectSettings - Aspect settings to use
+     * @returns {Array} Array of calculated cross-aspect objects.
+     */
+    calculateCrossAspects(planets1, planets2, aspectSettings = null) {
+        const aspects = [];
+        if (!planets1 || planets1.length < 1 || !planets2 || planets2.length < 1) {
+            return aspects;
+        }
+
+        // Use provided aspectSettings or fall back to synastry settings
+        const settings = aspectSettings || this.config.synastryAspectSettings || {};
+        
+        // Get aspect types and orbs from settings
+        const calculationOrb = settings.orb || 6;
+        const aspectTypes = settings.types || this.defaultAspectDefinitions;
+
+        // Iterate through all pairs between the two planet sets
+        for (let i = 0; i < planets1.length; i++) {
+            for (let j = 0; j < planets2.length; j++) {
+                const p1 = planets1[i];
+                const p2 = planets2[j];
+
+                const angleDiff = this._angularDistance(p1.position, p2.position);
+
+                // Check against each defined aspect type
+                for (const aspectName in aspectTypes) {
+                    const aspectDef = aspectTypes[aspectName];
+                    const targetAngle = aspectDef.angle;
+                    const orb = aspectDef.orb !== undefined ? aspectDef.orb : calculationOrb;
+
+                    if (Math.abs(angleDiff - targetAngle) <= orb) {
+                        // Cross-aspect found!
+                        aspects.push({
+                            planet1: p1.name,
+                            planet2: p2.name,
+                            type: aspectName,
+                            angle: targetAngle,
+                            angleDiff: angleDiff,
+                            orb: Math.abs(angleDiff - targetAngle),
+                            p1: p1,
+                            p2: p2,
+                            color: aspectDef.color || '#888',
+                            lineStyle: aspectDef.lineStyle,
+                            abbr: aspectDef.abbr || aspectName.substring(0, 3).toUpperCase(),
+                            isCross: true // Mark as cross-aspect for identification
+                        });
+                    }
+                }
+            }
+        }
+        
+        console.log(`ClientSideAspectRenderer: Calculated ${aspects.length} cross-aspects (synastry).`);
+        return aspects;
+    }
 
 
     /**
      * Renders aspect lines based on planet coordinates.
      * @param {Element} parentGroup - The parent SVG group for aspect lines.
      * @param {Array} planetsWithCoords - Array of planet objects returned by PlanetRenderer, MUST include `x`, `y`, `name`, and `position`.
+     * @param {Object} aspectSettings - Aspect settings to use (optional)
      * @returns {Array<Element>} Array containing the created line elements.
      */
-    render(parentGroup, planetsWithCoords) {
+    render(parentGroup, planetsWithCoords, aspectSettings = null) {
          if (!parentGroup) {
              console.error("ClientSideAspectRenderer.render: parentGroup is null or undefined.");
              return [];
@@ -136,14 +199,14 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
          }
 
         // Calculate aspects based on planet positions
-        const aspects = this.calculateAspects(planetsWithCoords);
+        const aspects = this.calculateAspects(planetsWithCoords, aspectSettings);
         this.renderedAspects = aspects; // Store the calculated aspects
 
         console.log(`ClientSideAspectRenderer: Rendering ${aspects.length} aspects.`);
 
         // Get enabled aspect types from config
-        const aspectSettings = this.config.aspectSettings || {};
-        const aspectTypesConfig = aspectSettings.types || {};
+        const settings = aspectSettings || this.config.aspectSettings || {};
+        const aspectTypesConfig = settings.types || {};
 
         // Map planets by name for quick coordinate lookup
         const planetCoords = {};
@@ -203,6 +266,91 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
              this._addAspectIcon(parentGroup, aspect, coords1, coords2, tooltipText);
         });
         
+        return renderedElements;
+    }
+    
+    /**
+     * Renders cross-aspect lines (synastry) between two planet sets.
+     * @param {Element} parentGroup - The parent SVG group for aspect lines.
+     * @param {Array} primaryPlanets - Array of primary planet objects with coordinates
+     * @param {Array} secondaryPlanets - Array of secondary planet objects with coordinates
+     * @param {Object} aspectSettings - Aspect settings to use
+     * @returns {Array<Element>} Array containing the created line elements.
+     */
+    renderCrossAspects(parentGroup, primaryPlanets, secondaryPlanets, aspectSettings = null) {
+        if (!parentGroup) {
+            console.error("ClientSideAspectRenderer.renderCrossAspects: parentGroup is null or undefined.");
+            return [];
+        }
+        this.clearGroup(parentGroup);
+        const renderedElements = [];
+
+        if (!primaryPlanets || primaryPlanets.length < 1 || !secondaryPlanets || secondaryPlanets.length < 1) {
+            console.warn("ClientSideAspectRenderer: Not enough planet data to render cross-aspects.");
+            return [];
+        }
+
+        // Calculate cross-aspects
+        const aspects = this.calculateCrossAspects(primaryPlanets, secondaryPlanets, aspectSettings);
+
+        console.log(`ClientSideAspectRenderer: Rendering ${aspects.length} cross-aspects.`);
+
+        // Get enabled aspect types from config
+        const settings = aspectSettings || this.config.synastryAspectSettings || {};
+        const aspectTypesConfig = settings.types || {};
+
+        // Map planets by name for coordinate lookup
+        const planetCoords = {};
+        [...primaryPlanets, ...secondaryPlanets].forEach(p => {
+            planetCoords[p.name] = { x: p.x, y: p.y };
+        });
+
+        aspects.forEach(aspect => {
+            const coords1 = planetCoords[aspect.planet1];
+            const coords2 = planetCoords[aspect.planet2];
+
+            const aspectDef = aspectTypesConfig[aspect.type];
+            const isEnabled = aspectDef ? (aspectDef.enabled !== false) : true;
+            const lineStyle = aspectDef ? aspectDef.lineStyle : 'solid';
+
+            if (!isEnabled || lineStyle === 'none') {
+                return;
+            }
+
+            if (!coords1 || !coords2) {
+                console.warn(`ClientSideAspectRenderer: Could not find coordinates for cross-aspect: ${aspect.planet1} ${aspect.type} ${aspect.planet2}`);
+                return;
+            }
+
+            const p1SafeName = (aspect.planet1 || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const p2SafeName = (aspect.planet2 || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+            let strokeDasharray = 'none';
+            if (lineStyle === 'dashed') {
+                strokeDasharray = '5, 5';
+            } else if (lineStyle === 'dotted') {
+                strokeDasharray = '1, 3';
+            }
+
+            const line = this.svgUtils.createSVGElement("line", {
+                x1: coords1.x,
+                y1: coords1.y,
+                x2: coords2.x,
+                y2: coords2.y,
+                class: `aspect-element aspect-line aspect-${aspect.type} aspect-cross aspect-planet-${p1SafeName} aspect-planet-${p2SafeName}`,
+                stroke: aspect.color || '#888888',
+                'stroke-dasharray': strokeDasharray
+            });
+
+            const tooltipText = `${this.astrologyUtils.capitalizeFirstLetter(aspect.planet1)} ${aspect.type} ${this.astrologyUtils.capitalizeFirstLetter(aspect.planet2)} (${aspect.angleDiff.toFixed(1)}°, orb ${aspect.orb.toFixed(1)}°) [Synastry]`;
+            this.svgUtils.addTooltip(line, tooltipText);
+
+            parentGroup.appendChild(line);
+            renderedElements.push(line);
+
+            this._addAspectIcon(parentGroup, aspect, coords1, coords2, tooltipText);
+        });
+
         return renderedElements;
     }
 

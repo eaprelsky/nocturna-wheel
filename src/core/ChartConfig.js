@@ -2,6 +2,7 @@
  * ChartConfig.js
  * Configuration class for the natal chart rendering.
  */
+import { HouseCalculator } from './HouseCalculator.js';
 
 export class ChartConfig {
     /**
@@ -30,17 +31,56 @@ export class ChartConfig {
             }
         };
         
-        // Aspect settings
+        // Primary aspects (outer circle planets to outer circle planets)
+        this.primaryAspectSettings = {
+            enabled: true,
+            orb: 6,
+            types: {
+                conjunction: { angle: 0, orb: 8, color: '#000000', enabled: true, lineStyle: 'none', strokeWidth: 1 },
+                opposition: { angle: 180, orb: 6, color: '#E41B17', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                trine: { angle: 120, orb: 6, color: '#4CC417', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                square: { angle: 90, orb: 6, color: '#F62817', enabled: true, lineStyle: 'dashed', strokeWidth: 1 },
+                sextile: { angle: 60, orb: 4, color: '#56A5EC', enabled: true, lineStyle: 'dashed', strokeWidth: 1 }
+            }
+        };
+        
+        // Secondary aspects (inner circle planets to inner circle planets)
+        this.secondaryAspectSettings = {
+            enabled: true,
+            orb: 6,
+            types: {
+                conjunction: { angle: 0, orb: 8, color: '#AA00AA', enabled: true, lineStyle: 'none', strokeWidth: 1 },
+                opposition: { angle: 180, orb: 6, color: '#FF6600', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                trine: { angle: 120, orb: 6, color: '#00AA00', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                square: { angle: 90, orb: 6, color: '#CC0066', enabled: true, lineStyle: 'dashed', strokeWidth: 1 },
+                sextile: { angle: 60, orb: 4, color: '#0099CC', enabled: true, lineStyle: 'dashed', strokeWidth: 1 }
+            }
+        };
+        
+        // Synastry aspects (outer circle planets to inner circle planets)
+        this.synastryAspectSettings = {
+            enabled: true,
+            orb: 6,
+            types: {
+                conjunction: { angle: 0, orb: 8, color: '#666666', enabled: true, lineStyle: 'none', strokeWidth: 1 },
+                opposition: { angle: 180, orb: 6, color: '#9933CC', enabled: true, lineStyle: 'solid', strokeWidth: 0.5 },
+                trine: { angle: 120, orb: 6, color: '#33AA55', enabled: true, lineStyle: 'solid', strokeWidth: 0.5 },
+                square: { angle: 90, orb: 6, color: '#CC6633', enabled: true, lineStyle: 'dotted', strokeWidth: 0.5 },
+                sextile: { angle: 60, orb: 4, color: '#5599DD', enabled: true, lineStyle: 'dotted', strokeWidth: 0.5 }
+            }
+        };
+        
+        // Legacy aspectSettings for backward compatibility
+        // Will be mapped to primaryAspectSettings if used
         this.aspectSettings = {
             enabled: true,
-            orb: 6, // Default orb for aspects
+            orb: 6,
             types: {
-                conjunction: { angle: 0, orb: 8, color: "#ff0000", enabled: true },
-                opposition: { angle: 180, orb: 8, color: "#0000ff", enabled: true },
-                trine: { angle: 120, orb: 6, color: "#00ff00", enabled: true },
-                square: { angle: 90, orb: 6, color: "#ff00ff", enabled: true },
-                sextile: { angle: 60, orb: 4, color: "#00ffff", enabled: true }
-                // Other aspects can be added here
+                conjunction: { angle: 0, orb: 8, color: '#000000', enabled: true, lineStyle: 'none', strokeWidth: 1 },
+                opposition: { angle: 180, orb: 6, color: '#E41B17', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                trine: { angle: 120, orb: 6, color: '#4CC417', enabled: true, lineStyle: 'solid', strokeWidth: 1 },
+                square: { angle: 90, orb: 6, color: '#F62817', enabled: true, lineStyle: 'dashed', strokeWidth: 1 },
+                sextile: { angle: 60, orb: 4, color: '#56A5EC', enabled: true, lineStyle: 'dashed', strokeWidth: 1 }
             }
         };
         
@@ -226,7 +266,7 @@ export class ChartConfig {
                     }
                 );
             } catch (error) {
-                console.error("Failed to calculate house cusps:", error);
+                console.error("Failed to calculate house cusps:", error?.message || error);
                 // Set empty cusps array if calculation fails
                 this.houseCusps = [];
             }
@@ -272,11 +312,38 @@ export class ChartConfig {
     }
 
     /**
-     * Updates aspect settings
+     * Updates aspect settings (legacy method - updates primaryAspectSettings)
      * @param {Object} settings - New aspect settings
+     * @deprecated Use updatePrimaryAspectSettings, updateSecondaryAspectSettings, or updateSynastryAspectSettings instead
      */
     updateAspectSettings(settings) {
         this.aspectSettings = { ...this.aspectSettings, ...settings };
+        // Also update primaryAspectSettings for backward compatibility
+        this.primaryAspectSettings = { ...this.primaryAspectSettings, ...settings };
+    }
+    
+    /**
+     * Updates primary aspect settings (outer circle aspects)
+     * @param {Object} settings - New aspect settings
+     */
+    updatePrimaryAspectSettings(settings) {
+        this.primaryAspectSettings = { ...this.primaryAspectSettings, ...settings };
+    }
+    
+    /**
+     * Updates secondary aspect settings (inner circle aspects)
+     * @param {Object} settings - New aspect settings
+     */
+    updateSecondaryAspectSettings(settings) {
+        this.secondaryAspectSettings = { ...this.secondaryAspectSettings, ...settings };
+    }
+    
+    /**
+     * Updates synastry aspect settings (cross-circle aspects)
+     * @param {Object} settings - New aspect settings
+     */
+    updateSynastryAspectSettings(settings) {
+        this.synastryAspectSettings = { ...this.synastryAspectSettings, ...settings };
     }
 
     /**
@@ -334,11 +401,39 @@ export class ChartConfig {
     }
     
     /**
-     * Toggles the visibility of aspects
+     * Toggles the visibility of aspects (legacy - toggles all aspect types)
      * @param {boolean} visible - Whether aspects should be visible
+     * @deprecated Use togglePrimaryAspectsVisibility, toggleSecondaryAspectsVisibility, or toggleSynastryAspectsVisibility instead
      */
     toggleAspectsVisibility(visible) {
         this.aspectSettings.enabled = visible;
+        this.primaryAspectSettings.enabled = visible;
+        this.secondaryAspectSettings.enabled = visible;
+        this.synastryAspectSettings.enabled = visible;
+    }
+    
+    /**
+     * Toggles the visibility of primary aspects (outer circle)
+     * @param {boolean} visible - Whether primary aspects should be visible
+     */
+    togglePrimaryAspectsVisibility(visible) {
+        this.primaryAspectSettings.enabled = visible;
+    }
+    
+    /**
+     * Toggles the visibility of secondary aspects (inner circle)
+     * @param {boolean} visible - Whether secondary aspects should be visible
+     */
+    toggleSecondaryAspectsVisibility(visible) {
+        this.secondaryAspectSettings.enabled = visible;
+    }
+    
+    /**
+     * Toggles the visibility of synastry aspects (cross-circle)
+     * @param {boolean} visible - Whether synastry aspects should be visible
+     */
+    toggleSynastryAspectsVisibility(visible) {
+        this.synastryAspectSettings.enabled = visible;
     }
     
     /**

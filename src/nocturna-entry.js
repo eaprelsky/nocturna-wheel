@@ -8,6 +8,7 @@
 import { ChartManager, WheelChart } from './components/index.js';
 import { NocturnaWheel } from './NocturnaWheel.js'; // For backward compatibility
 import { ChartConfig } from './core/ChartConfig.js';
+import { HouseCalculator } from './core/HouseCalculator.js';
 import { SvgUtils } from './utils/SvgUtils.js';
 import { AstrologyUtils } from './utils/AstrologyUtils.js';
 import { ServiceRegistry } from './services/ServiceRegistry.js';
@@ -25,6 +26,7 @@ const NocturnaNamespace = {
     NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
+    HouseCalculator,
     
     // Utilities
     SvgUtils,
@@ -43,6 +45,7 @@ export {
     NocturnaWheel, // For backward compatibility
     WheelChart,
     ChartConfig,
+    HouseCalculator,
     SvgUtils,
     AstrologyUtils,
     ServiceRegistry,

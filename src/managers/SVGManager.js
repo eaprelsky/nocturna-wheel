@@ -23,9 +23,12 @@ export class SVGManager {
         this.groupOrder = [
             'zodiac',
             'houseDivisions',
-            'aspects', // Render aspects below planets and houses
-            'primaryPlanets', // Inner circle planets
-            'secondaryPlanets', // Innermost circle planets
+            'primaryAspects', // Aspects between primary (outer) planets
+            'secondaryAspects', // Aspects between secondary (inner) planets
+            'synastryAspects', // Aspects between primary and secondary planets
+            'aspects', // Legacy aspect group (for backward compatibility)
+            'primaryPlanets', // Outer circle planets
+            'secondaryPlanets', // Inner circle planets
             'houses' // House numbers on top
             // Add other groups if needed, e.g., 'tooltips'
         ];

@@ -104,37 +104,82 @@
                         </div>
                     </div>
                     
-                    <!-- Planet Controls -->
+                    <!-- Primary Planet Controls (Outer Circle) -->
                     <div class="control-section">
-                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#planet-controls">
-                            Planets <i class="fas fa-chevron-down"></i>
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#primary-planet-controls">
+                            Primary Planets (Outer Circle) <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div id="planet-controls" class="collapse show section-body">
-                            <!-- Main planet circle toggles -->
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="toggle-secondary-planets" checked>
-                                <label class="form-check-label" for="toggle-secondary-planets">Show Inner Circle Planets</label>
-                            </div>
-                            
-                            <div id="planet-toggles">
-                                <!-- Dynamically generated planet controls -->
+                        <div id="primary-planet-controls" class="collapse show section-body">
+                            <div id="primary-planet-toggles">
+                                <!-- Dynamically generated primary planet controls -->
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Aspect Controls -->
+                    <!-- Secondary Planet Controls (Inner Circle) -->
                     <div class="control-section">
-                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#aspect-controls">
-                            Aspects <i class="fas fa-chevron-down"></i>
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#secondary-planet-controls">
+                            Secondary Planets (Inner Circle) <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div id="aspect-controls" class="collapse show section-body">
+                        <div id="secondary-planet-controls" class="collapse show section-body">
                             <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="toggle-aspects" checked>
-                                <label class="form-check-label" for="toggle-aspects">Show Aspects</label>
+                                <input class="form-check-input" type="checkbox" id="toggle-secondary-planets" checked>
+                                <label class="form-check-label" for="toggle-secondary-planets">Show Inner Circle</label>
                             </div>
                             
-                            <div id="aspect-types" class="aspect-types-container">
-                                <!-- Dynamically generated aspect controls -->
+                            <div id="secondary-planet-toggles">
+                                <!-- Dynamically generated secondary planet controls -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Primary Aspects Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#primary-aspect-controls">
+                            Primary Aspects (Outer Circle) <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="primary-aspect-controls" class="collapse show section-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="toggle-primary-aspects" checked>
+                                <label class="form-check-label" for="toggle-primary-aspects">Show Primary Aspects</label>
+                            </div>
+                            
+                            <div id="primary-aspect-types" class="aspect-types-container">
+                                <!-- Dynamically generated primary aspect controls -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Secondary Aspects Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#secondary-aspect-controls">
+                            Secondary Aspects (Inner Circle) <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="secondary-aspect-controls" class="collapse show section-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="toggle-secondary-aspects" checked>
+                                <label class="form-check-label" for="toggle-secondary-aspects">Show Secondary Aspects</label>
+                            </div>
+                            
+                            <div id="secondary-aspect-types" class="aspect-types-container">
+                                <!-- Dynamically generated secondary aspect controls -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Synastry Aspects Controls -->
+                    <div class="control-section">
+                        <div class="control-title" data-bs-toggle="collapse" data-bs-target="#synastry-aspect-controls">
+                            Synastry Aspects (Outer ↔ Inner) <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="synastry-aspect-controls" class="collapse show section-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="toggle-synastry-aspects" checked>
+                                <label class="form-check-label" for="toggle-synastry-aspects">Show Synastry Aspects</label>
+                            </div>
+                            
+                            <div id="synastry-aspect-types" class="aspect-types-container">
+                                <!-- Dynamically generated synastry aspect controls -->
                             </div>
                         </div>
                     </div>
@@ -263,13 +308,13 @@ wheelChart.toggleAspects(false);</code></pre>
 
         // Load scripts in proper sequence
         document.addEventListener('DOMContentLoaded', function() {
-            // Load Bootstrap
+            // Try to load Bootstrap, but don't block if it fails
             loadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', function() {
                 console.log('Bootstrap loaded successfully');
-                
-                // Load the UMD module directly - no compatibility layer needed
-                loadScript('/dist/nocturna-wheel.umd.js?v=6', initializeChart);
             });
+            
+            // Load the UMD module directly - independent of Bootstrap
+            loadScript('/dist/nocturna-wheel.umd.js?v=7', initializeChart);
         });
 
         // Chart initialization function
@@ -285,6 +330,7 @@ wheelChart.toggleAspects(false);</code></pre>
             
             // Sample data for the chart
             let chartData = {
+                // Primary planets (outer circle)
                 planets: {
                     sun: { lon: 85.83, color: '#000000' },
                     moon: { lon: 133.21, color: '#000000' },
@@ -296,6 +342,19 @@ wheelChart.toggleAspects(false);</code></pre>
                     uranus: { lon: 275.25, color: '#000000' },
                     neptune: { lon: 298.32, color: '#000000' },
                     pluto: { lon: 247.12, color: '#000000' }
+                },
+                // Secondary planets (inner circle) - different positions
+                secondaryPlanets: {
+                    sun: { lon: 115.20, color: '#FF5500' },
+                    moon: { lon: 200.45, color: '#0066CC' },
+                    mercury: { lon: 130.90, color: '#009900' },
+                    venus: { lon: 95.30, color: '#CC0099' },
+                    mars: { lon: 250.75, color: '#CC3300' },
+                    jupiter: { lon: 10.15, color: '#9966CC' },
+                    saturn: { lon: 45.60, color: '#336633' },
+                    uranus: { lon: 320.40, color: '#33CCCC' },
+                    neptune: { lon: 280.80, color: '#3366FF' },
+                    pluto: { lon: 160.25, color: '#663366' }
                 },
                 houses: [
                     { lon: 300.32 },  // 1st house cusp
@@ -317,18 +376,8 @@ wheelChart.toggleAspects(false);</code></pre>
             const chartOptions = {
                 container: '#chart-container',
                 planets: chartData.planets,
+                secondaryPlanets: chartData.secondaryPlanets,
                 houses: chartData.houses,
-                aspectSettings: {
-                    enabled: true,
-                    orb: 6,
-                    types: {
-                        'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
-                        'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                        'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
-                        'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
-                        'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
-                    }
-                },
                 config: {
                     radius: {
                         innermost: 90
@@ -347,6 +396,42 @@ wheelChart.toggleAspects(false);</code></pre>
                         textColor: "#333333",
                         fontSize: 10,
                         rotationAngle: 0
+                    },
+                    // Primary aspects (outer circle planets)
+                    primaryAspectSettings: {
+                        enabled: true,
+                        orb: 6,
+                        types: {
+                            'conjunction': { angle: 0, orb: 8, color: '#000000', lineStyle: 'none', enabled: true, strokeWidth: 1 },
+                            'opposition': { angle: 180, orb: 6, color: '#E41B17', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                            'trine': { angle: 120, orb: 6, color: '#4CC417', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                            'square': { angle: 90, orb: 6, color: '#F62817', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
+                            'sextile': { angle: 60, orb: 4, color: '#56A5EC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
+                        }
+                    },
+                    // Secondary aspects (inner circle planets)
+                    secondaryAspectSettings: {
+                        enabled: true,
+                        orb: 6,
+                        types: {
+                            'conjunction': { angle: 0, orb: 8, color: '#AA00AA', lineStyle: 'none', enabled: true, strokeWidth: 1 },
+                            'opposition': { angle: 180, orb: 6, color: '#FF6600', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                            'trine': { angle: 120, orb: 6, color: '#00AA00', lineStyle: 'solid', enabled: true, strokeWidth: 1 },
+                            'square': { angle: 90, orb: 6, color: '#CC0066', lineStyle: 'dashed', enabled: true, strokeWidth: 1 },
+                            'sextile': { angle: 60, orb: 4, color: '#0099CC', lineStyle: 'dashed', enabled: true, strokeWidth: 1 }
+                        }
+                    },
+                    // Synastry aspects (outer to inner circle)
+                    synastryAspectSettings: {
+                        enabled: true,
+                        orb: 6,
+                        types: {
+                            'conjunction': { angle: 0, orb: 8, color: '#666666', lineStyle: 'none', enabled: true, strokeWidth: 1 },
+                            'opposition': { angle: 180, orb: 6, color: '#9933CC', lineStyle: 'solid', enabled: true, strokeWidth: 0.5 },
+                            'trine': { angle: 120, orb: 6, color: '#33AA55', lineStyle: 'solid', enabled: true, strokeWidth: 0.5 },
+                            'square': { angle: 90, orb: 6, color: '#CC6633', lineStyle: 'dotted', enabled: true, strokeWidth: 0.5 },
+                            'sextile': { angle: 60, orb: 4, color: '#5599DD', lineStyle: 'dotted', enabled: true, strokeWidth: 0.5 }
+                        }
                     }
                 }
             };
@@ -354,12 +439,19 @@ wheelChart.toggleAspects(false);</code></pre>
             // Define a custom factory function that logs creation and adds monitoring
             const customChartFactory = (options) => {
                 console.log("Custom factory: Creating enhanced NocturnaWheel instance");
+                console.log("Custom factory: planets count =", Object.keys(options.planets || {}).length);
+                console.log("Custom factory: secondaryPlanets count =", Object.keys(options.secondaryPlanets || {}).length);
+                console.log("Custom factory: first planet pos =", options.planets?.sun?.lon);
+                console.log("Custom factory: first secondary planet pos =", options.secondaryPlanets?.sun?.lon);
                 
                 // Get the NocturnaWheel constructor from the exported UMD
                 const { NocturnaWheel } = window.NocturnaWheel;
                 
                 // Create base chart
                 const baseChart = new NocturnaWheel(options);
+                
+                console.log("Custom factory: chart.planets count =", Object.keys(baseChart.planets || {}).length);
+                console.log("Custom factory: chart.secondaryPlanets count =", Object.keys(baseChart.secondaryPlanets || {}).length);
                 
                 // Enhance with monitoring capabilities
                 const originalRender = baseChart.render;
@@ -542,109 +634,147 @@ wheelChart.toggleAspects(false);</code></pre>
             // Apply initial styles
             updateAspectLineStyles();
 
-            // Generate planet toggles and controls
-            const planetToggles = document.getElementById('planet-toggles');
-            const planets = Object.keys(chartData.planets);
+            // Generate PRIMARY planet toggles and controls (outer circle)
+            const primaryPlanetToggles = document.getElementById('primary-planet-toggles');
+            const primaryPlanets = Object.keys(chartData.planets);
 
-            planets.forEach(planet => {
+            primaryPlanets.forEach(planet => {
                 const planetName = planet.charAt(0).toUpperCase() + planet.slice(1);
                 const planetData = chartData.planets[planet];
                 const controlDiv = document.createElement('div');
                 controlDiv.className = 'planet-item';
                 controlDiv.innerHTML = `
                     <div class="form-check form-switch">
-                        <input class="form-check-input planet-checkbox" type="checkbox" id="toggle-${planet}" data-planet="${planet}" checked>
-                        <label class="form-check-label fw-bold" for="toggle-${planet}">${planetName}</label>
+                        <input class="form-check-input primary-planet-checkbox" type="checkbox" id="toggle-primary-${planet}" data-planet="${planet}" checked>
+                        <label class="form-check-label fw-bold" for="toggle-primary-${planet}">${planetName}</label>
                     </div>
                     <div class="controls-row">
                         <div class="control-group">
-                            <div class="control-label">Rotation: <span id="planet-${planet}-rotation-value">${planetData.lon.toFixed(0)}°</span></div>
-                            <input type="range" class="form-range planet-rotation" min="0" max="359" value="${planetData.lon.toFixed(0)}" id="planet-${planet}-rotation" data-planet="${planet}">
+                            <div class="control-label">Rotation: <span id="primary-planet-${planet}-rotation-value">${planetData.lon.toFixed(0)}°</span></div>
+                            <input type="range" class="form-range primary-planet-rotation" min="0" max="359" value="${planetData.lon.toFixed(0)}" id="primary-planet-${planet}-rotation" data-planet="${planet}">
                         </div>
                         <div class="control-group">
                             <div class="control-label">Color</div>
                             <div class="color-picker-wrapper">
                                 <div class="color-preview" style="background-color: ${planetData.color || '#000000'}">
-                                    <input type="color" class="planet-color" value="${planetData.color || '#000000'}" id="planet-${planet}-color" data-planet="${planet}">
+                                    <input type="color" class="primary-planet-color" value="${planetData.color || '#000000'}" id="primary-planet-${planet}-color" data-planet="${planet}">
                                 </div>
                                 <span class="color-value">${planetData.color || '#000000'}</span>
                             </div>
                         </div>
                     </div>
                 `;
-                planetToggles.appendChild(controlDiv);
+                primaryPlanetToggles.appendChild(controlDiv);
             });
+            
+            // Generate SECONDARY planet toggles and controls (inner circle)
+            const secondaryPlanetToggles = document.getElementById('secondary-planet-toggles');
+            const secondaryPlanets = Object.keys(chartData.secondaryPlanets);
 
-            // Generate aspect type controls
-            const aspectToggles = document.getElementById('aspect-types');
-            const aspectTypes = chart.config.aspectSettings.types || {}; // Use config directly
-            const aspectNames = Object.keys(aspectTypes);
-
-            aspectNames.forEach(aspect => {
-                const aspectDef = aspectTypes[aspect];
-                const aspectName = aspect.charAt(0).toUpperCase() + aspect.slice(1);
+            secondaryPlanets.forEach(planet => {
+                const planetName = planet.charAt(0).toUpperCase() + planet.slice(1);
+                const planetData = chartData.secondaryPlanets[planet];
                 const controlDiv = document.createElement('div');
-                controlDiv.className = 'aspect-item';
-
-                // Define options and selected status for the dropdown
-                const styles = { 'None': 'none', 'Solid': 'solid', 'Dashed': 'dashed', 'Dotted': 'dotted' };
-                let styleOptions = '';
-                for (const [label, value] of Object.entries(styles)) {
-                    const selected = (aspectDef.lineStyle || 'solid') === value ? 'selected' : '';
-                    styleOptions += `<option value="${value}" ${selected}>${label}</option>`;
-                }
-                
-                // Get current thickness value
-                const currentThickness = aspectDef.strokeWidth || 1;
-
+                controlDiv.className = 'planet-item';
                 controlDiv.innerHTML = `
-                    <div class="form-check">
-                        <input class="form-check-input aspect-checkbox" type="checkbox" id="toggle-${aspect}" data-aspect="${aspect}" checked>
-                        <label class="form-check-label fw-bold" for="toggle-${aspect}">
-                            <span class="aspect-name">
-                                <span class="aspect-indicator" style="display: inline-block; width: 12px; height: 12px; margin-right: 6px; background-color: ${aspectDef.color || '#888888'}; border-radius: 2px; border: 1px solid #ccc;"></span>
-                                ${aspectDef.symbol || ''} ${aspectName}
-                            </span>
-                        </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input secondary-planet-checkbox" type="checkbox" id="toggle-secondary-${planet}" data-planet="${planet}" checked>
+                        <label class="form-check-label fw-bold" for="toggle-secondary-${planet}">${planetName}</label>
                     </div>
                     <div class="controls-row">
                         <div class="control-group">
+                            <div class="control-label">Rotation: <span id="secondary-planet-${planet}-rotation-value">${planetData.lon.toFixed(0)}°</span></div>
+                            <input type="range" class="form-range secondary-planet-rotation" min="0" max="359" value="${planetData.lon.toFixed(0)}" id="secondary-planet-${planet}-rotation" data-planet="${planet}">
+                        </div>
+                        <div class="control-group">
                             <div class="control-label">Color</div>
                             <div class="color-picker-wrapper">
-                                <div class="color-preview" style="background-color: ${aspectDef.color || '#888888'}">
-                                    <input type="color" class="aspect-color" value="${aspectDef.color || '#888888'}" id="aspect-${aspect}-color" data-aspect="${aspect}">
+                                <div class="color-preview" style="background-color: ${planetData.color || '#000000'}">
+                                    <input type="color" class="secondary-planet-color" value="${planetData.color || '#000000'}" id="secondary-planet-${planet}-color" data-planet="${planet}">
                                 </div>
-                                <span class="color-value">${aspectDef.color || '#888888'}</span>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <div class="control-label">Line Style</div>
-                            <select class="form-select form-select-sm aspect-style" id="aspect-${aspect}-style" data-aspect="${aspect}">
-                                ${styleOptions}
-                            </select>
-                        </div>
-                        <div class="control-group">
-                            <div class="control-label">Line Thickness / Orb (°)</div>
-                            <div class="d-flex gap-2">
-                                <input type="number" class="form-control form-control-sm aspect-thickness" id="aspect-${aspect}-thickness" data-aspect="${aspect}" 
-                                    min="0.5" max="10" step="0.5" value="${currentThickness}" style="width: 70px;">
-                                <input type="number" class="form-control form-control-sm aspect-orb" id="aspect-${aspect}-orb" data-aspect="${aspect}" 
-                                    min="0" max="15" step="0.5" value="${aspectDef.orb || 6}" style="width: 70px;">
+                                <span class="color-value">${planetData.color || '#000000'}</span>
                             </div>
                         </div>
                     </div>
                 `;
-                aspectToggles.appendChild(controlDiv);
-
-                // Disable conjunction style/color controls initially
-                if (aspect === 'conjunction') {
-                    controlDiv.querySelector(`#aspect-${aspect}-color`).disabled = true;
-                    controlDiv.querySelector(`#aspect-${aspect}-style`).disabled = true;
-                    controlDiv.querySelector(`#aspect-${aspect}-thickness`).disabled = true;
-                    controlDiv.querySelector(`#aspect-${aspect}-orb`).disabled = true;
-                    controlDiv.querySelector(`#toggle-${aspect}`).disabled = true; // Conjunction aspect line cannot be toggled off meaningfully
-                }
+                secondaryPlanetToggles.appendChild(controlDiv);
             });
+
+            // Helper function to generate aspect controls
+            function generateAspectControls(containerSelector, aspectSettings, prefix) {
+                const aspectToggles = document.querySelector(containerSelector);
+                const aspectTypes = aspectSettings.types || {};
+                const aspectNames = Object.keys(aspectTypes);
+
+                aspectNames.forEach(aspect => {
+                    const aspectDef = aspectTypes[aspect];
+                    const aspectName = aspect.charAt(0).toUpperCase() + aspect.slice(1);
+                    const controlDiv = document.createElement('div');
+                    controlDiv.className = 'aspect-item';
+
+                    const styles = { 'None': 'none', 'Solid': 'solid', 'Dashed': 'dashed', 'Dotted': 'dotted' };
+                    let styleOptions = '';
+                    for (const [label, value] of Object.entries(styles)) {
+                        const selected = (aspectDef.lineStyle || 'solid') === value ? 'selected' : '';
+                        styleOptions += `<option value="${value}" ${selected}>${label}</option>`;
+                    }
+                    
+                    const currentThickness = aspectDef.strokeWidth || 1;
+
+                    controlDiv.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input ${prefix}-aspect-checkbox" type="checkbox" id="toggle-${prefix}-${aspect}" data-aspect="${aspect}" data-prefix="${prefix}" checked>
+                            <label class="form-check-label fw-bold" for="toggle-${prefix}-${aspect}">
+                                <span class="aspect-name">
+                                    <span class="aspect-indicator" style="display: inline-block; width: 12px; height: 12px; margin-right: 6px; background-color: ${aspectDef.color || '#888888'}; border-radius: 2px; border: 1px solid #ccc;"></span>
+                                    ${aspectDef.symbol || ''} ${aspectName}
+                                </span>
+                            </label>
+                        </div>
+                        <div class="controls-row">
+                            <div class="control-group">
+                                <div class="control-label">Color</div>
+                                <div class="color-picker-wrapper">
+                                    <div class="color-preview" style="background-color: ${aspectDef.color || '#888888'}">
+                                        <input type="color" class="${prefix}-aspect-color" value="${aspectDef.color || '#888888'}" id="${prefix}-aspect-${aspect}-color" data-aspect="${aspect}" data-prefix="${prefix}">
+                                    </div>
+                                    <span class="color-value">${aspectDef.color || '#888888'}</span>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <div class="control-label">Line Style</div>
+                                <select class="form-select form-select-sm ${prefix}-aspect-style" id="${prefix}-aspect-${aspect}-style" data-aspect="${aspect}" data-prefix="${prefix}">
+                                    ${styleOptions}
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <div class="control-label">Thickness / Orb</div>
+                                <div class="d-flex gap-2">
+                                    <input type="number" class="form-control form-control-sm ${prefix}-aspect-thickness" id="${prefix}-aspect-${aspect}-thickness" data-aspect="${aspect}" data-prefix="${prefix}"
+                                        min="0.5" max="10" step="0.5" value="${currentThickness}" style="width: 70px;">
+                                    <input type="number" class="form-control form-control-sm ${prefix}-aspect-orb" id="${prefix}-aspect-${aspect}-orb" data-aspect="${aspect}" data-prefix="${prefix}"
+                                        min="0" max="15" step="0.5" value="${aspectDef.orb || 6}" style="width: 70px;">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    aspectToggles.appendChild(controlDiv);
+
+                    if (aspect === 'conjunction') {
+                        controlDiv.querySelector(`#${prefix}-aspect-${aspect}-style`).disabled = true;
+                        controlDiv.querySelector(`#${prefix}-aspect-${aspect}-thickness`).disabled = true;
+                    }
+                });
+            }
+
+            // Generate PRIMARY aspect controls (outer circle)
+            generateAspectControls('#primary-aspect-types', chart.config.primaryAspectSettings, 'primary');
+            
+            // Generate SECONDARY aspect controls (inner circle)
+            generateAspectControls('#secondary-aspect-types', chart.config.secondaryAspectSettings, 'secondary');
+            
+            // Generate SYNASTRY aspect controls (cross-circle)
+            generateAspectControls('#synastry-aspect-types', chart.config.synastryAspectSettings, 'synastry');
 
             // Event listeners for controls
             
@@ -666,43 +796,21 @@ wheelChart.toggleAspects(false);</code></pre>
                 chart.setHouseRotation(angle);
             });
             
-            // Planet toggles
-            document.querySelectorAll('.planet-checkbox').forEach(checkbox => {
+            // PRIMARY Planet toggles
+            document.querySelectorAll('.primary-planet-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function(e) {
                     const planet = e.target.dataset.planet;
                     const visible = e.target.checked;
-                    
-                    // Toggle planet visibility in the chart
                     chart.togglePlanet(planet, visible);
-                    
-                    // Manually hide aspect lines connected to this planet if it's being hidden
-                    if (!visible && chart.config.aspectSettings.enabled) {
-                        const aspectLines = document.querySelectorAll(`.aspect-planet-${planet}`);
-                        aspectLines.forEach(line => {
-                            line.style.display = 'none';
-                        });
-                    }
-                    
-                    // If we're showing the planet again, re-render to show aspects
-                    if (visible && chart.config.aspectSettings.enabled) {
-                        chart.render();
-                    }
                 });
             });
             
-            // Secondary planets toggle (innermost circle)
-            const secondaryPlanetsToggle = document.getElementById('toggle-secondary-planets');
-            secondaryPlanetsToggle.addEventListener('change', function(e) {
-                const visible = e.target.checked;
-                chart.toggleSecondaryPlanets(visible);
-            });
-            
-            // Planet Rotation Listeners
-            document.querySelectorAll('.planet-rotation').forEach(slider => {
+            // PRIMARY Planet Rotation Listeners
+            document.querySelectorAll('.primary-planet-rotation').forEach(slider => {
                 slider.addEventListener('input', function(e) {
                     const planet = e.target.dataset.planet;
                     const angle = parseFloat(e.target.value);
-                    document.getElementById(`planet-${planet}-rotation-value`).textContent = `${angle.toFixed(0)}°`;
+                    document.getElementById(`primary-planet-${planet}-rotation-value`).textContent = `${angle.toFixed(0)}°`;
                     if (chartData.planets[planet]) {
                         chartData.planets[planet].lon = angle;
                         chart.updateData({ planets: chartData.planets });
@@ -710,182 +818,227 @@ wheelChart.toggleAspects(false);</code></pre>
                 });
             });
 
-            // Planet Color Listeners
-            document.querySelectorAll('.planet-color').forEach(picker => {
+            // PRIMARY Planet Color Listeners
+            document.querySelectorAll('.primary-planet-color').forEach(picker => {
                 picker.addEventListener('input', function(e) {
                     const planet = e.target.dataset.planet;
                     const color = e.target.value;
                     if (chartData.planets[planet]) {
                         chartData.planets[planet].color = color;
-                        // Update the color preview background
                         e.target.parentElement.style.backgroundColor = color;
-                        // Update the color value text
                         e.target.parentElement.nextElementSibling.textContent = color;
                         chart.updateData({ planets: chartData.planets });
                     }
                 });
             });
-
-            // Aspects toggle
-            document.getElementById('toggle-aspects').addEventListener('change', function(e) {
-                const showAspects = e.target.checked;
-                // Update the chart's configuration
-                if (chart.config && chart.config.aspectSettings) {
-                    chart.config.aspectSettings.enabled = showAspects;
-                }
-                
-                // Enable/disable aspect controls based on the toggle state
-                document.querySelectorAll('.aspect-checkbox').forEach(checkbox => {
-                    if (checkbox.dataset.aspect !== 'conjunction') { // Keep conjunction always enabled
-                        checkbox.disabled = !showAspects;
-                    }
-                });
-                
-                document.querySelectorAll('.aspect-color, .aspect-style, .aspect-thickness').forEach(control => {
-                    const aspectType = control.dataset.aspect;
-                    if (aspectType !== 'conjunction') { // Keep conjunction controls always disabled
-                        control.disabled = !showAspects;
-                    }
-                });
-                
-                // Re-render the chart to apply changes
-                chart.render();
+            
+            // SECONDARY planets toggle (innermost circle)
+            const secondaryPlanetsToggle = document.getElementById('toggle-secondary-planets');
+            secondaryPlanetsToggle.addEventListener('change', function(e) {
+                const visible = e.target.checked;
+                chart.toggleSecondaryPlanets(visible);
             });
             
-            // Aspect type toggles
-            document.querySelectorAll('.aspect-checkbox').forEach(checkbox => {
+            // SECONDARY Planet toggles
+            document.querySelectorAll('.secondary-planet-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function(e) {
-                    const aspect = e.target.dataset.aspect;
-                    const isEnabled = e.target.checked;
-                    
-                    if (chart.config.aspectSettings.types[aspect]) {
-                        // Update the aspect type's enabled state in the configuration
-                        chart.config.aspectSettings.types[aspect].enabled = isEnabled;
-                        
-                        // Enable/disable the color and style controls for this aspect type
-                        const parentDiv = e.target.closest('.aspect-item');
-                        if (parentDiv) {
-                            parentDiv.querySelector(`.aspect-color`).disabled = !isEnabled;
-                            parentDiv.querySelector(`.aspect-style`).disabled = !isEnabled;
-                            parentDiv.querySelector(`.aspect-thickness`).disabled = !isEnabled;
-                        }
-                        
-                        // Re-render the chart to apply changes
-                        chart.render();
-                    }
+                    const planet = e.target.dataset.planet;
+                    const visible = e.target.checked;
+                    chart.togglePlanet(planet, visible);
                 });
             });
             
-            // Aspect color changes
-            document.querySelectorAll('.aspect-color').forEach(colorPicker => {
-                colorPicker.addEventListener('input', function(e) {
-                    const aspect = e.target.dataset.aspect;
+            // SECONDARY Planet Rotation Listeners
+            document.querySelectorAll('.secondary-planet-rotation').forEach(slider => {
+                slider.addEventListener('input', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const angle = parseFloat(e.target.value);
+                    document.getElementById(`secondary-planet-${planet}-rotation-value`).textContent = `${angle.toFixed(0)}°`;
+                    if (chartData.secondaryPlanets[planet]) {
+                        chartData.secondaryPlanets[planet].lon = angle;
+                        chart.updateData({ secondaryPlanets: chartData.secondaryPlanets });
+                    }
+                });
+            });
+
+            // SECONDARY Planet Color Listeners
+            document.querySelectorAll('.secondary-planet-color').forEach(picker => {
+                picker.addEventListener('input', function(e) {
+                    const planet = e.target.dataset.planet;
                     const color = e.target.value;
-                    
-                    if (chart.config.aspectSettings.types[aspect]) {
-                        // Update the aspect type's color in the configuration
-                        chart.config.aspectSettings.types[aspect].color = color;
+                    if (chartData.secondaryPlanets[planet]) {
+                        chartData.secondaryPlanets[planet].color = color;
+                        e.target.parentElement.style.backgroundColor = color;
+                        e.target.parentElement.nextElementSibling.textContent = color;
+                        chart.updateData({ secondaryPlanets: chartData.secondaryPlanets });
+                    }
+                });
+            });
+
+            // PRIMARY Aspects toggle
+            document.getElementById('toggle-primary-aspects').addEventListener('change', function(e) {
+                chart.togglePrimaryAspects(e.target.checked);
+            });
+            
+            // SECONDARY Aspects toggle
+            document.getElementById('toggle-secondary-aspects').addEventListener('change', function(e) {
+                chart.toggleSecondaryAspects(e.target.checked);
+            });
+            
+            // SYNASTRY Aspects toggle
+            document.getElementById('toggle-synastry-aspects').addEventListener('change', function(e) {
+                chart.toggleSynastryAspects(e.target.checked);
+            });
+            
+            // Helper function for aspect type toggle handlers
+            function setupAspectTypeToggles(selector, settingsKey) {
+                document.querySelectorAll(selector).forEach(checkbox => {
+                    checkbox.addEventListener('change', function(e) {
+                        const aspect = e.target.dataset.aspect;
+                        const prefix = e.target.dataset.prefix;
+                        const isEnabled = e.target.checked;
                         
-                        // Update color preview in the controls section
-                        const colorPreview = e.target.parentElement;
-                        if (colorPreview) {
-                            colorPreview.style.backgroundColor = color;
-                            if (colorPreview.nextElementSibling) {
-                                colorPreview.nextElementSibling.textContent = color;
+                        if (chart.config[settingsKey].types[aspect]) {
+                            chart.config[settingsKey].types[aspect].enabled = isEnabled;
+                            
+                            const parentDiv = e.target.closest('.aspect-item');
+                            if (parentDiv) {
+                                const colorInput = parentDiv.querySelector(`.${prefix}-aspect-color`);
+                                const styleInput = parentDiv.querySelector(`.${prefix}-aspect-style`);
+                                const thicknessInput = parentDiv.querySelector(`.${prefix}-aspect-thickness`);
+                                if (colorInput) colorInput.disabled = !isEnabled;
+                                if (styleInput) styleInput.disabled = !isEnabled;
+                                if (thicknessInput) thicknessInput.disabled = !isEnabled;
                             }
+                            
+                            chart.render();
+                        }
+                    });
+                });
+            }
+            
+            // Setup toggles for all three aspect types
+            setupAspectTypeToggles('.primary-aspect-checkbox', 'primaryAspectSettings');
+            setupAspectTypeToggles('.secondary-aspect-checkbox', 'secondaryAspectSettings');
+            setupAspectTypeToggles('.synastry-aspect-checkbox', 'synastryAspectSettings');
+            
+            // Helper function for aspect color changes
+            function setupAspectColorHandlers(selector, settingsKey) {
+                document.querySelectorAll(selector).forEach(colorPicker => {
+                    colorPicker.addEventListener('input', function(e) {
+                        const aspect = e.target.dataset.aspect;
+                        const color = e.target.value;
+                        const prefix = e.target.dataset.prefix;
+                        
+                        if (chart.config[settingsKey].types[aspect]) {
+                            chart.config[settingsKey].types[aspect].color = color;
+                            
+                            const colorPreview = e.target.parentElement;
+                            if (colorPreview) {
+                                colorPreview.style.backgroundColor = color;
+                                if (colorPreview.nextElementSibling) {
+                                    colorPreview.nextElementSibling.textContent = color;
+                                }
+                            }
+                            
+                            const aspectItem = e.target.closest('.aspect-item');
+                            if (aspectItem) {
+                                const indicator = aspectItem.querySelector('.aspect-indicator');
+                                if (indicator) {
+                                    indicator.style.backgroundColor = color;
+                                }
+                            }
+                            
+                            chart.render();
+                        }
+                    });
+                });
+            }
+            
+            // Setup color handlers for all three aspect types
+            setupAspectColorHandlers('.primary-aspect-color', 'primaryAspectSettings');
+            setupAspectColorHandlers('.secondary-aspect-color', 'secondaryAspectSettings');
+            setupAspectColorHandlers('.synastry-aspect-color', 'synastryAspectSettings');
+            
+            // Helper function for aspect style changes
+            function setupAspectStyleHandlers(selector, settingsKey) {
+                document.querySelectorAll(selector).forEach(styleSelect => {
+                    styleSelect.addEventListener('change', function(e) {
+                        const aspect = e.target.dataset.aspect;
+                        const style = e.target.value;
+                        
+                        if (chart.config[settingsKey].types[aspect]) {
+                            chart.config[settingsKey].types[aspect].lineStyle = style;
+                            chart.render();
+                        }
+                    });
+                });
+            }
+            
+            // Setup style handlers for all three aspect types
+            setupAspectStyleHandlers('.primary-aspect-style', 'primaryAspectSettings');
+            setupAspectStyleHandlers('.secondary-aspect-style', 'secondaryAspectSettings');
+            setupAspectStyleHandlers('.synastry-aspect-style', 'synastryAspectSettings');
+            
+            // Helper function for aspect thickness changes
+            function setupAspectThicknessHandlers(selector, settingsKey) {
+                document.querySelectorAll(selector).forEach(thicknessInput => {
+                    thicknessInput.addEventListener('input', function(e) {
+                        const aspect = e.target.dataset.aspect;
+                        const thickness = parseFloat(e.target.value);
+                        
+                        if (isNaN(thickness) || thickness < 0.5) {
+                            e.target.value = 0.5;
+                            return;
                         }
                         
-                        // Update the aspect indicator color
-                        const aspectItem = document.querySelector(`.aspect-item [data-aspect="${aspect}"]`).closest('.aspect-item');
-                        if (aspectItem) {
-                            const indicator = aspectItem.querySelector('.aspect-indicator');
-                            if (indicator) {
-                                indicator.style.backgroundColor = color;
-                            }
+                        if (thickness > 10) {
+                            e.target.value = 10;
+                            return;
                         }
                         
-                        // Update aspect line styles
-                        updateAspectLineStyles();
-                        
-                        // Re-render the chart
-                        chart.render();
-                    }
+                        if (chart.config[settingsKey].types[aspect]) {
+                            chart.config[settingsKey].types[aspect].strokeWidth = thickness;
+                            chart.render();
+                        }
+                    });
                 });
-            });
+            }
             
-            // Aspect style changes
-            document.querySelectorAll('.aspect-style').forEach(styleSelect => {
-                styleSelect.addEventListener('change', function(e) {
-                    const aspect = e.target.dataset.aspect;
-                    const style = e.target.value;
-                    
-                    if (chart.config.aspectSettings.types[aspect]) {
-                        // Update the aspect type's line style in the configuration
-                        chart.config.aspectSettings.types[aspect].lineStyle = style;
-                        
-                        // Update aspect line styles
-                        updateAspectLineStyles();
-                        
-                        // Re-render the chart
-                        chart.render();
-                    }
-                });
-            });
+            // Setup thickness handlers for all three aspect types
+            setupAspectThicknessHandlers('.primary-aspect-thickness', 'primaryAspectSettings');
+            setupAspectThicknessHandlers('.secondary-aspect-thickness', 'secondaryAspectSettings');
+            setupAspectThicknessHandlers('.synastry-aspect-thickness', 'synastryAspectSettings');
             
-            // Aspect thickness changes
-            document.querySelectorAll('.aspect-thickness').forEach(thicknessInput => {
-                thicknessInput.addEventListener('input', function(e) {
-                    const aspect = e.target.dataset.aspect;
-                    const thickness = parseFloat(e.target.value);
-                    
-                    // Validate the input value
-                    if (isNaN(thickness) || thickness < 0.5) {
-                        e.target.value = 0.5;
-                        return;
-                    }
-                    
-                    if (thickness > 10) {
-                        e.target.value = 10;
-                        return;
-                    }
-                    
-                    if (chart.config.aspectSettings.types[aspect]) {
-                        // Update the aspect type's line width in the configuration
-                        chart.config.aspectSettings.types[aspect].strokeWidth = thickness;
+            // Helper function for aspect orb changes
+            function setupAspectOrbHandlers(selector, settingsKey) {
+                document.querySelectorAll(selector).forEach(orbInput => {
+                    orbInput.addEventListener('input', function(e) {
+                        const aspect = e.target.dataset.aspect;
+                        const orb = parseFloat(e.target.value);
                         
-                        // Update aspect line styles and re-render
-                        updateAspectLineStyles();
-                        chart.render();
-                    }
+                        if (isNaN(orb) || orb < 0) {
+                            e.target.value = 0;
+                            return;
+                        }
+                        
+                        if (orb > 15) {
+                            e.target.value = 15;
+                            return;
+                        }
+                        
+                        if (chart.config[settingsKey].types[aspect]) {
+                            chart.config[settingsKey].types[aspect].orb = orb;
+                            chart.render();
+                        }
+                    });
                 });
-            });
+            }
             
-            // Aspect orb changes
-            document.querySelectorAll('.aspect-orb').forEach(orbInput => {
-                orbInput.addEventListener('input', function(e) {
-                    const aspect = e.target.dataset.aspect;
-                    const orb = parseFloat(e.target.value);
-                    
-                    // Validate the input value
-                    if (isNaN(orb) || orb < 0) {
-                        e.target.value = 0;
-                        return;
-                    }
-                    
-                    if (orb > 15) {
-                        e.target.value = 15;
-                        return;
-                    }
-                    
-                    if (chart.config.aspectSettings.types[aspect]) {
-                        // Update the aspect type's orb in the configuration
-                        chart.config.aspectSettings.types[aspect].orb = orb;
-                        
-                        // Re-render the chart to apply changes
-                        chart.render();
-                    }
-                });
-            });
+            // Setup orb handlers for all three aspect types
+            setupAspectOrbHandlers('.primary-aspect-orb', 'primaryAspectSettings');
+            setupAspectOrbHandlers('.secondary-aspect-orb', 'secondaryAspectSettings');
+            setupAspectOrbHandlers('.synastry-aspect-orb', 'synastryAspectSettings');
             
             // Initialize collapsible section functionality
             document.querySelectorAll('.control-title').forEach(title => {

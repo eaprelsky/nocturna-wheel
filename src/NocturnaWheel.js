@@ -13,9 +13,13 @@ export class NocturnaWheel {
      * Constructor
      * @param {Object} options - Configuration options
      * @param {string|Element} options.container - Container element or selector
-     * @param {Object} options.planets - Planet positions data
+     * @param {Object} options.planets - Primary planet positions data (outer circle)
+     * @param {Object} options.secondaryPlanets - Secondary planet positions data (inner circle, optional)
      * @param {Array} options.houses - House cusps data (optional)
-     * @param {Object} options.aspectSettings - Aspect calculation settings (optional)
+     * @param {Object} options.aspectSettings - Aspect calculation settings (optional, legacy)
+     * @param {Object} options.primaryAspectSettings - Primary aspect settings (optional)
+     * @param {Object} options.secondaryAspectSettings - Secondary aspect settings (optional)
+     * @param {Object} options.synastryAspectSettings - Synastry aspect settings (optional)
      * @param {Object} options.config - Additional configuration (optional)
      */
     constructor(options) {
@@ -35,13 +39,29 @@ export class NocturnaWheel {
         // Initialize configuration
         this.config = new ChartConfig(options.config || {});
         
-        // Set data
+        // Set data - primary planets (outer circle)
         this.planets = options.planets || {};
+        
+        // Set secondary planets (inner circle) - independent data
+        // If not provided, initialize as empty object (user must explicitly set)
+        this.secondaryPlanets = options.secondaryPlanets || {};
+        
         this.houses = options.houses || [];
         
-        // Override aspect settings if provided
+        // Override aspect settings if provided (legacy support)
         if (options.aspectSettings) {
             this.config.updateAspectSettings(options.aspectSettings);
+        }
+        
+        // Override specific aspect settings if provided
+        if (options.primaryAspectSettings) {
+            this.config.updatePrimaryAspectSettings(options.primaryAspectSettings);
+        }
+        if (options.secondaryAspectSettings) {
+            this.config.updateSecondaryAspectSettings(options.secondaryAspectSettings);
+        }
+        if (options.synastryAspectSettings) {
+            this.config.updateSynastryAspectSettings(options.synastryAspectSettings);
         }
         
         // Initialize services
@@ -151,30 +171,80 @@ export class NocturnaWheel {
         }
         
         // Render planets using the consolidated approach
-        let planetsWithCoords = [];
+        let primaryPlanetsWithCoords = [];
+        let secondaryPlanetsWithCoords = [];
         if (this.config.planetSettings.enabled) {
             // Get the enabled states for primary and secondary planets
             const primaryEnabled = this.config.planetSettings.primaryEnabled !== false;
             const secondaryEnabled = this.config.planetSettings.secondaryEnabled !== false;
             
-            // Use the consolidated renderAllPlanetTypes method
-            const renderedPlanets = this.renderers.planet.renderAllPlanetTypes({
-                svgManager: this.svgManager,
-                planetsData: this.planets,
-                config: this.config,
-                primaryEnabled: primaryEnabled,
-                secondaryEnabled: secondaryEnabled
-            });
+            // Render primary planets (outer circle)
+            if (primaryEnabled && Object.keys(this.planets).length > 0) {
+                const primaryGroup = this.svgManager.getGroup('primaryPlanets');
+                const primaryArray = Object.entries(this.planets)
+                    .filter(([name, data]) => this.config.planetSettings.visible?.[name] !== false)
+                    .map(([name, data]) => ({
+                        name: name,
+                        position: data.lon,
+                        color: data.color || '#000000'
+                    }));
+                primaryPlanetsWithCoords = this.renderers.planet.primaryRenderer.render(primaryGroup, primaryArray, 0, {
+                    config: this.config
+                });
+            }
             
-            // For aspect rendering, use primary planets by default
-            planetsWithCoords = renderedPlanets.primary;
+            // Render secondary planets (inner circle) using SEPARATE data
+            if (secondaryEnabled && Object.keys(this.secondaryPlanets).length > 0) {
+                const secondaryGroup = this.svgManager.getGroup('secondaryPlanets');
+                const secondaryArray = Object.entries(this.secondaryPlanets)
+                    .filter(([name, data]) => this.config.planetSettings.visible?.[name] !== false)
+                    .map(([name, data]) => ({
+                        name: name,
+                        position: data.lon,
+                        color: data.color || '#000000'
+                    }));
+                secondaryPlanetsWithCoords = this.renderers.planet.secondaryRenderer.render(secondaryGroup, secondaryArray, 0, {
+                    config: this.config
+                });
+            }
             
-            console.log(`NocturnaWheel: Rendered ${renderedPlanets.primary.length} primary planets and ${renderedPlanets.secondary.length} secondary planets`);
+            console.log(`NocturnaWheel: Rendered ${primaryPlanetsWithCoords.length} primary planets and ${secondaryPlanetsWithCoords.length} secondary planets`);
         }
         
-        // Render aspects if enabled, passing planets with coordinates
-        if (this.config.aspectSettings.enabled) {
-            this.renderers.aspect.render(this.svgManager.getGroup('aspects'), planetsWithCoords);
+        // Render three independent aspect types
+        
+        // 1. Primary aspects (outer circle to outer circle)
+        if (this.config.primaryAspectSettings.enabled && primaryPlanetsWithCoords.length >= 2) {
+            const primaryAspectsGroup = this.svgManager.getGroup('primaryAspects');
+            this.renderers.aspect.render(primaryAspectsGroup, primaryPlanetsWithCoords, this.config.primaryAspectSettings);
+            console.log("NocturnaWheel: Rendered primary aspects");
+        }
+        
+        // 2. Secondary aspects (inner circle to inner circle)
+        if (this.config.secondaryAspectSettings.enabled && secondaryPlanetsWithCoords.length >= 2) {
+            const secondaryAspectsGroup = this.svgManager.getGroup('secondaryAspects');
+            this.renderers.aspect.render(secondaryAspectsGroup, secondaryPlanetsWithCoords, this.config.secondaryAspectSettings);
+            console.log("NocturnaWheel: Rendered secondary aspects");
+        }
+        
+        // 3. Synastry aspects (outer circle to inner circle)
+        if (this.config.synastryAspectSettings.enabled && 
+            primaryPlanetsWithCoords.length >= 1 && 
+            secondaryPlanetsWithCoords.length >= 1) {
+            const synastryAspectsGroup = this.svgManager.getGroup('synastryAspects');
+            this.renderers.aspect.renderCrossAspects(
+                synastryAspectsGroup, 
+                primaryPlanetsWithCoords, 
+                secondaryPlanetsWithCoords, 
+                this.config.synastryAspectSettings
+            );
+            console.log("NocturnaWheel: Rendered synastry aspects");
+        }
+        
+        // Legacy aspect rendering for backward compatibility
+        if (this.config.aspectSettings.enabled && primaryPlanetsWithCoords.length >= 2) {
+            this.renderers.aspect.render(this.svgManager.getGroup('aspects'), primaryPlanetsWithCoords, this.config.aspectSettings);
+            console.log("NocturnaWheel: Rendered legacy aspects");
         }
         
         console.log("NocturnaWheel: Chart rendered");
@@ -232,12 +302,46 @@ export class NocturnaWheel {
     }
 
     /**
-     * Toggles the visibility of aspects
+     * Toggles the visibility of aspects (legacy - toggles all)
      * @param {boolean} visible - Visibility state
      * @returns {NocturnaWheel} - Instance for chaining
+     * @deprecated Use togglePrimaryAspects, toggleSecondaryAspects, or toggleSynastryAspects instead
      */
     toggleAspects(visible) {
         this.config.toggleAspectsVisibility(visible);
+        this.render();
+        return this;
+    }
+    
+    /**
+     * Toggles the visibility of primary aspects (outer circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {NocturnaWheel} - Instance for chaining
+     */
+    togglePrimaryAspects(visible) {
+        this.config.togglePrimaryAspectsVisibility(visible);
+        this.render();
+        return this;
+    }
+    
+    /**
+     * Toggles the visibility of secondary aspects (inner circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {NocturnaWheel} - Instance for chaining
+     */
+    toggleSecondaryAspects(visible) {
+        this.config.toggleSecondaryAspectsVisibility(visible);
+        this.render();
+        return this;
+    }
+    
+    /**
+     * Toggles the visibility of synastry aspects (cross-circle)
+     * @param {boolean} visible - Visibility state
+     * @returns {NocturnaWheel} - Instance for chaining
+     */
+    toggleSynastryAspects(visible) {
+        this.config.toggleSynastryAspectsVisibility(visible);
         this.render();
         return this;
     }
@@ -271,8 +375,8 @@ export class NocturnaWheel {
     }
 
     /**
-     * Updates chart data (planets, houses)
-     * @param {Object} data - Object containing new data, e.g., { planets: {...}, houses: [...] }
+     * Updates chart data (planets, secondaryPlanets, houses)
+     * @param {Object} data - Object containing new data, e.g., { planets: {...}, secondaryPlanets: {...}, houses: [...] }
      * @returns {NocturnaWheel} - Instance for chaining
      */
     updateData(data) {
@@ -284,6 +388,15 @@ export class NocturnaWheel {
                 console.log("NocturnaWheel: Updated planets data.");
             } else {
                 console.warn("NocturnaWheel.updateData: Invalid planets data format. Expected object.");
+            }
+        }
+        if (data.secondaryPlanets) {
+            // Update internal secondary planets data
+            if (typeof data.secondaryPlanets === 'object' && !Array.isArray(data.secondaryPlanets)) {
+                this.secondaryPlanets = { ...this.secondaryPlanets, ...data.secondaryPlanets };
+                console.log("NocturnaWheel: Updated secondary planets data.");
+            } else {
+                console.warn("NocturnaWheel.updateData: Invalid secondaryPlanets data format. Expected object.");
             }
         }
         if (data.houses) {
