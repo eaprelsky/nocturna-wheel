@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/eaprelsky/nocturna-wheel/compare/v1.0.1...v1.1.0) (2025-11-08)
+
+
+### Features
+
+* Add planetary projections and refactor aspect rendering system ([f0ad669](https://github.com/eaprelsky/nocturna-wheel/commit/f0ad669a15dc8c5ec593ef86f3bc2b46f7dea0c6))
+
 ## [1.0.1](https://github.com/eaprelsky/nocturna-wheel/compare/v1.0.0...v1.0.1) (2025-05-18)
 
 
