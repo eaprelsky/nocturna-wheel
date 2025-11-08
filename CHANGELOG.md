@@ -1,3 +1,36 @@
+# [2.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v1.1.0...v2.0.0) (2025-11-08)
+
+
+### Features
+
+* implement dual chart support with independent circles and three aspect systems ([c46ca3e](https://github.com/eaprelsky/nocturna-wheel/commit/c46ca3e162d2f9bd1eefcf4b8696d13dc6ab0688))
+
+
+### BREAKING CHANGES
+
+* Aspect rendering system has been refactored. The legacy toggleAspects() method is deprecated. Use togglePrimaryAspects(), toggleSecondaryAspects(), or toggleSynastryAspects() instead.
+
+Features:
+- Add support for independent secondary planets (inner circle)
+- Implement three separate aspect systems:
+  * Primary aspects (outer circle to outer circle)
+  * Secondary aspects (inner circle to inner circle)
+  * Synastry aspects (outer to inner with projection dots)
+- Add hollow projection dots showing outer planet positions on inner circle
+- Export HouseCalculator in UMD bundle
+- Add toggle methods for each aspect type independently
+
+Bug Fixes:
+- Fix cross-aspect coordinate mapping (prevented overwriting of planet coordinates)
+- Remove legacy aspect rendering to prevent duplicate lines
+
+Documentation:
+- Update README.md with dual chart examples and new API methods
+- Update index.html demo with synastry examples
+- Add comprehensive examples for all three aspect systems
+
+This release enables full synastry, transit, and progression chart support with elegant projection-based visualization.
+
 # [1.1.0](https://github.com/eaprelsky/nocturna-wheel/compare/v1.0.1...v1.1.0) (2025-11-08)
 
 
