@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v2.0.0...v3.0.0) (2025-11-13)
+
+
+* feat(assets)!: implement hybrid inline/external icons approach ([e0f0b04](https://github.com/eaprelsky/nocturna-wheel/commit/e0f0b049638f4f067295de193a883eac7451c206))
+
+
+### BREAKING CHANGES
+
+* IconProvider constructor now accepts an options object
+instead of a simple string. Legacy string argument still supported for
+backwards compatibility with automatic conversion to { basePath: string, useInline: false }.
+Users with custom icon paths should update their configuration as documented
+in docs/MIGRATION_GUIDE.md.
+
 # [2.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v1.1.0...v2.0.0) (2025-11-08)
 
 
