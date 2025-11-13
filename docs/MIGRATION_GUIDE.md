@@ -4,12 +4,12 @@
 
 The new version of the library uses a **hybrid approach** for icon management:
 
-### Before (v1.x)
+### Before (v2.x)
 - Icons existed only as external files
 - Required copying assets to user's project
 - Path configuration issues in different environments
 
-### After (v2.x)
+### After (v3.x)
 - ✅ **Inline icons by default** - icons embedded as data URLs
 - ✅ **Zero configuration** - works immediately after `npm install`
 - ✅ **Optional external icons** - for customization
@@ -125,4 +125,5 @@ If you encounter issues:
 2. Ensure that `src/data/IconData.js` contains data URLs
 3. Check browser console for errors
 4. Create a GitHub issue with a description of the problem
+
 
