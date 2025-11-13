@@ -18,9 +18,21 @@
 
 // Import core services
 import { ServiceRegistry } from './services/ServiceRegistry.js';
+import { IconProvider } from './services/IconProvider.js';
+
+// Import inline icon data (auto-generated during build)
+import { IconData } from './data/IconData.js';
 
 // Initialize core services immediately
 ServiceRegistry.initializeServices();
+
+// Initialize IconProvider with inline data if available
+if (IconData && Object.keys(IconData.planets || {}).length > 0) {
+    const iconProvider = ServiceRegistry.getIconProvider();
+    if (iconProvider && typeof iconProvider.setInlineData === 'function') {
+        iconProvider.setInlineData(IconData);
+    }
+}
 
 // Import main components for the public API
 import { ChartManager, WheelChart } from './components/index.js';
@@ -43,7 +55,9 @@ export {
     VERSION,
     ServiceRegistry,
     SvgUtils,
-    AstrologyUtils
+    AstrologyUtils,
+    IconProvider,
+    IconData
 };
 
 /**
@@ -168,5 +182,7 @@ export default {
     ChartConfig,
     ServiceRegistry,
     SvgUtils,
-    AstrologyUtils
+    AstrologyUtils,
+    IconProvider,
+    IconData
 }; 

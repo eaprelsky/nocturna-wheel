@@ -18,6 +18,14 @@ A JavaScript library for rendering astrological natal charts.
 
 ## Installation
 
+### NPM Installation (Recommended)
+
+```bash
+npm install @eaprelsky/nocturna-wheel
+```
+
+The library comes with **inline SVG icons** bundled as data URLs, so you don't need to worry about copying asset files. Icons work out of the box!
+
 ### Direct Script Include
 
 ```html
@@ -26,12 +34,6 @@ A JavaScript library for rendering astrological natal charts.
 
 <!-- Include the Nocturna Wheel library -->
 <script src="path/to/nocturna-wheel.min.js"></script>
-```
-
-### NPM Installation
-
-```bash
-npm install @eaprelsky/nocturna-wheel
 ```
 
 ## Basic Usage
@@ -328,6 +330,76 @@ chart.toggleSynastryAspects(true);
 ```
 
 **Synastry aspects** are rendered with hollow projection dots on the inner circle, showing where outer circle planets project onto the inner radius. This creates a cleaner, more aesthetically pleasing visualization.
+
+## Working with Icons
+
+### Inline Icons (Default)
+
+By default, the library uses **inline SVG icons** bundled as data URLs. This means:
+- ✅ **No asset copying needed** - icons are bundled with the JavaScript
+- ✅ **Works out of the box** - no path configuration required
+- ✅ **Cross-platform** - works in all environments (browser, webpack, vite, etc.)
+
+```javascript
+// Icons work automatically - no configuration needed!
+const chart = new WheelChart({
+    container: '#chart-container',
+    planets: { sun: { lon: 85.83 } }
+});
+```
+
+### Using Custom External Icons
+
+If you want to use your own custom icons, you can disable inline mode:
+
+```javascript
+import { IconProvider } from '@eaprelsky/nocturna-wheel';
+
+// Create IconProvider with external icons
+const iconProvider = new IconProvider({
+    useInline: false,
+    basePath: '/my-custom-icons/'
+});
+
+// Pass to ServiceRegistry
+import { ServiceRegistry } from '@eaprelsky/nocturna-wheel';
+ServiceRegistry.register('iconProvider', iconProvider);
+
+// Now create your chart
+const chart = new WheelChart({ /* ... */ });
+```
+
+### Accessing Bundled Icon Files
+
+If you need direct access to the SVG files (e.g., for documentation or custom usage):
+
+```javascript
+// Using package.json exports
+import sunIcon from '@eaprelsky/nocturna-wheel/icons/zodiac-planet-sun.svg';
+```
+
+Or copy them from `node_modules`:
+
+```bash
+cp -r node_modules/@eaprelsky/nocturna-wheel/dist/assets/svg ./public/
+```
+
+### Custom Icon Data URLs
+
+You can also provide custom icons as data URLs:
+
+```javascript
+const customIcons = {
+    planets: {
+        sun: 'data:image/svg+xml,...',
+        moon: 'data:image/svg+xml,...'
+    }
+};
+
+const iconProvider = new IconProvider({
+    customIcons: customIcons
+});
+```
 
 ## License
 

@@ -23,7 +23,10 @@
     "./renderers/*": {
       "import": "./dist/renderers/*",
       "default": "./dist/renderers/*"
-    }
+    },
+    "./assets/*": "./dist/assets/*",
+    "./css/*": "./dist/assets/css/*",
+    "./icons/*": "./dist/assets/svg/zodiac/*"
   },
   "files": [
     "dist",

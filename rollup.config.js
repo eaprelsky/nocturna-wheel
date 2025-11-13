@@ -3,6 +3,7 @@ import copy from 'rollup-plugin-copy';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
+import svgToDataUrlPlugin from './build-tools/svg-to-dataurl-plugin.js';
 
 // Get environment variables
 const production = process.env.NODE_ENV === 'production';
@@ -11,6 +12,11 @@ const createMin = process.env.MIN === 'true';
 
 // Shared plugins
 const basePlugins = [
+  // Convert SVG icons to inline data URLs
+  svgToDataUrlPlugin({
+    svgDir: './assets/svg/zodiac',
+    outputFile: './src/data/IconData.js'
+  }),
   // Essential: Resolve modules in node_modules and source directories
   nodeResolve({
     extensions: ['.js'], // Only use .js files
@@ -20,7 +26,7 @@ const basePlugins = [
   }),
   // Handle CommonJS modules
   commonjs(),
-  // Copy static assets
+  // Copy static assets (still needed for demo page and optional external usage)
   copy({
     targets: [
       { src: 'assets/*', dest: 'dist/assets' },
