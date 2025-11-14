@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.1...v3.0.2) (2025-11-14)
+
+
+### Bug Fixes
+
+* **renderer:** add explicit fill and stroke attributes to SVG elements ([f482871](https://github.com/eaprelsky/nocturna-wheel/commit/f4828710068109d42e604f120bf0051e9c260903))
+
 ## [3.0.1](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.0...v3.0.1) (2025-11-14)
 
 
