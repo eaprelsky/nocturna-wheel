@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.0...v3.0.1) (2025-11-14)
+
+
+### Bug Fixes
+
+* **icons:** resolve inline icons not loading after npm install ([104b619](https://github.com/eaprelsky/nocturna-wheel/commit/104b619b5183314f8c362131fc4012420f5ac76c))
+
 # [3.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v2.0.0...v3.0.0) (2025-11-13)
 
 
