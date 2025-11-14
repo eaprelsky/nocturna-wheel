@@ -16,11 +16,18 @@ export class ZodiacRenderer extends BaseRenderer {
      */
     constructor(options) {
         super(options);
-        if (!options.assetBasePath) {
-            throw new Error("ZodiacRenderer: Missing required option assetBasePath");
+        
+        // Store the icon provider
+        this.iconProvider = options.iconProvider;
+        
+        // assetBasePath is required only if IconProvider is not available
+        if (!options.assetBasePath && !this.iconProvider) {
+            throw new Error("ZodiacRenderer: Missing required option assetBasePath or iconProvider");
         }
-
-        this.iconProvider = options.iconProvider; // Store the icon provider
+        
+        // Set default assetBasePath if not provided (for backward compatibility)
+        this.assetBasePath = options.assetBasePath || './assets/';
+        
         this.signIconRadius = (this.outerRadius + this.middleRadius) / 2;
         this.signIconSize = 30;
     }
@@ -131,10 +138,17 @@ export class ZodiacRenderer extends BaseRenderer {
                 iconHref = this.iconProvider.getZodiacIconPath(signName);
             } else {
                 // Fallback to old path construction
-                iconHref = `${this.options.assetBasePath}svg/zodiac/zodiac-sign-${signName}.svg`;
+                const basePath = this.options.assetBasePath || this.assetBasePath || './assets/';
+                iconHref = `${basePath}svg/zodiac/zodiac-sign-${signName}.svg`;
             }
             
-            console.log(`Loading zodiac sign: ${iconHref}`);
+            // Log icon path for debugging (only log first time for each sign to avoid spam)
+            if (!this._loggedSigns) this._loggedSigns = {};
+            if (!this._loggedSigns[signName]) {
+                console.log(`ZodiacRenderer: Loading sign '${signName}':`, 
+                    iconHref.startsWith('data:') ? 'inline data URL' : iconHref);
+                this._loggedSigns[signName] = true;
+            }
             
             const icon = this.svgUtils.createSVGElement("image", {
                 x: point.x - this.signIconSize / 2, // Offset to center the icon

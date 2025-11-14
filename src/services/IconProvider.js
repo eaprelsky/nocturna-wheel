@@ -8,17 +8,6 @@
  * 2. External mode: Uses external file paths (for custom icons)
  */
 
-// Try to import IconData if available (after build)
-let InlineIconData = null;
-try {
-    // This will be replaced by rollup during build
-    // During development or if IconData doesn't exist, this will fail gracefully
-    InlineIconData = null; // Will be set up after IconData.js is generated
-} catch (e) {
-    // IconData not available yet
-    InlineIconData = null;
-}
-
 export class IconProvider {
     /**
      * Constructor
@@ -39,6 +28,9 @@ export class IconProvider {
         
         // Lazy-load IconData on first use
         this.inlineData = null;
+        
+        // Track if warning was already shown (to avoid spam)
+        this._warnedAboutMissingData = false;
     }
     
     /**
@@ -46,9 +38,6 @@ export class IconProvider {
      * @private
      */
     _getInlineData() {
-        if (!this.inlineData && InlineIconData) {
-            this.inlineData = InlineIconData;
-        }
         return this.inlineData;
     }
     
@@ -58,7 +47,11 @@ export class IconProvider {
      */
     setInlineData(iconData) {
         this.inlineData = iconData;
-        InlineIconData = iconData;
+        console.log('IconProvider.setInlineData(): Data loaded successfully',
+            'planets:', Object.keys(iconData?.planets || {}).length,
+            'signs:', Object.keys(iconData?.signs || {}).length,
+            'aspects:', Object.keys(iconData?.aspects || {}).length
+        );
     }
 
     /**
@@ -79,6 +72,16 @@ export class IconProvider {
             const inlineData = this._getInlineData();
             if (inlineData?.planets?.[name]) {
                 return inlineData.planets[name];
+            } else {
+                // Debug: log when inline data is not available (only once)
+                if (!this._warnedAboutMissingData) {
+                    this._warnedAboutMissingData = true;
+                    if (!inlineData) {
+                        console.warn(`IconProvider: Inline data not loaded, falling back to external paths. Call setInlineData() to load inline icons.`);
+                    } else if (!inlineData.planets) {
+                        console.warn(`IconProvider: Inline data missing 'planets' category`);
+                    }
+                }
             }
         }
         

@@ -23,16 +23,30 @@ import { IconProvider } from './services/IconProvider.js';
 // Import inline icon data (auto-generated during build)
 import { IconData } from './data/IconData.js';
 
-// Initialize core services immediately
-ServiceRegistry.initializeServices();
+// CRITICAL: Register IconProvider BEFORE initializing other services
+// This ensures renderers get the inline-capable provider, not a legacy stub
+const iconProvider = new IconProvider({
+    useInline: true,
+    basePath: './assets/svg/zodiac/'  // Fallback for external mode
+});
 
-// Initialize IconProvider with inline data if available
+// Initialize with inline data if available
 if (IconData && Object.keys(IconData.planets || {}).length > 0) {
-    const iconProvider = ServiceRegistry.getIconProvider();
-    if (iconProvider && typeof iconProvider.setInlineData === 'function') {
-        iconProvider.setInlineData(IconData);
-    }
+    iconProvider.setInlineData(IconData);
+    console.log('IconProvider: Initialized with inline icons -', 
+        'Planets:', Object.keys(IconData.planets).length,
+        'Signs:', Object.keys(IconData.signs).length,
+        'Aspects:', Object.keys(IconData.aspects).length
+    );
+} else {
+    console.warn('IconProvider: IconData not loaded, will use external paths');
 }
+
+// Register IconProvider BEFORE initializing services
+ServiceRegistry.register('iconProvider', iconProvider);
+
+// Now initialize other core services
+ServiceRegistry.initializeServices();
 
 // Import main components for the public API
 import { ChartManager, WheelChart } from './components/index.js';

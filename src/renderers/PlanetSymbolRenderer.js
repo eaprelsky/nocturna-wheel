@@ -28,7 +28,8 @@ export class PlanetSymbolRenderer extends BasePlanetRenderer {
             iconPath = this.iconProvider.getPlanetIconPath(planet.name);
         } else {
             // Fallback to old path construction if IconProvider is not available
-            iconPath = `${this.options.assetBasePath}svg/zodiac/zodiac-planet-${planet.name.toLowerCase()}.svg`;
+            const basePath = this.options.assetBasePath || this.assetBasePath || './assets/';
+            iconPath = `${basePath}svg/zodiac/zodiac-planet-${planet.name.toLowerCase()}.svg`;
         }
         
         // Calculate top-left position of the icon (centered on the calculated point)

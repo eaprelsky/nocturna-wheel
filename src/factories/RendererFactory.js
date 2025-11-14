@@ -21,7 +21,12 @@ export class RendererFactory {
         this.config = config;
         this.svgNS = svgNS;
         this.svgUtils = ServiceRegistry.getSvgUtils();
-        this.iconProvider = ServiceRegistry.getIconProvider(config.assets?.basePath);
+        this.iconProvider = ServiceRegistry.getIconProvider();
+        
+        // If IconProvider is null, log error for debugging
+        if (!this.iconProvider) {
+            console.error('RendererFactory: IconProvider not available. Icons will not render correctly.');
+        }
     }
     
     /**

@@ -17,12 +17,17 @@ export class BasePlanetRenderer extends BaseRenderer {
      */
     constructor(options) {
         super(options);
-        if (!options.assetBasePath) {
-            throw new Error(`${this.constructor.name}: Missing required option assetBasePath`);
-        }
         
         // Store the icon provider
         this.iconProvider = options.iconProvider;
+        
+        // assetBasePath is required only if IconProvider is not available
+        if (!options.assetBasePath && !this.iconProvider) {
+            throw new Error(`${this.constructor.name}: Missing required option assetBasePath or iconProvider`);
+        }
+        
+        // Set default assetBasePath if not provided (for backward compatibility)
+        this.assetBasePath = options.assetBasePath || './assets/';
     }
 
     /**

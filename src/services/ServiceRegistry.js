@@ -83,47 +83,16 @@ export class ServiceRegistry {
     }
     
     /**
-     * Gets or creates an IconProvider instance
-     * @param {string} basePath - Optional base path for SVG assets
-     * @returns {Object} The IconProvider instance
+     * Gets the IconProvider instance
+     * NOTE: IconProvider should be registered externally before use
+     * This method only retrieves, does not create
+     * @returns {Object|undefined} The IconProvider instance if registered
      */
-    static getIconProvider(basePath = './assets/svg/zodiac/') {
+    static getIconProvider() {
         if (!this.has('iconProvider')) {
-            // Create a simple icon provider
-            const iconProvider = {
-                basePath: basePath,
-                
-                getPlanetIconPath(planetName) {
-                    return `${this.basePath}zodiac-planet-${planetName.toLowerCase()}.svg`;
-                },
-                
-                getZodiacIconPath(signName) {
-                    return `${this.basePath}zodiac-sign-${signName.toLowerCase()}.svg`;
-                },
-                
-                getAspectIconPath(aspectType) {
-                    return `${this.basePath}zodiac-aspect-${aspectType.toLowerCase()}.svg`;
-                },
-                
-                createTextFallback(svgUtils, options, text) {
-                    const { x, y, size = '16px', color = '#000000', className = 'icon-fallback' } = options;
-                    
-                    const textElement = svgUtils.createSVGElement("text", {
-                        x: x,
-                        y: y,
-                        'text-anchor': 'middle',
-                        'dominant-baseline': 'middle',
-                        'font-size': size,
-                        'class': className,
-                        'fill': color
-                    });
-                    
-                    textElement.textContent = text;
-                    return textElement;
-                }
-            };
-            
-            this.register('iconProvider', iconProvider);
+            console.warn('ServiceRegistry: IconProvider not registered. Icons may not work correctly.');
+            console.warn('ServiceRegistry: This should be initialized in main.js with inline IconData.');
+            return null;
         }
         return this.get('iconProvider');
     }
@@ -136,8 +105,8 @@ export class ServiceRegistry {
         // Initialize SvgUtils
         this.getSvgUtils();
         
-        // Initialize IconProvider with the assets base path
-        this.getIconProvider(options.assetBasePath || './assets/svg/zodiac/');
+        // Note: IconProvider should be registered externally in main.js
+        // with inline IconData before calling this method
         
         console.log("ServiceRegistry: Core services initialized");
     }

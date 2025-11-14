@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal Test - Bug Report Reproduction</title>
+    <style>
+        body { font-family: Arial; padding: 40px; }
+        #chart-container { width: 460px; height: 460px; border: 1px solid #ccc; margin: 20px 0; }
+        .info { padding: 10px; background: #f0f0f0; margin: 10px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Minimal Test - Reproducing Bug Report</h1>
+    <div class="info">
+        <p><strong>This test reproduces the exact scenario from the bug report:</strong></p>
+        <ol>
+            <li>Load UMD bundle via script tag</li>
+            <li>Instantiate WheelChart with simple config</li>
+            <li>Check console and network for asset requests</li>
+        </ol>
+    </div>
+    
+    <div id="chart-container"></div>
+    
+    <div class="info" id="status">
+        <p>Status: <span id="status-text">Loading...</span></p>
+    </div>
+
+    <!-- Load UMD bundle exactly as described in bug report -->
+    <script src="./dist/nocturna-wheel.umd.js"></script>
+    
+    <script>
+        // Exactly as described in bug report README snippet
+        console.log('=== Test Start ===');
+        console.log('Library loaded:', !!window.NocturnaWheel);
+        console.log('Exports:', Object.keys(window.NocturnaWheel));
+        
+        // Check IconData
+        console.log('\nIconData check:');
+        console.log('  IconData exists:', !!window.NocturnaWheel.IconData);
+        if (window.NocturnaWheel.IconData) {
+            console.log('  Planets:', Object.keys(window.NocturnaWheel.IconData.planets).length);
+            console.log('  Signs:', Object.keys(window.NocturnaWheel.IconData.signs).length);
+            console.log('  Aspects:', Object.keys(window.NocturnaWheel.IconData.aspects).length);
+        }
+        
+        // Check ServiceRegistry
+        console.log('\nServiceRegistry check:');
+        const iconProvider = window.NocturnaWheel.ServiceRegistry.getIconProvider();
+        console.log('  IconProvider registered:', !!iconProvider);
+        if (iconProvider) {
+            console.log('  useInline:', iconProvider.useInline);
+            console.log('  basePath:', iconProvider.basePath);
+            console.log('  inlineData loaded:', !!iconProvider.inlineData);
+            
+            if (iconProvider.inlineData) {
+                console.log('  inlineData.planets:', Object.keys(iconProvider.inlineData.planets || {}).length);
+            }
+            
+            // Test icon resolution
+            console.log('\nIcon resolution test:');
+            const sunPath = iconProvider.getPlanetIconPath('sun');
+            console.log('  Sun icon:', sunPath.substring(0, 50) + '...');
+            console.log('  Is data URL:', sunPath.startsWith('data:'));
+        }
+        
+        // Create chart as per README
+        console.log('\n=== Creating Chart ===');
+        
+        const chart = new window.NocturnaWheel.WheelChart({
+            container: '#chart-container',
+            planets: {
+                sun: { lon: 85.83 },
+                moon: { lon: 133.21 },
+                mercury: { lon: 70.18 }
+            },
+            houses: [
+                { lon: 300.32 }, { lon: 330.15 }, { lon: 355.24 },
+                { lon: 20.32 }, { lon: 45.15 }, { lon: 75.24 },
+                { lon: 120.32 }, { lon: 150.15 }, { lon: 175.24 },
+                { lon: 200.32 }, { lon: 225.15 }, { lon: 255.24 }
+            ]
+        });
+        
+        console.log('Chart created:', !!chart);
+        chart.render();
+        console.log('Chart rendered');
+        
+        // Check for asset requests after 1 second
+        setTimeout(() => {
+            console.log('\n=== Network Check ===');
+            const resources = performance.getEntriesByType('resource');
+            const svgRequests = resources.filter(r => 
+                r.name.includes('.svg') || 
+                r.name.includes('/assets/svg/')
+            );
+            
+            console.log('Total resource requests:', resources.length);
+            console.log('SVG asset requests:', svgRequests.length);
+            
+            if (svgRequests.length > 0) {
+                console.error('❌ BUG CONFIRMED: Library is requesting external SVG files:');
+                svgRequests.forEach(r => console.error('  -', r.name));
+                document.getElementById('status-text').textContent = `❌ FAIL: ${svgRequests.length} external asset requests detected`;
+                document.getElementById('status-text').style.color = 'red';
+            } else {
+                console.log('✅ SUCCESS: No external SVG requests - inline icons working!');
+                document.getElementById('status-text').textContent = '✅ PASS: Inline icons working correctly';
+                document.getElementById('status-text').style.color = 'green';
+            }
+            
+            console.log('\n=== Test Complete ===');
+        }, 1000);
+    </script>
+</body>
+</html>
+

@@ -20,7 +20,7 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
         this.renderedAspects = []; // Store calculated aspects
         this._aspectCacheKey = null; // Cache key for aspect calculations
         this._aspectCache = [];      // Cached aspect results
-        this.assetBasePath = options.assetBasePath || ''; // Store asset base path
+        this.assetBasePath = options.assetBasePath || './assets/'; // Store asset base path with fallback
         this.iconProvider = options.iconProvider; // Store the icon provider
         
         // Define major aspects and their angles (can be overridden/extended by config)

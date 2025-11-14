@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Icons Test - Nocturna Wheel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #666; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        #chart-container {
+            width: 460px;
+            height: 460px;
+            margin: 20px auto;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Inline Icons Test - Nocturna Wheel</h1>
+    
+    <div class="test-section">
+        <h2>Library Load Test</h2>
+        <div id="library-status">Checking...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>IconData Test</h2>
+        <div id="icondata-status">Checking...</div>
+        <pre id="icondata-info"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>IconProvider Test</h2>
+        <div id="iconprovider-status">Checking...</div>
+        <pre id="iconprovider-info"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Chart Rendering Test</h2>
+        <div id="chart-status">Preparing...</div>
+        <div id="chart-container"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div class="console-output" id="console-output"></div>
+    </div>
+
+    <!-- Load the UMD bundle -->
+    <script src="./dist/nocturna-wheel.umd.js"></script>
+    
+    <script>
+        // Capture console output
+        const consoleOutput = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        function updateConsoleDisplay() {
+            document.getElementById('console-output').textContent = consoleOutput.join('\n');
+        }
+        
+        console.log = function(...args) {
+            consoleOutput.push('[LOG] ' + args.join(' '));
+            updateConsoleDisplay();
+            originalLog.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            consoleOutput.push('[WARN] ' + args.join(' '));
+            updateConsoleDisplay();
+            originalWarn.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            consoleOutput.push('[ERROR] ' + args.join(' '));
+            updateConsoleDisplay();
+            originalError.apply(console, args);
+        };
+        
+        // Test functions
+        function setStatus(elementId, status, message) {
+            const el = document.getElementById(elementId);
+            el.className = 'status ' + status;
+            el.textContent = message;
+        }
+        
+        function testLibraryLoad() {
+            if (window.NocturnaWheel) {
+                setStatus('library-status', 'success', '✅ NocturnaWheel loaded successfully');
+                console.log('Available exports:', Object.keys(window.NocturnaWheel));
+                return true;
+            } else {
+                setStatus('library-status', 'error', '❌ NocturnaWheel not loaded');
+                return false;
+            }
+        }
+        
+        function testIconData() {
+            const { IconData } = window.NocturnaWheel;
+            
+            if (!IconData) {
+                setStatus('icondata-status', 'error', '❌ IconData not found');
+                return false;
+            }
+            
+            const planetsCount = Object.keys(IconData.planets || {}).length;
+            const signsCount = Object.keys(IconData.signs || {}).length;
+            const aspectsCount = Object.keys(IconData.aspects || {}).length;
+            
+            const info = `Planets: ${planetsCount}\nSigns: ${signsCount}\nAspects: ${aspectsCount}\n\nSample planet icons:\n`;
+            const samplePlanets = Object.keys(IconData.planets).slice(0, 3);
+            const iconInfo = samplePlanets.map(name => 
+                `  ${name}: ${IconData.planets[name].substring(0, 80)}...`
+            ).join('\n');
+            
+            document.getElementById('icondata-info').textContent = info + iconInfo;
+            
+            if (planetsCount === 14 && signsCount === 12 && aspectsCount === 9) {
+                setStatus('icondata-status', 'success', `✅ IconData loaded correctly (${planetsCount + signsCount + aspectsCount} icons)`);
+                return true;
+            } else {
+                setStatus('icondata-status', 'warning', `⚠️ IconData partially loaded (P:${planetsCount}, S:${signsCount}, A:${aspectsCount})`);
+                return false;
+            }
+        }
+        
+        function testIconProvider() {
+            const { ServiceRegistry } = window.NocturnaWheel;
+            const iconProvider = ServiceRegistry.getIconProvider();
+            
+            if (!iconProvider) {
+                setStatus('iconprovider-status', 'error', '❌ IconProvider not registered');
+                return false;
+            }
+            
+            // Test getting icon paths
+            const sunPath = iconProvider.getPlanetIconPath('sun');
+            const ariesPath = iconProvider.getZodiacIconPath('aries');
+            const trinePath = iconProvider.getAspectIconPath('trine');
+            
+            const info = `Sun icon path: ${sunPath.substring(0, 100)}...\n\n`;
+            const info2 = `Aries icon path: ${ariesPath.substring(0, 100)}...\n\n`;
+            const info3 = `Trine icon path: ${trinePath.substring(0, 100)}...`;
+            
+            document.getElementById('iconprovider-info').textContent = info + info2 + info3;
+            
+            // Check if paths are data URLs (inline) or file paths (external)
+            const isInline = sunPath.startsWith('data:image/svg+xml');
+            
+            if (isInline) {
+                setStatus('iconprovider-status', 'success', '✅ IconProvider using inline data URLs');
+                return true;
+            } else {
+                setStatus('iconprovider-status', 'error', `❌ IconProvider using external paths: ${sunPath}`);
+                return false;
+            }
+        }
+        
+        function testChartRendering() {
+            try {
+                const { WheelChart } = window.NocturnaWheel;
+                
+                const chart = new WheelChart({
+                    container: '#chart-container',
+                    planets: {
+                        sun: { lon: 85.83 },
+                        moon: { lon: 133.21 },
+                        mercury: { lon: 70.18 },
+                        venus: { lon: 42.57 },
+                        mars: { lon: 112.56 }
+                    },
+                    houses: [
+                        { lon: 300.32 },
+                        { lon: 330.15 },
+                        { lon: 355.24 },
+                        { lon: 20.32 },
+                        { lon: 45.15 },
+                        { lon: 75.24 },
+                        { lon: 120.32 },
+                        { lon: 150.15 },
+                        { lon: 175.24 },
+                        { lon: 200.32 },
+                        { lon: 225.15 },
+                        { lon: 255.24 }
+                    ]
+                });
+                
+                chart.render();
+                
+                // Check for network requests to assets
+                setTimeout(() => {
+                    const performanceEntries = performance.getEntriesByType('resource');
+                    const assetRequests = performanceEntries.filter(entry => 
+                        entry.name.includes('/assets/svg/') || 
+                        entry.name.includes('zodiac-')
+                    );
+                    
+                    if (assetRequests.length === 0) {
+                        setStatus('chart-status', 'success', '✅ Chart rendered without external asset requests');
+                    } else {
+                        setStatus('chart-status', 'error', 
+                            `❌ Chart made ${assetRequests.length} external asset requests:\n${assetRequests.map(r => r.name).join('\n')}`
+                        );
+                    }
+                }, 1000);
+                
+                setStatus('chart-status', 'success', '✅ Chart created and rendered');
+                
+            } catch (error) {
+                setStatus('chart-status', 'error', `❌ Chart rendering failed: ${error.message}`);
+                console.error('Chart error:', error);
+            }
+        }
+        
+        // Run all tests
+        window.addEventListener('load', () => {
+            console.log('=== Starting Inline Icons Tests ===');
+            
+            const libraryOk = testLibraryLoad();
+            if (!libraryOk) return;
+            
+            const iconDataOk = testIconData();
+            const iconProviderOk = testIconProvider();
+            
+            if (iconDataOk && iconProviderOk) {
+                testChartRendering();
+            } else {
+                setStatus('chart-status', 'error', '❌ Cannot render chart - prerequisites failed');
+            }
+            
+            console.log('=== Tests Complete ===');
+        });
+    </script>
+</body>
+</html>
+
