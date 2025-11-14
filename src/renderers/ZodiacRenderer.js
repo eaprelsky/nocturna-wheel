@@ -68,10 +68,21 @@ export class ZodiacRenderer extends BaseRenderer {
         ];
 
         circles.forEach(circleData => {
+            // Determine stroke color and width based on circle type
+            let strokeColor = "#999";
+            let strokeWidth = "0.5";
+            if (circleData.class === "chart-outer-circle") {
+                strokeColor = "#666";
+                strokeWidth = "1";
+            }
+            
             const circle = this.svgUtils.createSVGElement("circle", {
                 cx: this.centerX,
                 cy: this.centerY,
                 r: circleData.r,
+                fill: "transparent", // Explicitly set transparent fill to avoid default black
+                stroke: strokeColor, // Explicitly set stroke to ensure visibility
+                "stroke-width": strokeWidth, // Explicitly set stroke width
                 class: `zodiac-element ${circleData.class}` // Add base class
             });
             parentGroup.appendChild(circle);
@@ -106,6 +117,8 @@ export class ZodiacRenderer extends BaseRenderer {
                 y1: point1.y,
                 x2: point2.x,
                 y2: point2.y,
+                stroke: "#999", // Explicitly set stroke to ensure visibility
+                "stroke-width": "0.75", // Explicitly set stroke width
                 class: `zodiac-element zodiac-division-line ${specialClass}`
             });
 

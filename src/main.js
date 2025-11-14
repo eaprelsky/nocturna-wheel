@@ -170,11 +170,21 @@ function cleanup() {
   }
 }
 
-// Initialize the chart when the DOM is ready
-document.addEventListener('DOMContentLoaded', initChart);
+// Auto-initialization is DISABLED in production builds to prevent conflicts.
+// This demo code should only run in development mode with Vite dev server.
+// In production, users explicitly create their own chart instances.
 
-// Handle hot module replacement for Vite
+// Handle hot module replacement for Vite (development only)
 if (import.meta.hot) {
+  // Initialize the chart when the DOM is ready (ONLY in development)
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('chart-container');
+    if (container && container.children.length === 0) {
+      console.log('DEV MODE: Auto-initializing demo chart');
+      initChart();
+    }
+  });
+
   import.meta.hot.accept((newModule) => {
     console.log('HMR update for main.js');
     cleanup();

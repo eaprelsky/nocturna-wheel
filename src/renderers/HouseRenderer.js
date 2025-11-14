@@ -88,12 +88,34 @@ export class HouseRenderer extends BaseRenderer {
             const innerPoint = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.innerRadius, angle);
             const middlePoint = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.middleRadius, angle);
             
+            // Determine stroke color and width based on line type
+            let innerStrokeColor = "#999";
+            let innerStrokeWidth = "0.75";
+            
+            let outerStrokeColor = "#999";
+            let outerStrokeWidth = "0.75";
+            let outerStrokeDasharray = null;
+            
+            if (axisClass.includes('axis')) {
+                // Cardinal points (ASC, DSC, IC, MC) - solid, darker
+                innerStrokeColor = "#555";
+                innerStrokeWidth = "1";
+                outerStrokeColor = "#555";
+                outerStrokeWidth = "1";
+                // Axes are always solid
+            } else {
+                // Regular lines - outer lines are dashed
+                outerStrokeDasharray = "2,2";
+            }
+            
             // Create line from inner to middle circle
             const innerLine = this.svgUtils.createSVGElement("line", {
                 x1: innerPoint.x,
                 y1: innerPoint.y,
                 x2: middlePoint.x,
                 y2: middlePoint.y,
+                stroke: innerStrokeColor, // Explicitly set stroke to ensure visibility
+                "stroke-width": innerStrokeWidth, // Explicitly set stroke width
                 class: `house-element house-division-line ${axisClass}`
             });
             
@@ -115,13 +137,21 @@ export class HouseRenderer extends BaseRenderer {
             const extendedPoint = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.extendedRadius, angle);
             
             // Create line from outer circle to extended point
-            const outerLine = this.svgUtils.createSVGElement("line", {
+            const outerLineAttrs = {
                 x1: outerPoint.x,
                 y1: outerPoint.y,
                 x2: extendedPoint.x,
                 y2: extendedPoint.y,
+                stroke: outerStrokeColor, // Explicitly set stroke to ensure visibility
+                "stroke-width": outerStrokeWidth, // Explicitly set stroke width
                 class: `house-element house-division-line outer ${axisClass}`
-            });
+            };
+            
+            if (outerStrokeDasharray) {
+                outerLineAttrs["stroke-dasharray"] = outerStrokeDasharray;
+            }
+            
+            const outerLine = this.svgUtils.createSVGElement("line", outerLineAttrs);
             
             // Ensure cardinal points render above zodiac lines
             if (axisClass.includes('axis')) {

@@ -73,6 +73,9 @@ export class ChartRenderer {
             cx: centerX,
             cy: centerY,
             r: radius,
+            fill: "transparent", // Explicitly set transparent fill to avoid default black
+            stroke: "#999", // Explicitly set stroke to ensure visibility
+            "stroke-width": "0.5", // Explicitly set stroke width
             class: 'zodiac-element chart-innermost-circle'
         });
         zodiacGroup.appendChild(innermostCircle);
