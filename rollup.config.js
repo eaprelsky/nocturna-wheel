@@ -2,7 +2,11 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import copy from 'rollup-plugin-copy';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
-import pkg from './package.json';
+import { readFileSync } from 'fs'; // Import Node.js 'fs' module
+
+// Read package.json content using fs for Node.js compatibility
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+
 import svgToDataUrlPlugin from './build-tools/svg-to-dataurl-plugin.js';
 
 // Get environment variables

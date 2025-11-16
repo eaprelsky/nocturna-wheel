@@ -161,6 +161,12 @@ export class SecondaryPlanetRenderer extends BasePlanetRenderer {
             const icon = this.symbolRenderer.renderPlanetSymbol(planetGroup, planet, iconSize);
             planetGroup.appendChild(icon);
             
+            // Add retrograde indicator if planet is retrograde
+            if (planet.retrograde) {
+                const retrogradeIndicator = this.symbolRenderer.renderRetrogradeIndicator(planetGroup, planet, iconSize);
+                planetGroup.appendChild(retrogradeIndicator);
+            }
+            
             // Add tooltip
             this.symbolRenderer.addPlanetTooltip(planetGroup, planet);
             

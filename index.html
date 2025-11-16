@@ -309,10 +309,13 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
     <!-- Demo script -->
     <script>
         // Modern async script loading
-        function loadScript(url, callback) {
+        function loadScript(url, callback, isModule = false) {
             const script = document.createElement('script');
             script.src = url;
             script.crossOrigin = "anonymous";
+            if (isModule) {
+                script.type = "module";
+            }
             script.onload = callback || function() {};
             script.onerror = function() {
                 console.warn(`Failed to load script: ${url}`);
@@ -346,29 +349,29 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
             let chartData = {
                 // Primary planets (outer circle)
                 planets: {
-                    sun: { lon: 85.83, color: '#000000' },
-                    moon: { lon: 133.21, color: '#000000' },
-                    mercury: { lon: 70.18, color: '#000000' },
-                    venus: { lon: 42.57, color: '#000000' },
-                    mars: { lon: 112.56, color: '#000000' },
-                    jupiter: { lon: 169.48, color: '#000000' },
-                    saturn: { lon: 188.04, color: '#000000' },
-                    uranus: { lon: 275.25, color: '#000000' },
-                    neptune: { lon: 298.32, color: '#000000' },
-                    pluto: { lon: 247.12, color: '#000000' }
+                    sun: { lon: 85.83, color: '#000000', retrograde: false },
+                    moon: { lon: 133.21, color: '#000000', retrograde: false },
+                    mercury: { lon: 70.18, color: '#000000', retrograde: true },
+                    venus: { lon: 42.57, color: '#000000', retrograde: false },
+                    mars: { lon: 112.56, color: '#000000', retrograde: true },
+                    jupiter: { lon: 169.48, color: '#000000', retrograde: false },
+                    saturn: { lon: 188.04, color: '#000000', retrograde: true },
+                    uranus: { lon: 275.25, color: '#000000', retrograde: false },
+                    neptune: { lon: 298.32, color: '#000000', retrograde: false },
+                    pluto: { lon: 247.12, color: '#000000', retrograde: false }
                 },
                 // Secondary planets (inner circle) - different positions
                 secondaryPlanets: {
-                    sun: { lon: 115.20, color: '#FF5500' },
-                    moon: { lon: 200.45, color: '#0066CC' },
-                    mercury: { lon: 130.90, color: '#009900' },
-                    venus: { lon: 95.30, color: '#CC0099' },
-                    mars: { lon: 250.75, color: '#CC3300' },
-                    jupiter: { lon: 10.15, color: '#9966CC' },
-                    saturn: { lon: 45.60, color: '#336633' },
-                    uranus: { lon: 320.40, color: '#33CCCC' },
-                    neptune: { lon: 280.80, color: '#3366FF' },
-                    pluto: { lon: 160.25, color: '#663366' }
+                    sun: { lon: 115.20, color: '#FF5500', retrograde: false },
+                    moon: { lon: 200.45, color: '#0066CC', retrograde: false },
+                    mercury: { lon: 130.90, color: '#009900', retrograde: true },
+                    venus: { lon: 95.30, color: '#CC0099', retrograde: false },
+                    mars: { lon: 250.75, color: '#CC3300', retrograde: false },
+                    jupiter: { lon: 10.15, color: '#9966CC', retrograde: true },
+                    saturn: { lon: 45.60, color: '#336633', retrograde: false },
+                    uranus: { lon: 320.40, color: '#33CCCC', retrograde: false },
+                    neptune: { lon: 280.80, color: '#3366FF', retrograde: true },
+                    pluto: { lon: 160.25, color: '#663366', retrograde: false }
                 },
                 houses: [
                     { lon: 300.32 },  // 1st house cusp
@@ -676,6 +679,12 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
                                 <span class="color-value">${planetData.color || '#000000'}</span>
                             </div>
                         </div>
+                        <div class="control-group">
+                            <div class="form-check">
+                                <input class="form-check-input primary-planet-retrograde" type="checkbox" id="primary-planet-${planet}-retrograde" data-planet="${planet}" ${(planetData.retrograde === true) ? 'checked' : ''}>
+                                <label class="form-check-label control-label" for="primary-planet-${planet}-retrograde">Retrograde (R)</label>
+                            </div>
+                        </div>
                     </div>
                 `;
                 primaryPlanetToggles.appendChild(controlDiv);
@@ -707,6 +716,12 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
                                     <input type="color" class="secondary-planet-color" value="${planetData.color || '#000000'}" id="secondary-planet-${planet}-color" data-planet="${planet}">
                                 </div>
                                 <span class="color-value">${planetData.color || '#000000'}</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="form-check">
+                                <input class="form-check-input secondary-planet-retrograde" type="checkbox" id="secondary-planet-${planet}-retrograde" data-planet="${planet}" ${(planetData.retrograde === true) ? 'checked' : ''}>
+                                <label class="form-check-label control-label" for="secondary-planet-${planet}-retrograde">Retrograde (R)</label>
                             </div>
                         </div>
                     </div>
@@ -846,6 +861,20 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
                 });
             });
             
+            // PRIMARY Planet Retrograde Listeners
+            document.querySelectorAll('.primary-planet-retrograde').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const isRetrograde = e.target.checked;
+                    console.log(`Retrograde checkbox changed for ${planet}: ${isRetrograde}`);
+                    if (chartData.planets[planet]) {
+                        chartData.planets[planet].retrograde = isRetrograde;
+                        console.log(`Updated chartData.planets[${planet}]:`, chartData.planets[planet]);
+                        chart.updateData({ planets: chartData.planets });
+                    }
+                });
+            });
+            
             // SECONDARY planets toggle (innermost circle)
             const secondaryPlanetsToggle = document.getElementById('toggle-secondary-planets');
             secondaryPlanetsToggle.addEventListener('change', function(e) {
@@ -884,6 +913,18 @@ wheelChart.toggleSynastryAspects(true);   // Cross-circle aspects</code></pre>
                         chartData.secondaryPlanets[planet].color = color;
                         e.target.parentElement.style.backgroundColor = color;
                         e.target.parentElement.nextElementSibling.textContent = color;
+                        chart.updateData({ secondaryPlanets: chartData.secondaryPlanets });
+                    }
+                });
+            });
+
+            // SECONDARY Planet Retrograde Listeners
+            document.querySelectorAll('.secondary-planet-retrograde').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    const planet = e.target.dataset.planet;
+                    const isRetrograde = e.target.checked;
+                    if (chartData.secondaryPlanets[planet]) {
+                        chartData.secondaryPlanets[planet].retrograde = isRetrograde;
                         chart.updateData({ secondaryPlanets: chartData.secondaryPlanets });
                     }
                 });

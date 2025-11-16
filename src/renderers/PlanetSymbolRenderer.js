@@ -91,6 +91,50 @@ export class PlanetSymbolRenderer extends BasePlanetRenderer {
     }
     
     /**
+     * Renders a retrograde indicator (small "R" symbol) in the bottom-right corner of the planet icon
+     * @param {Element} parentGroup - The parent SVG group
+     * @param {Object} planet - Planet object with calculated positions
+     * @param {number} iconSize - Size of the icon in pixels
+     * @returns {Element} - The created retrograde indicator element
+     */
+    renderRetrogradeIndicator(parentGroup, planet, iconSize = 24) {
+        // Calculate position for "R" symbol in bottom-right corner of icon
+        // Offset from icon center to bottom-right corner
+        const offsetX = iconSize / 2 - 2; // Small offset from edge (2px from right edge)
+        const offsetY = iconSize / 2 - 2; // Small offset from bottom edge
+        
+        // Position relative to adjusted icon center
+        const rX = planet.adjustedIconX + offsetX;
+        const rY = planet.adjustedIconY + offsetY;
+        
+        // Get planet type for CSS classes
+        const typeClass = planet.isPrimary ? 'primary' : 'secondary';
+        
+        // Use planet color, but ensure visibility with darker shade if color is too light
+        const planetColor = planet.color || '#000000';
+        
+        // Create small "R" text element
+        const retrogradeText = this.svgUtils.createSVGElement("text", {
+            x: rX,
+            y: rY,
+            'text-anchor': 'end',
+            'dominant-baseline': 'alphabetic',
+            'font-size': `${Math.max(7, iconSize * 0.3)}px`, // Scale with icon size, minimum 7px
+            'font-weight': 'bold',
+            'font-family': 'Arial, sans-serif',
+            class: `planet-retrograde planet-${planet.name}-retrograde planet-${typeClass}-retrograde`,
+            fill: planetColor,
+            'stroke': '#ffffff', // White stroke for better visibility
+            'stroke-width': '0.5',
+            'paint-order': 'stroke fill'
+        });
+        
+        retrogradeText.textContent = 'R';
+        
+        return retrogradeText;
+    }
+    
+    /**
      * Renders a dot to mark the exact planet position
      * @param {Element} parentGroup - The parent SVG group
      * @param {Object} planet - Planet object with calculated positions

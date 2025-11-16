@@ -83,6 +83,8 @@ export class BasePlanetRenderer extends BaseRenderer {
             isPrimary: planetType === 'primary',
             type: planetType,
             color: p.color || '#000000',
+            // Retrograde flag - whether the planet is retrograde
+            retrograde: p.retrograde === true,
             // Track which radius this planet is being rendered at
             dotRadius: dotRadius,
             iconRadius: iconRadius

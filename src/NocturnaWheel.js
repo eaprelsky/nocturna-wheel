@@ -186,7 +186,8 @@ export class NocturnaWheel {
                     .map(([name, data]) => ({
                         name: name,
                         position: data.lon,
-                        color: data.color || '#000000'
+                        color: data.color || '#000000',
+                        retrograde: !!data.retrograde
                     }));
                 primaryPlanetsWithCoords = this.renderers.planet.primaryRenderer.render(primaryGroup, primaryArray, 0, {
                     config: this.config
@@ -201,14 +202,14 @@ export class NocturnaWheel {
                     .map(([name, data]) => ({
                         name: name,
                         position: data.lon,
-                        color: data.color || '#000000'
+                        color: data.color || '#000000',
+                        retrograde: !!data.retrograde
                     }));
                 secondaryPlanetsWithCoords = this.renderers.planet.secondaryRenderer.render(secondaryGroup, secondaryArray, 0, {
                     config: this.config
                 });
             }
             
-            console.log(`NocturnaWheel: Rendered ${primaryPlanetsWithCoords.length} primary planets and ${secondaryPlanetsWithCoords.length} secondary planets`);
         }
         
         // Render three independent aspect types
@@ -217,14 +218,12 @@ export class NocturnaWheel {
         if (this.config.primaryAspectSettings.enabled && primaryPlanetsWithCoords.length >= 2) {
             const primaryAspectsGroup = this.svgManager.getGroup('primaryAspects');
             this.renderers.aspect.render(primaryAspectsGroup, primaryPlanetsWithCoords, this.config.primaryAspectSettings);
-            console.log("NocturnaWheel: Rendered primary aspects");
         }
         
         // 2. Secondary aspects (inner circle to inner circle)
         if (this.config.secondaryAspectSettings.enabled && secondaryPlanetsWithCoords.length >= 2) {
             const secondaryAspectsGroup = this.svgManager.getGroup('secondaryAspects');
             this.renderers.aspect.render(secondaryAspectsGroup, secondaryPlanetsWithCoords, this.config.secondaryAspectSettings);
-            console.log("NocturnaWheel: Rendered secondary aspects");
         }
         
         // 3. Synastry aspects (outer circle to inner circle)
@@ -238,10 +237,8 @@ export class NocturnaWheel {
                 secondaryPlanetsWithCoords, 
                 this.config.synastryAspectSettings
             );
-            console.log("NocturnaWheel: Rendered synastry aspects");
         }
         
-        console.log("NocturnaWheel: Chart rendered");
         return this;
     }
 
@@ -378,8 +375,18 @@ export class NocturnaWheel {
             // Update internal planets data
             // Ensure it matches the format expected internally (object)
             if (typeof data.planets === 'object' && !Array.isArray(data.planets)) {
-                this.planets = { ...this.planets, ...data.planets };
-                console.log("NocturnaWheel: Updated planets data.");
+                // Perform a deep merge for each planet
+                for (const planetName in data.planets) {
+                    if (this.planets[planetName]) {
+                        this.planets[planetName] = { ...this.planets[planetName], ...data.planets[planetName] };
+                    } else {
+                        this.planets[planetName] = data.planets[planetName];
+                    }
+                }
+                // Log retrograde flags specifically
+                Object.keys(this.planets).forEach(key => {
+                    // console.log(`  ${key}: retrograde = ${this.planets[key].retrograde}`);
+                });
             } else {
                 console.warn("NocturnaWheel.updateData: Invalid planets data format. Expected object.");
             }
@@ -387,8 +394,15 @@ export class NocturnaWheel {
         if (data.secondaryPlanets) {
             // Update internal secondary planets data
             if (typeof data.secondaryPlanets === 'object' && !Array.isArray(data.secondaryPlanets)) {
-                this.secondaryPlanets = { ...this.secondaryPlanets, ...data.secondaryPlanets };
-                console.log("NocturnaWheel: Updated secondary planets data.");
+                // Perform a deep merge for each secondary planet
+                for (const planetName in data.secondaryPlanets) {
+                    if (this.secondaryPlanets[planetName]) {
+                        this.secondaryPlanets[planetName] = { ...this.secondaryPlanets[planetName], ...data.secondaryPlanets[planetName] };
+                    } else {
+                        this.secondaryPlanets[planetName] = data.secondaryPlanets[planetName];
+                    }
+                }
+                // console.log("NocturnaWheel: Updated secondary planets data (deep merged).");
             } else {
                 console.warn("NocturnaWheel.updateData: Invalid secondaryPlanets data format. Expected object.");
             }
@@ -401,7 +415,7 @@ export class NocturnaWheel {
                  if (this.renderers.house) {
                      this.renderers.house.houseData = this.houses;
                  }
-                 console.log("NocturnaWheel: Updated houses data.");
+                 // console.log("NocturnaWheel: Updated houses data.");
              } else {
                  console.warn("NocturnaWheel.updateData: Invalid houses data format. Expected array.");
              }
@@ -424,7 +438,7 @@ export class NocturnaWheel {
             this.config.updateAspectSettings(configUpdate.aspectSettings);
         }
         
-        console.log("NocturnaWheel: Updated configuration.");
+        // console.log("NocturnaWheel: Updated configuration.");
         // Re-render the chart with updated configuration
         this.render();
         return this;
@@ -472,7 +486,7 @@ export class NocturnaWheel {
             primaryGroup.style.display = visible ? 'block' : 'none';
         }
         
-        console.log(`NocturnaWheel: Primary planets ${visible ? 'enabled' : 'disabled'}`);
+        // console.log(`NocturnaWheel: Primary planets ${visible ? 'enabled' : 'disabled'}`);
         return this;
     }
     
@@ -497,7 +511,7 @@ export class NocturnaWheel {
             innermostCircle.style.display = visible ? 'block' : 'none';
         }
         
-        console.log(`NocturnaWheel: Secondary planets ${visible ? 'enabled' : 'disabled'}`);
+        // console.log(`NocturnaWheel: Secondary planets ${visible ? 'enabled' : 'disabled'}`);
         return this;
     }
 }
