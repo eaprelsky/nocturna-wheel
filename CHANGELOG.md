@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.2...v3.0.3) (2025-11-16)
+
+
+### Bug Fixes
+
+* **planets:** Correctly display retrograde planet indicator and resolve Rollup build issues ([0afccbc](https://github.com/eaprelsky/nocturna-wheel/commit/0afccbc45fb2e987b8c108c6b3d7aabb25eda1e1))
+
 ## [3.0.2](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.1...v3.0.2) (2025-11-14)
 
 
