@@ -41,6 +41,34 @@ chart.render();
 - No need to copy files or configure paths
 - Works in any environment (browser, webpack, vite, parcel, etc.)
 
+### Configuring Planet Retrograde Status
+
+You can explicitly set a planet's retrograde status in its data object. When a planet is marked as retrograde, a small 'R' symbol will appear next to its icon on the chart.
+
+```javascript
+const chart = new WheelChart({
+    container: '#chart-container',
+    planets: {
+        sun: { lon: 85.83, retrograde: false },
+        mercury: { lon: 70.18, retrograde: true }, // Mercury is retrograde
+        mars: { lon: 112.56, retrograde: true }     // Mars is retrograde
+    }
+});
+
+chart.render();
+```
+
+You can also update the retrograde status dynamically:
+
+```javascript
+// Assuming 'chart' is your WheelChart instance
+chart.updateData({
+    planets: {
+        moon: { retrograde: true } // Mark Moon as retrograde
+    }
+});
+```
+
 ### Using External Custom Icons
 
 If you want to use your own icon set:
