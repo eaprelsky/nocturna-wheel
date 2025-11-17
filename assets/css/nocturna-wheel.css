@@ -198,12 +198,23 @@
 }
 
 .nocturna-wheel-checkbox {
-    margin-right: 5px;
+    margin-right: 5px; /* Reverted to original value */
 }
 
 .nocturna-wheel-slider {
     width: 100%;
     margin: 10px 0;
+}
+
+/* Bootstrap overrides for control alignment and spacing */
+.form-check,
+.form-switch {
+    display: flex;
+    align-items: center;
+}
+
+.form-check-label {
+    margin-left: 10px; /* Add spacing between control and label */
 }
 
 /* Tooltips */
