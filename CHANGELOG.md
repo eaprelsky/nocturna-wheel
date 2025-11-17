@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.3...v3.1.0) (2025-11-16)
+
+
+### Features
+
+* **planets:** Add retrograde planet display and update asset management documentation ([ce6470d](https://github.com/eaprelsky/nocturna-wheel/commit/ce6470df80b3e747ff0e9a091d8449a92a71f23e))
+
 ## [3.0.3](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.2...v3.0.3) (2025-11-16)
 
 
