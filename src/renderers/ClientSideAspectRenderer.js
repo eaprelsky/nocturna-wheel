@@ -407,7 +407,7 @@ export class ClientSideAspectRenderer extends BaseRenderer { // No longer extend
                 class: `projection-dot projection-${planet.name}`,
                 fill: 'none',
                 stroke: planet.color || '#666666',
-                'stroke-width': '1.5'
+                'stroke-width': '1'
             });
             
             // Add tooltip

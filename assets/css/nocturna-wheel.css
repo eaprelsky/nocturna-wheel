@@ -147,6 +147,10 @@
     pointer-events: none;
 }
 
+.projection-dot {
+    stroke-width: 0.5 !important;
+}
+
 /* Aspect elements */
 .aspect-line {
     transition: opacity 0.2s ease;
