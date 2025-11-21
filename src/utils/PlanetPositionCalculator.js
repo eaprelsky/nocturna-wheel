@@ -107,7 +107,8 @@ class PlanetPositionCalculator {
         const adjustedPositions = [...positions];
         
         // The minimum angular distance needed to prevent overlap at base radius
-        const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI);
+        // Add safety factor to ensure visual separation
+        const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI) * 1.3; // 30% extra spacing
         console.log(`PlanetPositionCalculator: Minimum angular distance: ${minAngularDistance.toFixed(2)}°`);
         
         // Sort positions by longitude for overlap detection
@@ -258,10 +259,16 @@ class PlanetPositionCalculator {
     static _distributeClusterByAngle(positions, radius, minAngularDistance, centerX, centerY, iconSize) {
         const n = positions.length;
         
+        // If only one planet, keep its original position
+        if (n === 1) {
+            this._setExactPosition(positions[0], positions[0].longitude, radius, centerX, centerY, iconSize);
+            return;
+        }
+        
         // Sort positions by their original longitude to maintain order
         positions.sort((a, b) => a.longitude - b.longitude);
         
-        // Calculate central angle and total span needed
+        // Calculate central angle and total span
         const firstPos = positions[0].longitude;
         const lastPos = positions[n-1].longitude;
         let totalArc = lastPos - firstPos;
@@ -271,26 +278,25 @@ class PlanetPositionCalculator {
             totalArc = (360 + lastPos - firstPos) % 360;
         }
         
-        // Calculate the center of the cluster
-        let centerAngle = (firstPos + totalArc/2) % 360;
+        // Calculate the center of the cluster (weighted average of all positions)
+        let sumAngles = 0;
+        for (let i = 0; i < n; i++) {
+            sumAngles += positions[i].longitude;
+        }
+        let centerAngle = (sumAngles / n) % 360;
         
         // Determine minimum arc needed for n planets with minimum spacing
-        const minRequiredArc = (n - 1) * minAngularDistance;
+        // Add extra spacing factor to ensure planets don't overlap
+        const minRequiredArc = (n - 1) * minAngularDistance * 1.2; // 20% extra spacing
         
-        // Calculate total span to use (either natural spacing or minimum required)
-        const spanToUse = Math.max(totalArc, minRequiredArc);
+        // Always use at least the minimum required arc
+        const spanToUse = Math.max(minRequiredArc, totalArc);
         
         // Calculate start angle (center - half of span)
         const startAngle = (centerAngle - spanToUse/2 + 360) % 360;
         
         // Distribute planets evenly from the start angle
         for (let i = 0; i < n; i++) {
-            // If only one planet, keep its original position
-            if (n === 1) {
-                this._setExactPosition(positions[i], positions[i].longitude, radius, centerX, centerY, iconSize);
-                continue;
-            }
-            
             const angle = (startAngle + i * (spanToUse / (n-1))) % 360;
             this._setExactPosition(positions[i], angle, radius, centerX, centerY, iconSize);
         }
