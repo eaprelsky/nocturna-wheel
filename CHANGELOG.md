@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/eaprelsky/nocturna-wheel/compare/v3.1.0...v3.1.1) (2025-11-21)
+
+
+### Bug Fixes
+
+* **planets:** improve spacing to prevent overlapping symbols ([7f80ef5](https://github.com/eaprelsky/nocturna-wheel/commit/7f80ef55bac4abecb3e8c80f4aab756d35f5fde9))
+
 # [3.1.0](https://github.com/eaprelsky/nocturna-wheel/compare/v3.0.3...v3.1.0) (2025-11-16)
 
 
