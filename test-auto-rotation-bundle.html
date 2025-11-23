@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auto-Rotation Fix (Bundle Version)</title>
+    
+    <!-- Nocturna Wheel CSS -->
+    <link href="./assets/css/nocturna-wheel.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            display: inline-block;
+            margin: 10px;
+            vertical-align: top;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            margin-top: 0;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .success {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .chart-label {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test: Automatic Wheel Rotation Fix (Bundle Version)</h1>
+        
+        <div class="info">
+            <strong>Test Purpose:</strong> Verify that the wheel automatically rotates when <code>houses</code> array is provided,
+            placing the Ascendant at the 9 o'clock position without requiring manual <code>setHouseRotation()</code> call.
+            <br><br>
+            <strong>Expected Behavior:</strong> All three charts below should render correctly with appropriate rotations.
+            <br><br>
+            <strong>Note:</strong> This version uses the bundled library. Make sure to run <code>npm run build:all</code> first!
+        </div>
+
+        <!-- Test 1: Using houses array (the fix) -->
+        <div class="test-section">
+            <h2>Test 1: Providing houses array directly</h2>
+            <p>Ascendant at <strong>300.32°</strong> (approximately 0° Aquarius)</p>
+            <p class="success">✓ Should auto-rotate without calling setHouseRotation()</p>
+            <div id="chart1" class="chart-container"></div>
+            <div class="chart-label">Chart with auto-rotation from houses array</div>
+        </div>
+
+        <!-- Test 2: Using astronomicalData (should also work) -->
+        <div class="test-section">
+            <h2>Test 2: Using astronomicalData.ascendant</h2>
+            <p>Ascendant at <strong>120.5°</strong> (approximately 0° Leo)</p>
+            <p class="success">✓ Should auto-rotate based on ascendant value</p>
+            <div id="chart2" class="chart-container"></div>
+            <div class="chart-label">Chart with auto-rotation from astronomicalData</div>
+        </div>
+
+        <!-- Test 3: No houses provided (baseline) -->
+        <div class="test-section">
+            <h2>Test 3: No houses provided (baseline)</h2>
+            <p>No rotation expected - 0° Aries should be at 9 o'clock</p>
+            <div id="chart3" class="chart-container"></div>
+            <div class="chart-label">Chart without rotation (baseline)</div>
+        </div>
+    </div>
+
+    <!-- Use the bundled version -->
+    <script src="./dist/nocturna-wheel.bundle.js"></script>
+    
+    <script>
+        // The library exports to window.NocturnaWheel in bundle mode
+        const { WheelChart } = window.NocturnaWheel || {};
+        
+        if (!WheelChart) {
+            document.body.innerHTML = `
+                <div class="container">
+                    <div class="error">
+                        <strong>Error:</strong> Library not loaded! 
+                        <br><br>
+                        Please run <code>npm run build:all</code> to build the library first, 
+                        or use <code>test-auto-rotation.html</code> with Vite dev server (<code>npm run dev</code>).
+                    </div>
+                </div>
+            `;
+            throw new Error('NocturnaWheel library not loaded');
+        }
+
+        // Test data
+        const samplePlanets = {
+            sun: { lon: 115.20, color: '#ff9900', retrograde: false },
+            moon: { lon: 200.45, color: '#aaaaaa', retrograde: false },
+            mercury: { lon: 130.90, color: '#3399cc', retrograde: true },
+            venus: { lon: 95.30, color: '#cc66cc', retrograde: false },
+            mars: { lon: 250.75, color: '#cc3333', retrograde: false }
+        };
+
+        // Test 1: Using houses array directly
+        const housesData = [
+            { lon: 300.32 },  // 1st house (Ascendant) - approximately 0° Aquarius
+            { lon: 330.15 },  // 2nd house
+            { lon: 355.24 },  // 3rd house
+            { lon: 20.32 },   // 4th house (IC)
+            { lon: 45.15 },   // 5th house
+            { lon: 75.24 },   // 6th house
+            { lon: 120.32 },  // 7th house (Descendant)
+            { lon: 150.15 },  // 8th house
+            { lon: 175.24 },  // 9th house
+            { lon: 200.32 },  // 10th house (MC)
+            { lon: 225.15 },  // 11th house
+            { lon: 255.24 }   // 12th house
+        ];
+
+        try {
+            const chart1 = new WheelChart({
+                container: '#chart1',
+                planets: samplePlanets,
+                houses: housesData,
+                config: {
+                    svg: { width: 400, height: 400 },
+                    aspectSettings: { enabled: false }
+                }
+            });
+            chart1.render();
+            console.log('✓ Test 1: Chart with houses array rendered successfully');
+            console.log('  Rotation angle:', chart1.config.houseSettings.rotationAngle);
+        } catch (error) {
+            console.error('✗ Test 1 failed:', error);
+        }
+
+        // Test 2: Using astronomicalData
+        try {
+            const chart2 = new WheelChart({
+                container: '#chart2',
+                planets: samplePlanets,
+                config: {
+                    astronomicalData: {
+                        ascendant: 120.5,  // approximately 0° Leo
+                        mc: 210.5,         // approximately 0° Scorpio
+                        latitude: 55.75,
+                        houseSystem: "Equal"
+                    },
+                    svg: { width: 400, height: 400 },
+                    aspectSettings: { enabled: false }
+                }
+            });
+            chart2.render();
+            console.log('✓ Test 2: Chart with astronomicalData rendered successfully');
+            console.log('  Rotation angle:', chart2.config.houseSettings.rotationAngle);
+        } catch (error) {
+            console.error('✗ Test 2 failed:', error);
+        }
+
+        // Test 3: No houses (baseline - should not rotate)
+        try {
+            const chart3 = new WheelChart({
+                container: '#chart3',
+                planets: samplePlanets,
+                config: {
+                    svg: { width: 400, height: 400 },
+                    aspectSettings: { enabled: false },
+                    houseSettings: { enabled: false }
+                }
+            });
+            chart3.render();
+            console.log('✓ Test 3: Baseline chart rendered successfully');
+            console.log('  Rotation angle:', chart3.config.houseSettings.rotationAngle);
+        } catch (error) {
+            console.error('✗ Test 3 failed:', error);
+        }
+
+        console.log('\n📊 All tests completed. Check the console output and visual rendering above.');
+    </script>
+</body>
+</html>
+

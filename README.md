@@ -8,6 +8,7 @@ A JavaScript library for rendering astrological natal charts.
 - **Dual chart support** - independent inner and outer circles for synastry and transit charts
 - **Zodiac sign display** with customizable styling
 - **House system rendering** with multiple system options (Placidus, Koch, Equal, etc.)
+- **Automatic wheel rotation** - chart automatically positions Ascendant at 9 o'clock when house data is provided
 - **Planet placement** with customizable icons and colors on two independent circles
 - **Three types of aspects:**
   - Primary aspects (outer circle to outer circle)
@@ -169,9 +170,48 @@ const chart = new NocturnaWheel.WheelChart({
 - `togglePrimaryAspects(visible)`: Toggles visibility of primary aspects (outer circle)
 - `toggleSecondaryAspects(visible)`: Toggles visibility of secondary aspects (inner circle)
 - `toggleSynastryAspects(visible)`: Toggles visibility of synastry aspects (cross-circle)
-- `setHouseRotation(angle)`: Sets house system rotation
+- `setHouseRotation(angle)`: Sets house system rotation (optional - automatic rotation is enabled by default)
 - `setHouseSystem(name)`: Changes the house system
 - `destroy()`: Removes the chart and cleans up resources
+
+### Automatic Wheel Rotation
+
+The library **automatically rotates** the zodiac wheel to position the Ascendant (1st house cusp) at the 9 o'clock position when house data is provided. This happens in two ways:
+
+1. **When providing a `houses` array**: The first house cusp longitude (`houses[0].lon`) is used for rotation
+2. **When using `astronomicalData.ascendant`**: The ascendant value is used for rotation
+
+```javascript
+// Auto-rotation with houses array
+const chart = new WheelChart({
+  container: '#chart',
+  houses: [
+    { lon: 300.32 },  // Ascendant - automatically used for rotation
+    // ... other houses
+  ]
+});
+
+// Auto-rotation with astronomicalData
+const chart = new WheelChart({
+  container: '#chart',
+  config: {
+    astronomicalData: {
+      ascendant: 120.5,  // Automatically used for rotation
+      mc: 210.5,
+      latitude: 55.75,
+      houseSystem: "Placidus"
+    }
+  }
+});
+```
+
+**Manual override**: You can still override the automatic rotation by calling `setHouseRotation()` after initialization:
+
+```javascript
+chart.setHouseRotation(90);  // Custom rotation angle
+```
+
+For more details, see [Auto-Rotation Documentation](docs/AUTO_ROTATION.md).
 
 ## Advanced Configuration
 

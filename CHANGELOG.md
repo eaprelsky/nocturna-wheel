@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### Features
+
+* **houses:** add automatic wheel rotation based on Ascendant position
+  - When `houses` array is provided, the wheel automatically rotates to position the 1st house cusp (Ascendant) at 9 o'clock
+  - When `astronomicalData.ascendant` is provided, the wheel automatically rotates accordingly
+  - Eliminates the need for manual `setHouseRotation()` calls in most cases
+  - Fully backward compatible - manual rotation override still supported
+  - See [Auto-Rotation Documentation](docs/AUTO_ROTATION.md) for details
+
 ## [3.1.1](https://github.com/eaprelsky/nocturna-wheel/compare/v3.1.0...v3.1.1) (2025-11-21)
 
 

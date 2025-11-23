@@ -265,6 +265,13 @@ export class ChartConfig {
                         mc: this.astronomicalData.mc
                     }
                 );
+                
+                // Auto-rotate the wheel to position the Ascendant at 9 o'clock
+                // Only set if not already explicitly configured
+                if (this.houseCusps.length > 0 && this.houseSettings.rotationAngle === 0) {
+                    console.log(`ChartConfig: Auto-rotating wheel to Ascendant at ${this.astronomicalData.ascendant}°`);
+                    this.houseSettings.rotationAngle = this.astronomicalData.ascendant;
+                }
             } catch (error) {
                 console.error("Failed to calculate house cusps:", error?.message || error);
                 // Set empty cusps array if calculation fails

@@ -48,6 +48,13 @@ export class NocturnaWheel {
         
         this.houses = options.houses || [];
         
+        // Auto-rotate the wheel if houses are provided
+        // This ensures the Ascendant (1st house cusp) is positioned at 9 o'clock
+        if (this.houses.length > 0 && this.houses[0] && typeof this.houses[0].lon === 'number') {
+            console.log(`NocturnaWheel: Auto-rotating wheel to Ascendant at ${this.houses[0].lon}°`);
+            this.config.houseSettings.rotationAngle = this.houses[0].lon;
+        }
+        
         // Override aspect settings if provided (legacy support)
         if (options.aspectSettings) {
             this.config.updateAspectSettings(options.aspectSettings);
