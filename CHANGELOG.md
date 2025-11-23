@@ -1,3 +1,15 @@
+# [4.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v3.1.1...v4.0.0) (2025-11-23)
+
+
+### Features
+
+* **houses:** add automatic wheel rotation based on Ascendant position ([9395d6a](https://github.com/eaprelsky/nocturna-wheel/commit/9395d6adf80b8b0471c4168ba339f10a5e4a05a1))
+
+
+### BREAKING CHANGES
+
+* **houses:** None (fully backward compatible)
+
 ## [Unreleased]
 
 ### Features
