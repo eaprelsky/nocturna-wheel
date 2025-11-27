@@ -185,17 +185,37 @@ export class HouseRenderer extends BaseRenderer {
             ascendantAlignmentOffset = (360 - ascendantLon) % 360;
         }
         
-        // Add Roman numerals for house numbers
+        // Create array of houses with their rotated angles and original indices
+        const housesWithAngles = [];
         for (let i = 0; i < 12; i++) {
-            // Get house angle with rotation
-            let baseHouseAngle;
+            let baseAngle;
             if (this.houseData && this.houseData.length >= 12) {
-                baseHouseAngle = this.getHouseLongitude(this.houseData[i]);
+                baseAngle = this.getHouseLongitude(this.houseData[i]);
             } else {
-                baseHouseAngle = i * 30; // Default if no data
+                baseAngle = i * 30; // Default if no data
             }
-             // Apply alignment offset and user rotation
-            const houseAngle = (baseHouseAngle + ascendantAlignmentOffset + rotationAngle) % 360;
+            const rotatedAngle = (baseAngle + ascendantAlignmentOffset + rotationAngle) % 360;
+            
+            housesWithAngles.push({
+                originalIndex: i,
+                baseAngle: baseAngle,
+                rotatedAngle: rotatedAngle
+            });
+        }
+        
+        // Sort by rotated angle to determine visual order
+        housesWithAngles.sort((a, b) => a.rotatedAngle - b.rotatedAngle);
+        
+        // Find which house is Ascendant (originally index 0) after rotation
+        const ascendantVisualIndex = housesWithAngles.findIndex(h => h.originalIndex === 0);
+        
+        // Render houses with correct numbering based on visual position
+        housesWithAngles.forEach((house, visualIndex) => {
+            const houseAngle = house.rotatedAngle;
+            
+            // Calculate house number based on position relative to Ascendant
+            // Counter-clockwise from Ascendant
+            const houseNumber = ((visualIndex - ascendantVisualIndex + 12) % 12) + 1;
             
             // Offset text from house line clockwise
             const angle = (houseAngle + 15) % 360; // Place in middle of house segment, apply modulo
@@ -231,15 +251,15 @@ export class HouseRenderer extends BaseRenderer {
                 text.setAttribute("dominant-baseline", "middle");
             }
             
-            // Set house number as text (Roman numeral)
-            text.textContent = AstrologyUtils.houseToRoman(i + 1);
+            // Set house number as text (Roman numeral) - now based on visual position
+            text.textContent = AstrologyUtils.houseToRoman(houseNumber);
             
             // Add tooltip with house information
-            this.svgUtils.addTooltip(text, `House ${i + 1}`);
+            this.svgUtils.addTooltip(text, `House ${houseNumber}`);
             
             parentGroup.appendChild(text);
             elements.push(text);
-        }
+        });
         
         return elements;
     }
