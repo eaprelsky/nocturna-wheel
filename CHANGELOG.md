@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.0...v4.0.1) (2025-11-27)
+
+
+### Bug Fixes
+
+* **HouseRenderer:** correct house numbering after wheel rotation ([fb9c336](https://github.com/eaprelsky/nocturna-wheel/commit/fb9c336892ff9c3e0d79aecde2ef3871bc4cd966))
+
 # [4.0.0](https://github.com/eaprelsky/nocturna-wheel/compare/v3.1.1...v4.0.0) (2025-11-23)
 
 
