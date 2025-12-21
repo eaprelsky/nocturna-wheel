@@ -1,3 +1,10 @@
+## [4.0.3](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.2...v4.0.3) (2025-12-21)
+
+
+### Bug Fixes
+
+* planets clustering enhanced ([9d8aef1](https://github.com/eaprelsky/nocturna-wheel/commit/9d8aef1a23555e25614543121b8d067fa95faeeb))
+
 ## [4.0.2](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.1...v4.0.2) (2025-12-21)
 
 

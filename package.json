@@ -1,6 +1,6 @@
 {
   "name": "@eaprelsky/nocturna-wheel",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "A JavaScript library for rendering astrological natal charts",
   "type": "module",
   "main": "dist/nocturna-wheel.umd.js",
