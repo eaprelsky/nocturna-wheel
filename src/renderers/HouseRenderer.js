@@ -184,41 +184,26 @@ export class HouseRenderer extends BaseRenderer {
             // Offset needed to place Ascendant (house 1 cusp) at 0 degrees (top side)
             ascendantAlignmentOffset = (360 - ascendantLon) % 360;
         }
-        
-        // Create array of houses with their rotated angles and original indices
-        const housesWithAngles = [];
+
+        // Render house numbers at the CENTER of each house sector.
+        // If house cusp data is available, compute the midpoint between cusp[i] and cusp[i+1] (with proper 0/360 wrap).
+        // Otherwise, fall back to equal 30° houses.
         for (let i = 0; i < 12; i++) {
-            let baseAngle;
+            const houseNumber = i + 1;
+
+            let midAngle;
             if (this.houseData && this.houseData.length >= 12) {
-                baseAngle = this.getHouseLongitude(this.houseData[i]);
+                const startLon = this.getHouseLongitude(this.houseData[i]);
+                const endLon = this.getHouseLongitude(this.houseData[(i + 1) % 12]);
+                const arc = (endLon - startLon + 360) % 360; // always move forward through the zodiac
+                const midLon = (startLon + arc / 2) % 360;
+                midAngle = (midLon + ascendantAlignmentOffset + rotationAngle) % 360;
             } else {
-                baseAngle = i * 30; // Default if no data
+                // Equal houses: center of each 30° segment
+                midAngle = (i * 30 + 15 + rotationAngle) % 360;
             }
-            const rotatedAngle = (baseAngle + ascendantAlignmentOffset + rotationAngle) % 360;
             
-            housesWithAngles.push({
-                originalIndex: i,
-                baseAngle: baseAngle,
-                rotatedAngle: rotatedAngle
-            });
-        }
-        
-        // Sort by rotated angle to determine visual order
-        housesWithAngles.sort((a, b) => a.rotatedAngle - b.rotatedAngle);
-        
-        // Find which house is Ascendant (originally index 0) after rotation
-        const ascendantVisualIndex = housesWithAngles.findIndex(h => h.originalIndex === 0);
-        
-        // Render houses with correct numbering based on visual position
-        housesWithAngles.forEach((house, visualIndex) => {
-            const houseAngle = house.rotatedAngle;
-            
-            // Calculate house number based on position relative to Ascendant
-            // Counter-clockwise from Ascendant
-            const houseNumber = ((visualIndex - ascendantVisualIndex + 12) % 12) + 1;
-            
-            // Offset text from house line clockwise
-            const angle = (houseAngle + 15) % 360; // Place in middle of house segment, apply modulo
+            const angle = midAngle;
             
             // Calculate position for house number
             const point = this.svgUtils.pointOnCircle(this.centerX, this.centerY, this.numberRadius, angle);
@@ -259,7 +244,7 @@ export class HouseRenderer extends BaseRenderer {
             
             parentGroup.appendChild(text);
             elements.push(text);
-        });
+        }
         
         return elements;
     }

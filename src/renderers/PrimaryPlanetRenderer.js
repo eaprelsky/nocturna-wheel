@@ -50,7 +50,8 @@ export class PrimaryPlanetRenderer extends BasePlanetRenderer {
         // Define parameters for collision detection and distribution
         const iconSize = 24;
         const baseRadius = planets[0].iconRadius; // Use the iconRadius from the first planet
-        const minDistance = iconSize * 1.2;
+        // Minimum distance = icon diameter + half diameter (0.5 * iconSize spacing between icons)
+        const minDistance = iconSize * 1.5;
         
         // Prepare planets array in format expected by PlanetPositionCalculator
         const positions = planets.map((planet, index) => ({

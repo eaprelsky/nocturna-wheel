@@ -107,8 +107,8 @@ class PlanetPositionCalculator {
         const adjustedPositions = [...positions];
         
         // The minimum angular distance needed to prevent overlap at base radius
-        // Add safety factor to ensure visual separation
-        const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI) * 1.3; // 30% extra spacing
+        // minDistance already includes the desired spacing (iconSize * 1.5)
+        const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI);
         console.log(`PlanetPositionCalculator: Minimum angular distance: ${minAngularDistance.toFixed(2)}°`);
         
         // Sort positions by longitude for overlap detection
@@ -286,8 +286,8 @@ class PlanetPositionCalculator {
         let centerAngle = (sumAngles / n) % 360;
         
         // Determine minimum arc needed for n planets with minimum spacing
-        // Add extra spacing factor to ensure planets don't overlap
-        const minRequiredArc = (n - 1) * minAngularDistance * 1.2; // 20% extra spacing
+        // minAngularDistance already includes the desired spacing
+        const minRequiredArc = (n - 1) * minAngularDistance;
         
         // Always use at least the minimum required arc
         const spanToUse = Math.max(minRequiredArc, totalArc);
