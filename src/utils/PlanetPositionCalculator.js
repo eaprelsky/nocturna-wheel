@@ -5,6 +5,16 @@
 import { SvgUtils } from './SvgUtils.js';
 
 class PlanetPositionCalculator {
+    static _normalizeAngle(angle) {
+        return ((angle % 360) + 360) % 360;
+    }
+
+    static _getAngle(position) {
+        return position && position.adjustedLongitude !== undefined
+            ? position.adjustedLongitude
+            : position.longitude;
+    }
+
     /**
      * Calculate position for a planet on a circle
      * @param {Object} params - Position parameters
@@ -89,7 +99,8 @@ class PlanetPositionCalculator {
             centerX,
             centerY,
             baseRadius,
-            iconSize = 24
+            iconSize = 24,
+            maxIterations = 5
         } = options;
         
         if (!positions || positions.length <= 1) {
@@ -103,72 +114,51 @@ class PlanetPositionCalculator {
         
         console.log(`PlanetPositionCalculator: Adjusting overlaps for ${positions.length} positions`);
         
-        // Make a copy to not modify originals
-        const adjustedPositions = [...positions];
+        // Make a copy to not modify originals (also ensures we can add fields safely)
+        const adjustedPositions = positions.map(p => ({ ...p }));
         
         // The minimum angular distance needed to prevent overlap at base radius
         // minDistance already includes the desired spacing (iconSize * 1.5)
         const minAngularDistance = (minDistance / baseRadius) * (180 / Math.PI);
         console.log(`PlanetPositionCalculator: Minimum angular distance: ${minAngularDistance.toFixed(2)}°`);
-        
-        // Sort positions by longitude for overlap detection
-        const sortedPositionIndices = adjustedPositions
-            .map((pos, idx) => ({ pos, idx }))
-            .sort((a, b) => a.pos.longitude - b.pos.longitude);
-        
-        const sortedPositions = sortedPositionIndices.map(item => ({
-            ...adjustedPositions[item.idx],
-            originalIndex: item.idx
-        }));
-        
-        // Find clusters of planets that are too close angularly
-        const clusters = this._findOverlappingClusters(sortedPositions, minAngularDistance);
-        console.log(`PlanetPositionCalculator: Found ${clusters.length} clusters of overlapping positions`);
-        clusters.forEach((cluster, i) => {
-            console.log(`PlanetPositionCalculator: Cluster ${i+1} has ${cluster.length} positions`);
-        });
-        
-        // Process each cluster
-        clusters.forEach((cluster, clusterIndex) => {
-            console.log(`PlanetPositionCalculator: Processing cluster ${clusterIndex+1}`);
-            
-            if (cluster.length <= 1) {
-                // Single planet - just place at exact base radius with no angle change
-                const planet = cluster[0];
-                console.log(`PlanetPositionCalculator: Single position in cluster, keeping at original longitude ${planet.longitude.toFixed(2)}°`);
-                this._setExactPosition(planet, planet.longitude, baseRadius, centerX, centerY, iconSize);
-            } else {
-                // Handle cluster with multiple planets - distribute by angle
-                console.log(`PlanetPositionCalculator: Distributing ${cluster.length} positions in cluster`);
-                this._distributeClusterByAngle(cluster, baseRadius, minAngularDistance, centerX, centerY, iconSize);
-                
-                // Log the distributions
-                cluster.forEach((pos, i) => {
-                    console.log(`PlanetPositionCalculator: Position ${i+1} in cluster ${clusterIndex+1} adjusted from ${pos.longitude.toFixed(2)}° to ${pos.adjustedLongitude.toFixed(2)}°`);
-                });
+
+        // Initialize adjustedLongitude for all positions
+        adjustedPositions.forEach(pos => {
+            if (pos.adjustedLongitude === undefined) {
+                pos.adjustedLongitude = pos.longitude;
             }
+            this._setExactPosition(pos, this._getAngle(pos), baseRadius, centerX, centerY, iconSize);
         });
-        
-        // Copy adjusted positions back to the original array order
-        sortedPositions.forEach(pos => {
-            const origIndex = pos.originalIndex;
-            
-            // Only copy if we have valid data
-            if (origIndex !== undefined && origIndex >= 0 && origIndex < adjustedPositions.length) {
-                adjustedPositions[origIndex].x = pos.x;
-                adjustedPositions[origIndex].y = pos.y;
-                adjustedPositions[origIndex].iconX = pos.iconX;
-                adjustedPositions[origIndex].iconY = pos.iconY;
-                adjustedPositions[origIndex].iconCenterX = pos.iconCenterX;
-                adjustedPositions[origIndex].iconCenterY = pos.iconCenterY;
-                
-                // Also add any adjusted longitude for reference
-                if (pos.adjustedLongitude !== undefined) {
-                    adjustedPositions[origIndex].adjustedLongitude = pos.adjustedLongitude;
+
+        // Iteratively resolve overlaps. This avoids "new overlaps" created after distributing a cluster.
+        for (let iteration = 0; iteration < maxIterations; iteration++) {
+            // Sort by current (possibly adjusted) angle for overlap detection
+            const sortedPositions = [...adjustedPositions].sort(
+                (a, b) => this._getAngle(a) - this._getAngle(b)
+            );
+
+            // Find clusters of planets that are too close angularly
+            const clusters = this._findOverlappingClusters(sortedPositions, minAngularDistance);
+            console.log(`PlanetPositionCalculator: Iteration ${iteration + 1}/${maxIterations}, clusters: ${clusters.length}`);
+
+            // No overlaps -> done
+            const hasRealClusters = clusters.some(c => c.length > 1);
+            if (!hasRealClusters) {
+                break;
+            }
+
+            // Process each cluster
+            clusters.forEach(cluster => {
+                if (cluster.length <= 1) {
+                    const planet = cluster[0];
+                    this._setExactPosition(planet, this._getAngle(planet), baseRadius, centerX, centerY, iconSize);
+                    return;
                 }
-            }
-        });
-        
+
+                this._distributeClusterByPush(cluster, baseRadius, minAngularDistance, centerX, centerY, iconSize);
+            });
+        }
+
         return adjustedPositions;
     }
     
@@ -199,7 +189,9 @@ class PlanetPositionCalculator {
             const currPosition = sortedPositions[i];
             
             // Check angular distance, considering wrap-around at 360°
-            let angleDiff = currPosition.longitude - prevPosition.longitude;
+            const prevAngle = this._getAngle(prevPosition);
+            const currAngle = this._getAngle(currPosition);
+            let angleDiff = currAngle - prevAngle;
             if (angleDiff < 0) angleDiff += 360;
             
             if (angleDiff < minAngularDistance) {
@@ -223,7 +215,9 @@ class PlanetPositionCalculator {
         const lastPlanet = sortedPositions[posCount - 1];
         const firstPlanetOriginal = sortedPositions[0];
         
-        let wrapDiff = (firstPlanetOriginal.longitude + 360) - lastPlanet.longitude;
+        const lastAngle = this._getAngle(lastPlanet);
+        const firstAngle = this._getAngle(firstPlanetOriginal);
+        let wrapDiff = (firstAngle + 360) - lastAngle;
         if (wrapDiff < 0) wrapDiff += 360;
         
         if (wrapDiff < minAngularDistance) {
@@ -247,7 +241,8 @@ class PlanetPositionCalculator {
     }
     
     /**
-     * Distribute positions in a cluster by adjusting only their angles
+     * Distribute positions in a cluster using a "push-apart" algorithm.
+     * This keeps adjustments as small as possible while ensuring minimum spacing.
      * @private
      * @param {Array} positions - Array of positions in the cluster
      * @param {number} radius - The exact radius to place all positions
@@ -256,49 +251,62 @@ class PlanetPositionCalculator {
      * @param {number} centerY - Y coordinate of center
      * @param {number} iconSize - Size of the icon
      */
-    static _distributeClusterByAngle(positions, radius, minAngularDistance, centerX, centerY, iconSize) {
+    static _distributeClusterByPush(positions, radius, minAngularDistance, centerX, centerY, iconSize) {
         const n = positions.length;
-        
-        // If only one planet, keep its original position
-        if (n === 1) {
-            this._setExactPosition(positions[0], positions[0].longitude, radius, centerX, centerY, iconSize);
+        if (n <= 1) {
+            const p = positions[0];
+            this._setExactPosition(p, this._getAngle(p), radius, centerX, centerY, iconSize);
             return;
         }
-        
-        // Sort positions by their original longitude to maintain order
-        positions.sort((a, b) => a.longitude - b.longitude);
-        
-        // Calculate central angle and total span
-        const firstPos = positions[0].longitude;
-        const lastPos = positions[n-1].longitude;
-        let totalArc = lastPos - firstPos;
-        
-        // Handle wrap-around case (e.g., positions at 350° and 10°)
-        if (totalArc < 0 || totalArc > 180) {
-            totalArc = (360 + lastPos - firstPos) % 360;
+
+        // Unwrap angles if cluster spans the 0°/360° boundary
+        const baseAngles = positions.map(p => this._getAngle(p));
+        const min = Math.min(...baseAngles);
+        const max = Math.max(...baseAngles);
+        const unwrappedAngles = (max - min > 180)
+            ? baseAngles.map(a => (a < 180 ? a + 360 : a))
+            : baseAngles;
+
+        // Sort by unwrapped angle
+        const items = positions
+            .map((p, idx) => ({ p, orig: unwrappedAngles[idx] }))
+            .sort((a, b) => a.orig - b.orig);
+
+        const origAngles = items.map(it => it.orig);
+        let adjusted = [...origAngles];
+
+        // Forward pass: enforce minimum distance
+        for (let i = 1; i < n; i++) {
+            const minAllowed = adjusted[i - 1] + minAngularDistance;
+            if (adjusted[i] < minAllowed) {
+                adjusted[i] = minAllowed;
+            }
         }
-        
-        // Calculate the center of the cluster (weighted average of all positions)
-        let sumAngles = 0;
-        for (let i = 0; i < n; i++) {
-            sumAngles += positions[i].longitude;
+
+        // Shift the whole cluster to keep it centered around the original mean angle
+        const origCenter = origAngles.reduce((s, a) => s + a, 0) / n;
+        const adjustedCenter = adjusted.reduce((s, a) => s + a, 0) / n;
+        const shift = origCenter - adjustedCenter;
+        adjusted = adjusted.map(a => a + shift);
+
+        // Re-enforce constraints after shifting
+        for (let i = 1; i < n; i++) {
+            const minAllowed = adjusted[i - 1] + minAngularDistance;
+            if (adjusted[i] < minAllowed) {
+                adjusted[i] = minAllowed;
+            }
         }
-        let centerAngle = (sumAngles / n) % 360;
-        
-        // Determine minimum arc needed for n planets with minimum spacing
-        // minAngularDistance already includes the desired spacing
-        const minRequiredArc = (n - 1) * minAngularDistance;
-        
-        // Always use at least the minimum required arc
-        const spanToUse = Math.max(minRequiredArc, totalArc);
-        
-        // Calculate start angle (center - half of span)
-        const startAngle = (centerAngle - spanToUse/2 + 360) % 360;
-        
-        // Distribute planets evenly from the start angle
+        for (let i = n - 2; i >= 0; i--) {
+            const maxAllowed = adjusted[i + 1] - minAngularDistance;
+            if (adjusted[i] > maxAllowed) {
+                adjusted[i] = maxAllowed;
+            }
+        }
+
+        // Apply results
         for (let i = 0; i < n; i++) {
-            const angle = (startAngle + i * (spanToUse / (n-1))) % 360;
-            this._setExactPosition(positions[i], angle, radius, centerX, centerY, iconSize);
+            const angle = this._normalizeAngle(adjusted[i]);
+            this._setExactPosition(items[i].p, angle, radius, centerX, centerY, iconSize);
         }
     }
     

@@ -50,8 +50,13 @@ export class ChartRenderer {
         const centerY = this.chart.config.svg.center.y;
         const c3Radius = this.chart.config.radius.innermost;     // C3
         
-        // Only draw the innermost circle if secondary planets are enabled
-        if (this.chart.config.planetSettings.secondaryEnabled !== false) {
+        // Only draw the innermost circle if secondary planets are enabled AND we actually have secondary data
+        const hasSecondaryPlanetsData =
+            this.chart?.secondaryPlanets &&
+            typeof this.chart.secondaryPlanets === 'object' &&
+            Object.keys(this.chart.secondaryPlanets).length > 0;
+        
+        if (this.chart.config.planetSettings.secondaryEnabled !== false && hasSecondaryPlanetsData) {
             this.drawInnermostCircle(zodiacGroup, this.svgUtils, centerX, centerY, c3Radius);
         }
         

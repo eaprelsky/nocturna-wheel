@@ -172,7 +172,7 @@ export class SecondaryPlanetRenderer extends BasePlanetRenderer {
             this.symbolRenderer.addPlanetTooltip(planetGroup, planet);
             
             // Render connector if needed
-            const connector = this.symbolRenderer.renderConnector(planetGroup, planet, iconSize);
+            const connector = this.symbolRenderer.renderConnector(planetGroup, planet, iconSize, 0.9);
             if (connector) {
                 planetGroup.appendChild(connector);
             }
