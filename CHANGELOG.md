@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.1...v4.0.2) (2025-12-21)
+
+
+### Bug Fixes
+
+* offset for Placidus ([53a3f06](https://github.com/eaprelsky/nocturna-wheel/commit/53a3f0655090123739c3392f1d7cec458995062a))
+
 ## [4.0.1](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.0...v4.0.1) (2025-11-27)
 
 
