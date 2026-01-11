@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vedic Planets Test - Nocturna Wheel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .description {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .planets-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .planet-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .planet-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vedic Planets Support Test</h1>
+    
+    <div class="description">
+        <h2>Новые планеты в библиотеке</h2>
+        <p>Теперь библиотека Nocturna Wheel поддерживает отображение ведических планет:</p>
+        <ul>
+            <li><strong>Rahu (Раху)</strong> - Северный лунный узел</li>
+            <li><strong>Ketu (Кету)</strong> - Южный лунный узел</li>
+            <li><strong>Lilith (Лилит)</strong> - Чёрная Луна</li>
+            <li><strong>Selena (Селена)</strong> - Белая Луна</li>
+        </ul>
+    </div>
+
+    <div class="chart-container">
+        <div id="chart"></div>
+    </div>
+
+    <div class="info">
+        <h3>Используемые планеты в этой карте:</h3>
+        <div class="planets-list" id="planetsList"></div>
+    </div>
+
+    <script type="module">
+        import { NocturnaWheel } from './src/main.js';
+
+        // Prepare planet data in the format NocturnaWheel expects
+        const planets = {
+            sun: { lon: 120, lat: 0, color: '#ff9900' },
+            moon: { lon: 240, lat: 0, color: '#aaaaaa' },
+            mercury: { lon: 130, lat: 0, color: '#3399cc' },
+            venus: { lon: 110, lat: 0, color: '#cc66cc' },
+            mars: { lon: 95, lat: 0, color: '#cc3333' },
+            jupiter: { lon: 200, lat: 0, color: '#9966cc' },
+            saturn: { lon: 280, lat: 0, color: '#336633' },
+            uranus: { lon: 15, lat: 0, color: '#33cccc' },
+            neptune: { lon: 330, lat: 0, color: '#3366ff' },
+            pluto: { lon: 260, lat: 0, color: '#663366' },
+            // New vedic planets
+            rahu: { lon: 180, lat: 0, color: '#666666' },     // North Node
+            ketu: { lon: 0, lat: 0, color: '#888888' },       // South Node
+            lilith: { lon: 75, lat: 0, color: '#330033' },    // Black Moon
+            selena: { lon: 255, lat: 0, color: '#ffccff' }    // White Moon
+        };
+
+        // House cusps
+        const houses = [
+            { lon: 45 },   // House 1 (Ascendant)
+            { lon: 75 },
+            { lon: 105 },
+            { lon: 135 },  // House 4 (IC)
+            { lon: 165 },
+            { lon: 195 },
+            { lon: 225 },  // House 7 (Descendant)
+            { lon: 255 },
+            { lon: 285 },
+            { lon: 315 },  // House 10 (MC)
+            { lon: 345 },
+            { lon: 15 }
+        ];
+
+        // Create chart configuration
+        const config = {
+            planetSettings: {
+                iconSize: 24,
+                dotSize: 3
+            }
+        };
+
+        // Render the chart
+        const wheel = new NocturnaWheel({
+            container: 'chart',
+            planets: planets,
+            houses: houses,
+            config: config
+        });
+
+        // Render the chart first
+        wheel.render();
+
+        // Display planets list with their colors
+        const planetsContainer = document.getElementById('planetsList');
+        const planetsList = [
+            { name: 'Sun (Солнце)', key: 'sun', position: 120 },
+            { name: 'Moon (Луна)', key: 'moon', position: 240 },
+            { name: 'Mercury (Меркурий)', key: 'mercury', position: 130 },
+            { name: 'Venus (Венера)', key: 'venus', position: 110 },
+            { name: 'Mars (Марс)', key: 'mars', position: 95 },
+            { name: 'Jupiter (Юпитер)', key: 'jupiter', position: 200 },
+            { name: 'Saturn (Сатурн)', key: 'saturn', position: 280 },
+            { name: 'Uranus (Уран)', key: 'uranus', position: 15 },
+            { name: 'Neptune (Нептун)', key: 'neptune', position: 330 },
+            { name: 'Pluto (Плутон)', key: 'pluto', position: 260 },
+            { name: 'Rahu (Раху) ☊', key: 'rahu', position: 180, isNew: true },
+            { name: 'Ketu (Кету) ☋', key: 'ketu', position: 0, isNew: true },
+            { name: 'Lilith (Лилит) ⚸', key: 'lilith', position: 75, isNew: true },
+            { name: 'Selena (Селена) ⚸', key: 'selena', position: 255, isNew: true }
+        ];
+
+        planetsList.forEach(planet => {
+            const planetData = wheel.planets[planet.key];
+            const color = planetData?.color || wheel.config.planetSettings.colors[planet.key] || '#000000';
+            
+            const div = document.createElement('div');
+            div.className = 'planet-item';
+            if (planet.isNew) {
+                div.style.fontWeight = 'bold';
+                div.style.backgroundColor = '#fff3e0';
+            }
+            
+            div.innerHTML = `
+                <div class="planet-color" style="background-color: ${color}"></div>
+                <div>
+                    <div>${planet.name}</div>
+                    <div style="font-size: 0.85em; color: #666;">${planet.position}°</div>
+                </div>
+            `;
+            planetsContainer.appendChild(div);
+        });
+    </script>
+</body>
+</html>

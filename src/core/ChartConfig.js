@@ -27,7 +27,11 @@ export class ChartConfig {
                 saturn: 0,
                 uranus: 0,
                 neptune: 0,
-                pluto: 0
+                pluto: 0,
+                rahu: 0,
+                ketu: 0,
+                lilith: 0,
+                selena: 0
             }
         };
         
@@ -102,7 +106,11 @@ export class ChartConfig {
                 saturn: 6,
                 uranus: 4,
                 neptune: 4,
-                pluto: 4
+                pluto: 4,
+                rahu: 4,
+                ketu: 4,
+                lilith: 4,
+                selena: 4
             },
             colors: {
                 // Default colors for each planet
@@ -115,7 +123,11 @@ export class ChartConfig {
                 saturn: "#336633",
                 uranus: "#33cccc",
                 neptune: "#3366ff",
-                pluto: "#663366"
+                pluto: "#663366",
+                rahu: "#666666",
+                ketu: "#888888",
+                lilith: "#330033",
+                selena: "#ffccff"
             },
             visible: {
                 // Default visibility for each planet
@@ -128,7 +140,11 @@ export class ChartConfig {
                 saturn: true,
                 uranus: true,
                 neptune: true,
-                pluto: true
+                pluto: true,
+                rahu: true,
+                ketu: true,
+                lilith: true,
+                selena: true
             }
         };
         

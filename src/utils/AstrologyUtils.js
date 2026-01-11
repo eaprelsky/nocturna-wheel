@@ -60,7 +60,8 @@ class AstrologyUtils {
     static getPlanets() {
         return [
             "sun", "moon", "mercury", "venus", "mars", 
-            "jupiter", "saturn", "uranus", "neptune", "pluto"
+            "jupiter", "saturn", "uranus", "neptune", "pluto",
+            "rahu", "ketu", "lilith", "selena"
         ];
     }
 
@@ -92,7 +93,11 @@ class AstrologyUtils {
                 "saturn": "Saturn",
                 "uranus": "Uranus",
                 "neptune": "Neptune",
-                "pluto": "Pluto"
+                "pluto": "Pluto",
+                "rahu": "Rahu",
+                "ketu": "Ketu",
+                "lilith": "Lilith",
+                "selena": "Selena"
             },
             ru: {
                 "sun": "Солнце",
@@ -104,7 +109,11 @@ class AstrologyUtils {
                 "saturn": "Сатурн",
                 "uranus": "Уран",
                 "neptune": "Нептун",
-                "pluto": "Плутон"
+                "pluto": "Плутон",
+                "rahu": "Раху",
+                "ketu": "Кету",
+                "lilith": "Лилит",
+                "selena": "Селена"
             }
         };
         
