@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.3...v4.1.0) (2026-01-11)
+
+
+### Features
+
+* Add Rahu, Ketu, Selena and Lilith ([bd4e61e](https://github.com/eaprelsky/nocturna-wheel/commit/bd4e61e8e25b547047335bce375182f5f0e17804))
+
 ## [4.0.3](https://github.com/eaprelsky/nocturna-wheel/compare/v4.0.2...v4.0.3) (2025-12-21)
 
 
